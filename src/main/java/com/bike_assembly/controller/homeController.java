@@ -11,11 +11,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 
 @Controller
-@RequestMapping("/")
+@RequestMapping("/catalogo")
+
+
 public class homeController {
 
     @Autowired
     private IProductoService productoService;
+
+    @GetMapping("/login")
+    public String home() {
+        // Retorna la vista ubicada en templates/admin/login.html
+        return "admin/login"; 
+    }
 
     // Ruta principal que renderiza la vista 'producto.html'
     @GetMapping
