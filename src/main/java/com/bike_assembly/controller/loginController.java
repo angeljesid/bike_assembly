@@ -8,7 +8,6 @@ public class loginController {
 
     @GetMapping("/login")
     public String iniciarSesion() {
-        // Le indicamos que el archivo está dentro de la carpeta admin
-        return "admin/login"; 
+        return "/login"; 
     }
 }

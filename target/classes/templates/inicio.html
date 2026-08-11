@@ -4,27 +4,393 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bike Assembly - Bienvenido</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-</head>
-<body class="bg-dark text-white d-flex align-items-center" style="min-height: 100vh;">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
 
-    <div class="container text-center">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <i class="bi bi-bicycle text-primary mb-3" style="font-size: 5rem;"></i>
-                <h1 class="display-3 fw-bold mb-4">Bike Assembly</h1>
-                <p class="lead mb-5 text-light">
-                    El sistema inteligente para gestionar y ensamblar bicicletas a medida. 
-                    Encuentra repuestos todo terreno, ruta o universales con validación de compatibilidad.
-                </p>
-                <!-- Este botón es el que redirige al Login -->
-                <a href="/login" class="btn btn-primary btn-lg px-5 py-3 fw-bold rounded-pill shadow">
-                    Comenzar Ensamblaje <i class="bi bi-arrow-right ms-2"></i>
-                </a>
+</head>
+<body>
+
+    <header class="top-bar-custom d-flex align-items-center justify-content-between px-4 px-md-5">
+        <div class="d-flex align-items-center gap-3">
+            <div class="brand-logo">
+                <i class="bi bi-bicycle"></i>
+            </div>
+            <span class="fw-bold fs-5 text-dark">Bike Assembly</span>
+        </div>
+        <div>
+
+            <a href="/login" class="btn btn-outline-dark rounded-pill px-4 fw-semibold border-2">
+                Ingresar <i class="bi bi-box-arrow-in-right ms-1"></i>
+            </a>
+        </div>
+    </header>
+
+
+    <main>
+        <section class="hero-section container">
+            <div class="row align-items-center g-5">
+                
+                <div class="col-lg-6">
+                    <div class="mb-3">
+                        <span class="badge-pill-custom">
+                            <i class="bi bi-cpu-fill text-warning"></i> Validaciones Inteligentes de Compatibilidad
+                        </span>
+                    </div>
+
+                    <h1 class="display-4 fw-extrabold text-dark mb-4 style-title">
+                        Arma tu bicicleta ideal <br>
+                        <span style="color: var(--nexora-blue);">pieza por pieza.</span>
+                    </h1>
+
+                    <p class="lead text-muted mb-4 fs-5">
+                        El sistema inteligente para gestionar y ensamblar bicicletas a medida. 
+                        Encuentra repuestos todo terreno, ruta o universales con validación de compatibilidad en tiempo real.
+                    </p>
+
+                    <!-- Categorías disponibles -->
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <span class="category-chip"><i class="bi bi-tree-fill text-success"></i> Todo Terreno</span>
+                        <span class="category-chip"><i class="bi bi-lightning-charge-fill text-warning"></i> Ruta</span>
+                        <span class="category-chip"><i class="bi bi-globe text-primary"></i> Universal</span>
+                    </div>
+
+                    <!-- Botón Principal redirigiendo a /login -->
+                    <div class="d-flex align-items-center gap-3">
+                        <a href="/login" class="btn btn-accent btn-lg shadow fs-6">
+                            Comenzar Ensamblaje <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+
+                    <!-- Mini Métricas de confianza -->
+                    <div class="row mt-5 pt-3 border-top border-2 border-light">
+                        <div class="col-4">
+                            <h4 class="fw-bold mb-0" style="color: var(--nexora-blue);">100%</h4>
+                            <small class="text-muted">Compatible</small>
+                        </div>
+                        <div class="col-4">
+                            <h4 class="fw-bold mb-0" style="color: var(--nexora-blue);">Stock</h4>
+                            <small class="text-muted">En Vivo</small>
+                        </div>
+                        <div class="col-4">
+                            <h4 class="fw-bold mb-0" style="color: var(--nexora-blue);">Fácil</h4>
+                            <small class="text-muted">Simulador</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="preview-card">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <span class="text-white-50 text-uppercase fs-7 fw-bold">Simulador Virtual</span>
+                                <h5 class="fw-bold mb-0 text-white">Configuración en Progreso</h5>
+                            </div>
+                            <span class="status-tag"><i class="bi bi-check-circle-fill me-1"></i> Compatible</span>
+                        </div>
+
+                        <div class="preview-item">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="bi bi-bounding-box fs-4 text-warning"></i>
+                                <div>
+                                    <div class="fw-semibold">Cuadro MTB Aluminio X-Pro</div>
+                                    <small class="text-white-50">Categoría: Todo Terreno</small>
+                                </div>
+                            </div>
+                            <i class="bi bi-check2-circle text-success fs-5"></i>
+                        </div>
+
+                        <div class="preview-item">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="bi bi-gear-fill fs-4 text-warning"></i>
+                                <div>
+                                    <div class="fw-semibold">Transmisión 12 Vel. Shimano</div>
+                                    <small class="text-white-50">Categoría: Universal</small>
+                                </div>
+                            </div>
+                            <i class="bi bi-check2-circle text-success fs-5"></i>
+                        </div>
+
+                        <div class="preview-item">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="bi bi-disc fs-4 text-warning"></i>
+                                <div>
+                                    <div class="fw-semibold">Frenos Hidráulicos MTB</div>
+                                    <small class="text-white-50">Categoría: Todo Terreno</small>
+                                </div>
+                            </div>
+                            <i class="bi bi-check2-circle text-success fs-5"></i>
+                        </div>
+
+                        <!-- Caja Resumen Inferior -->
+                        <div class="mt-4 p-3 rounded-4" style="background: rgba(0,0,0,0.2);">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <small class="text-white-50 d-block">Presupuesto Estimado</small>
+                                    <span class="fs-4 fw-bold text-warning">$ 1.250.000 COP</span>
+                                </div>
+                                <!-- Mismo botón hacia /login -->
+                                <a href="/login" class="btn btn-light btn-sm rounded-pill px-3 fw-bold text-dark">
+                                    Probar Ahora
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECCIÓN: CÓMO FUNCIONA EL SIMULADOR EN 3 PASOS -->
+        <section class="py-5 bg-white border-top border-bottom border-light">
+            <div class="container py-4">
+                <div class="text-center max-w-2xl mx-auto mb-5">
+                    <span class="badge-pill-custom mb-2">
+                        <i class="bi bi-signpost-split-fill text-warning"></i> Proceso Simple y Transparente
+                    </span>
+                    <h2 class="fw-bold text-dark fs-2 mb-3">¿Cómo ensamblar tu bicicleta con Bike Assembly?</h2>
+                    <p class="text-muted fs-6">
+                        Eliminamos las complicaciones mecánicas mediante un flujo asistido paso a paso para que armas tu bicicleta sin margen de error.
+                    </p>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="card-custom p-4 h-100 position-relative">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="step-number">1</div>
+                                <i class="bi bi-sliders text-muted fs-3"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-2">Elige la Modalidad</h5>
+                            <p class="text-muted small mb-0">
+                                Selecciona el uso principal de tu bicicleta: <strong>Todo Terreno (MTB)</strong> para caminos agrestes, <strong>Ruta</strong> para alta velocidad en asfalto, o componentes de categoría <strong>Universal</strong>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card-custom p-4 h-100 position-relative">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="step-number">2</div>
+                                <i class="bi bi-shield-check text-muted fs-3"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-2">Filtro de Compatibilidad</h5>
+                            <p class="text-muted small mb-0">
+                                Nuestro algoritmo inteligente filtra automáticamente solo los repuestos compatibles con el marco y la transmisión elegidos, garantizando un ajuste mecánico 100% preciso.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card-custom p-4 h-100 position-relative">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="step-number">3</div>
+                                <i class="bi bi-cart-check-fill text-muted fs-3"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-2">Cotización y Confirmación</h5>
+                            <p class="text-muted small mb-0">
+                                Revisa el costo total transparente en pesos colombianos ($ COP), verifica las existencias en inventario en tiempo real y genera tu orden de compra directamente en el sistema.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: MÓDULOS Y CARACTERÍSTICAS DE LA APLICACIÓN -->
+        <section class="container py-5 my-3">
+            <div class="text-center mb-5">
+                <span class="badge-pill-custom mb-2">
+                    <i class="bi bi-layers-fill text-primary"></i> Funcionalidades Clave
+                </span>
+                <h2 class="fw-bold text-dark fs-2 mb-2">Todo lo necesario para tu negocio y pasión ciclista</h2>
+                <p class="text-muted">Diseñado tanto para usuarios apasionados como para la gestión eficiente de talleres y tiendas.</p>
+            </div>
+
+            <div class="row g-4">
+                <!-- Tarjeta 1: Simulador -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card-custom p-4 h-100">
+                        <div class="feature-icon-wrapper">
+                            <i class="bi bi-tools"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">Simulador Interactivo</h5>
+                        <p class="text-muted small">
+                            Visualiza cada componente (cuadro, suspensiones, sistemas de cambio, frenos y ruedas) a medida que vas personalizando la bicicleta ideal.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 2: Stock en Vivo -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card-custom p-4 h-100">
+                        <div class="feature-icon-wrapper">
+                            <i class="bi bi-box-seam-fill"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">Gestión de Inventarios</h5>
+                        <p class="text-muted small">
+                            Control detallado del stock disponible. Evita vender repuestos agotados gracias al descuento dinámico de suministros en PostgreSQL.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 3: Categorización Estricta -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card-custom p-4 h-100">
+                        <div class="feature-icon-wrapper">
+                            <i class="bi bi-tags-fill"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">Categorías Especializadas</h5>
+                        <p class="text-muted small">
+                            Clasificación clara por disciplinas (Montaña, Carretera y Piezas Universales) para optimizar la localización de repuestos e insumos.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 4: Punto de Venta / POS -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card-custom p-4 h-100">
+                        <div class="feature-icon-wrapper">
+                            <i class="bi bi-receipt-cutoff"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">Órdenes y Facturación</h5>
+                        <p class="text-muted small">
+                            Generación inmediata del resumen detallado de la orden con costos de piezas, servicio de ensamblaje e impuestos desglosados.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 5: Validaciones de Integridad -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card-custom p-4 h-100">
+                        <div class="feature-icon-wrapper">
+                            <i class="bi bi-cpu"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">Lógica en Backend</h5>
+                        <p class="text-muted small">
+                            Potenciado por Java con Spring Boot, asegurando ejecuciones rápidas, transacciones seguras y reglas de negocio robustas.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 6: Gestión de Usuarios -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card-custom p-4 h-100">
+                        <div class="feature-icon-wrapper">
+                            <i class="bi bi-person-badge-fill"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">Módulo de Clientes</h5>
+                        <p class="text-muted small">
+                            Permite el registro de usuarios frecuentes, seguimiento de pedidos anteriores y configuraciones personalizadas guardadas.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: PREGUNTAS FRECUENTES Y GARANTÍA DE COMPATIBILIDAD -->
+        <section class="py-5" style="background: rgba(13, 71, 97, 0.03);">
+            <div class="container py-3">
+                <div class="row align-items-center g-5">
+                    <div class="col-lg-5">
+                        <span class="badge-pill-custom mb-3">
+                            <i class="bi bi-question-circle-fill text-warning"></i> Preguntas Frecuentes
+                        </span>
+                        <h2 class="fw-bold text-dark display-6 mb-3">¿Tienes dudas sobre el simulador?</h2>
+                        <p class="text-muted fs-6 mb-4">
+                            Bike Assembly revoluciona la adquisición de bicicletas adaptándose a tus requerimientos mecánicos y presupuestales sin sorpresas.
+                        </p>
+
+                        <div class="p-4 rounded-4 bg-white border border-light shadow-sm">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="brand-logo fs-5" style="width: 48px; height: 48px;">
+                                    <i class="bi bi-patch-check-fill text-warning"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1 text-dark">Garantía de Compatibilidad</h6>
+                                    <small class="text-muted">Todas las combinaciones son validadas según especificaciones de los fabricantes.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-7">
+                        <div class="accordion accordion-flush" id="faqAccordion">
+                            <!-- FAQ 1 -->
+                            <div class="card-custom mb-3 p-2">
+                                <div class="p-3">
+                                    <h6 class="fw-bold text-dark mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>¿Qué ocurre si elijo una pieza incompatible?</h6>
+                                    <p class="text-muted small mb-0">
+                                        El sistema descarta automáticamente los repuestos no compatibles en tiempo real. Por ejemplo, si seleccionas un cuadro de Ruta, el sistema ocultará las horquillas de suspensión de Montaña.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- FAQ 2 -->
+                            <div class="card-custom mb-3 p-2">
+                                <div class="p-3">
+                                    <h6 class="fw-bold text-dark mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>¿Puedo mezclar componentes de distintas marcas?</h6>
+                                    <p class="text-muted small mb-0">
+                                        Sí, siempre y cuando cumplan las reglas de compatibilidad de estándar (número de velocidades, tipo de eje, tipo de freno e interfaz del centro de pedalier).
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- FAQ 3 -->
+                            <div class="card-custom mb-3 p-2">
+                                <div class="p-3">
+                                    <h6 class="fw-bold text-dark mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>¿Cómo se actualizan los precios y existencias?</h6>
+                                    <p class="text-muted small mb-0">
+                                        Los inventarios y costos se sincronizan directamente con la base de datos relacional PostgreSQL de la tienda en cada sesión de ensamblaje.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BANNER LLAMADO A LA ACCIÓN (CTA) -->
+        <section class="container my-5 py-3">
+            <div class="cta-banner text-center text-lg-start d-lg-flex align-items-center justify-content-between gap-4">
+                <div class="mb-4 mb-lg-0">
+                    <span class="badge bg-warning text-dark fw-bold mb-3 px-3 py-2 rounded-pill">
+                        <i class="bi bi-lightning-fill me-1"></i> ¡Empieza Ahora!
+                    </span>
+                    <h2 class="fw-bold display-6 mb-2">¿Listo para armar tu próxima bicicleta?</h2>
+                    <p class="text-white-50 fs-6 mb-0">Accede al simulador interactivo, explora el catálogo de piezas y cotiza a tu medida.</p>
+                </div>
+                <div>
+                    <!-- Mismo botón hacia /login -->
+                    <a href="/login" class="btn btn-accent btn-lg px-5 py-3 rounded-pill text-nowrap fs-6 shadow-lg">
+                        Iniciar Ensamblaje <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="py-4 text-center text-muted small">
+        <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-bicycle text-primary fs-5"></i>
+                <span class="fw-bold text-dark">Bike Assembly</span>
+                <span class="text-muted ms-2">| Sistema de Gestión y Ensamblaje</span>
+            </div>
+            <div>
+                <span>&copy; GAES N° 12 — Todos los derechos reservados</span>
+            </div>
+            <div>
+                <!-- Mismo link a /login en el footer -->
+                <a href="/login" class="text-decoration-none text-muted fw-semibold">Acceso Sistema <i class="bi bi-shield-lock ms-1"></i></a>
             </div>
         </div>
-    </div>
+    </footer>
 
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

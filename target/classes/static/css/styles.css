@@ -1,0 +1,258 @@
+:root { 
+    --nexora-blue: #0d4761; 
+    --nexora-gold: #DAA520;
+    --accent-orange: #ff9800;
+    --bg-light: #f4f7f9;
+    --card-radius: 20px;
+}
+
+body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-light);
+    color: #2c3e50;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+/* --- ESTILOS DE LA PÁGINA DE INICIO --- */
+
+/* Topbar Flotante */
+.top-bar-custom {
+    height: 70px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.brand-logo {
+    width: 42px;
+    height: 42px;
+    background: var(--nexora-blue);
+    color: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    box-shadow: 0 4px 10px rgba(13, 71, 97, 0.3);
+}
+
+/* Hero Section */
+.hero-section {
+    padding: 60px 0;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+}
+
+.badge-pill-custom {
+    background: rgba(13, 71, 97, 0.08);
+    color: var(--nexora-blue);
+    border: 1px solid rgba(13, 71, 97, 0.15);
+    padding: 8px 18px;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Tarjetas Personalizadas */
+.card-custom { 
+    background: white; 
+    border-radius: var(--card-radius) !important; 
+    border: 1px solid rgba(0, 0, 0, 0.05); 
+    box-shadow: 0 12px 35px rgba(13, 71, 97, 0.08); 
+    transition: all 0.3s ease;
+}
+
+.card-custom:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 18px 40px rgba(13, 71, 97, 0.12);
+}
+
+/* Mockup de Configuración */
+.preview-card {
+    background: var(--nexora-blue);
+    color: white;
+    border-radius: 24px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(13, 71, 97, 0.3);
+    position: relative;
+}
+
+.preview-item {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.status-tag {
+    background: #2ed573;
+    color: #0d4761;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+/* Botón CTA con degradado */
+.btn-accent {
+    background: linear-gradient(135deg, var(--accent-orange), var(--nexora-gold));
+    color: #ffffff;
+    border: none;
+    font-weight: 700;
+    padding: 14px 36px;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 25px rgba(255, 152, 0, 0.35);
+}
+
+.btn-accent:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 30px rgba(255, 152, 0, 0.5);
+    color: #ffffff;
+}
+
+.category-chip {
+    background: white;
+    border: 1px solid rgba(0,0,0,0.08);
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--nexora-blue);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+
+.feature-icon-wrapper {
+    width: 54px;
+    height: 54px;
+    background: rgba(13, 71, 97, 0.08);
+    color: var(--nexora-blue);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.card-custom:hover .feature-icon-wrapper {
+    background: var(--nexora-blue);
+    color: white;
+    transform: scale(1.05);
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--accent-orange), var(--nexora-gold));
+    color: white;
+    font-weight: 800;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+}
+
+.cta-banner {
+    background: linear-gradient(135deg, var(--nexora-blue) 0%, #082d3f 100%);
+    border-radius: 28px;
+    padding: 50px 40px;
+    color: white;
+    box-shadow: 0 20px 50px rgba(13, 71, 97, 0.25);
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-banner::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 350px;
+    height: 350px;
+    background: rgba(255, 152, 0, 0.1);
+    border-radius: 50%;
+    filter: blur(60px);
+    pointer-events: none;
+}
+
+footer {
+    background: white;
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+/* --- ESTILOS DE LA PÁGINA DE LOGIN --- */
+
+.login-card { 
+    background: white; 
+    border-radius: 20px; 
+    border: 1px solid rgba(0, 0, 0, 0.05); 
+    box-shadow: 0 15px 35px rgba(13, 71, 97, 0.1); 
+    width: 100%;
+    max-width: 420px;
+    padding: 40px 32px;
+}
+
+.login-card .brand-logo {
+    width: 56px;
+    height: 56px;
+    font-size: 1.8rem;
+    margin: 0 auto 16px;
+    box-shadow: 0 6px 15px rgba(13, 71, 97, 0.25);
+}
+
+.input-group-custom {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.25s ease;
+    background: #ffffff;
+}
+
+.input-group-custom:focus-within {
+    border-color: var(--nexora-blue);
+    box-shadow: 0 0 0 3px rgba(13, 71, 97, 0.12);
+}
+
+.input-group-custom .input-group-text {
+    background: transparent;
+    border: none;
+    color: var(--nexora-blue);
+    padding-left: 14px;
+}
+
+.input-group-custom .form-control {
+    border: none;
+    padding: 12px 14px 12px 6px;
+    box-shadow: none !important;
+    font-size: 0.95rem;
+}
+
+.login-wrapper {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
