@@ -1,6 +1,17 @@
 C:\java\bike_assembly\src\main\java\com\bike_assembly\BikeAssemblyApplication.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\config\DataInitializer.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\controller\homeController.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\controller\InicioController.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\controller\loginController.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\Organizacion.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\Producto.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\Rol.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\Usuario.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\OrganizacionDao.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\ProductoDao.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\UsuarioDao.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\security\SecurityConfig.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\producto\IProductoService.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\producto\ProductoService.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\services\SuperAdmin\ISuperAdminService.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\services\SuperAdmin\SuperAdminService.java

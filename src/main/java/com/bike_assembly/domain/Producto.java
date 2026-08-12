@@ -20,7 +20,6 @@ public class Producto implements Serializable {
     private Integer stock;
     private String marca;
 
-    // Constructor vacío obligatorio para JPA
     public Producto() {
     }
 
