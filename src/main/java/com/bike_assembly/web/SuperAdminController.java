@@ -3,7 +3,7 @@ package com.bike_assembly.web;
 import com.bike_assembly.domain.Rol;
 import com.bike_assembly.domain.Usuario;
 import com.bike_assembly.repository.OrganizacionDao;
-import com.bike_assembly.services.usuario.ISuperAdminService;
+import com.bike_assembly.services.SuperAdmin.ISuperAdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,20 +26,20 @@ public class SuperAdminController {
     @Autowired
     private OrganizacionDao organizacionDao;
 
-    @GetMapping("/dashboard")
+   @GetMapping("/dashboard")
     public String verDashboardGlobal(Model model) {
         
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         
-        List<Usuario> listaAdmins = superAdminService.listarAdministradores();
+        List<Usuario> listaUsuarios = superAdminService.listarTodosLosUsuarios();
+        
         long totalOrganizaciones = organizacionDao.count();
-        int totalAdmins = listaAdmins.size();
 
         model.addAttribute("nombreUsuario", username);
-        model.addAttribute("listaAdmins", listaAdmins);
+        model.addAttribute("listaUsuarios", listaUsuarios);
         model.addAttribute("totalOrganizaciones", totalOrganizaciones);
-        model.addAttribute("totalAdmins", totalAdmins);
+        model.addAttribute("totalUsuarios", listaUsuarios.size());
 
         return "superadmin/dashboard";
     }
@@ -50,7 +50,6 @@ public class SuperAdminController {
         
         superAdminService.cambiarRolUsuario(idUsuario, nuevoRol);
         
-        // Recarga el dashboard y manda un parámetro de éxito en la URL
         return "redirect:/superadmin/dashboard?actualizado=true";
     }
 }

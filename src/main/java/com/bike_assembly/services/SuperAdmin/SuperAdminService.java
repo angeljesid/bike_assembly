@@ -37,15 +37,9 @@ public class SuperAdminService implements ISuperAdminService {
         return usuarioDao.save(nuevoAdmin);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<Usuario> listarAdministradores() {
-        return usuarioDao.findByRol(Rol.ADMIN);
-    }
 
     @Override
     public List<Usuario> listarTodosLosUsuarios() {
-        // Trae a todos los usuarios (Clientes, Admins, etc.)
         return usuarioDao.findAll();
     }
 
