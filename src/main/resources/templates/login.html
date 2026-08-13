@@ -54,15 +54,12 @@
                     </div>
                 </div>
 
-                <div class="mt-3 text-center">
+                <!-- Enlaces de utilidad (Recuperar y Registro) -->
+                <div class="d-flex justify-content-between align-items-center mb-4 mt-2">
                     <a th:href="@{/registro}" class="text-decoration-none small text-primary fw-semibold">
-                        ¿No tienes cuenta? Regístrate aquí
+                        ¿No tienes cuenta? Regístrate
                     </a>
-                </div>
-
-                <!-- Enlace tipo Gmail de Recuperación -->
-                <div class="text-end mb-4">
-                    <a th:href="@{/recuperar-password}" class="text-decoration-none small text-primary fw-semibold">
+                    <a th:href="@{/recuperar-password}" class="text-decoration-none small text-muted fw-semibold">
                         ¿Olvidaste tu contraseña?
                     </a>
                 </div>
