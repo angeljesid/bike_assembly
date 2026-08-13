@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bike Assembly - Panel Super Admin</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .sidebar { height: 100vh; background-color: #212529; color: white; padding-top: 20px; }
+        .sidebar a { color: #adb5bd; text-decoration: none; padding: 10px 20px; display: block; border-left: 3px solid transparent; }
+        .sidebar a:hover, .sidebar a.active { color: white; background-color: #343a40; border-left-color: #0d6efd; }
+        .stat-card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 4px solid #0d6efd; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            
+            <!-- Menú Lateral (Sidebar) -->
+            <div class="col-md-2 sidebar d-flex flex-column">
+                <h4 class="px-3 mb-4 fw-bold"><i class="bi bi-gear-fill me-2"></i>SaaS Panel</h4>
+                <a th:href="@{/superadmin/dashboard}" class="active"><i class="bi bi-speedometer2 me-2"></i> Dashboard Global</a>
+                <a th:href="@{/superadmin/organizaciones}"><i class="bi bi-buildings me-2"></i> Tiendas (Orgs)</a>
+                <a href="#"><i class="bi bi-people me-2"></i> Admins del Sistema</a>
+                <a href="#"><i class="bi bi-shield-lock me-2"></i> Seguridad y Logs</a>
+                
+                <!-- Botón de Cerrar Sesión real de Spring Security -->
+                <form th:action="@{/logout}" method="post" class="mt-auto mb-4 px-3">
+                    <button type="submit" class="btn btn-link text-danger text-decoration-none p-0 d-flex align-items-center w-100">
+                        <i class="bi bi-box-arrow-left me-2"></i> Cerrar Sesión
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Contenido Principal -->
+            <div class="col-md-10 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Panel de Super Administrador</h2>
+                    <!-- Aquí mostramos el nombre del usuario logueado dinámicamente -->
+                    <span class="badge bg-primary fs-6">
+                        Usuario: <span th:text="${nombreUsuario}">Admin</span> (Super Admin)
+                    </span>
+                </div>
+
+                <!-- Tarjetas de Estadísticas -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <h6 class="text-muted text-uppercase mb-2">Tiendas Activas</h6>
+                            <h2 class="mb-0" th:text="${totalOrganizaciones}">0</h2>
+                            <small class="text-success"><i class="bi bi-arrow-up-short"></i> Sistema en línea</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card border-success">
+                            <h6 class="text-muted text-uppercase mb-2">Administradores</h6>
+                            <h2 class="mb-0" th:text="${totalAdmins}">0</h2>
+                            <small class="text-success">Dueños de taller registrados</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card border-warning">
+                            <h6 class="text-muted text-uppercase mb-2">Estado del Sistema</h6>
+                            <h2 class="mb-0 text-success">Óptimo</h2>
+                            <small class="text-muted">Todos los servicios operando</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Organizaciones -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
+                        <h5 class="mb-0">Últimas Tiendas Registradas</h5>
+                        <button class="btn btn-sm btn-primary"><i class="bi bi-plus-lg"></i> Registrar Nueva Tienda</button>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre del Taller</th>
+                                    <th>Administrador Principal</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Iteramos sobre la lista de organizaciones reales que nos mande el controlador -->
+                                <tr th:each="admin : ${listaAdmins}">
+                                    <td th:text="'#' + ${admin.organizacion.idOrganizacion}">#1</td>
+                                    <td><strong th:text="${admin.organizacion.nombre}">Taller X</strong></td>
+                                    <td th:text="${admin.email}">correo@taller.com</td>
+                                    <td><span class="badge bg-success">Activo</span></td>
+                                    <td><button class="btn btn-sm btn-outline-secondary">Gestionar</button></td>
+                                </tr>
+                                <!-- Mensaje si no hay tiendas registradas aún -->
+                                <tr th:if="${#lists.isEmpty(listaAdmins)}">
+                                    <td colspan="5" class="text-center text-muted py-4">Aún no hay tiendas registradas en el sistema.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

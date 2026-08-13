@@ -10,7 +10,9 @@ C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\Usuario.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\OrganizacionDao.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\ProductoDao.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\UsuarioDao.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\security\CustomAuthenticationSuccessHandler.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\security\SecurityConfig.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\security\UserDetailsServiceImpl.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\producto\IProductoService.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\producto\ProductoService.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\SuperAdmin\ISuperAdminService.java
