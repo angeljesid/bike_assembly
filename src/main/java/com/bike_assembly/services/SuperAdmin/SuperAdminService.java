@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SuperAdminService implements ISuperAdminService {
@@ -40,5 +41,22 @@ public class SuperAdminService implements ISuperAdminService {
     @Transactional(readOnly = true)
     public List<Usuario> listarAdministradores() {
         return usuarioDao.findByRol(Rol.ADMIN);
+    }
+
+    @Override
+    public List<Usuario> listarTodosLosUsuarios() {
+        // Trae a todos los usuarios (Clientes, Admins, etc.)
+        return usuarioDao.findAll();
+    }
+
+    @Override
+    public void cambiarRolUsuario(Long idUsuario, Rol nuevoRol) {
+        Optional<Usuario> usuarioOpt = usuarioDao.findById(idUsuario);
+        
+        if (usuarioOpt.isPresent()) {
+            Usuario usuario = usuarioOpt.get();
+            usuario.setRol(nuevoRol);
+            usuarioDao.save(usuario);
+        }
     }
 }

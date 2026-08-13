@@ -19,7 +19,6 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // Verifica si ya existe algún SUPER_ADMIN en el sistema
         if (!usuarioDao.existsByRol(Rol.SUPER_ADMIN)) {
             Usuario superAdmin = new Usuario();
             superAdmin.setUsername("superadmin");
@@ -27,10 +26,10 @@ public class DataInitializer implements CommandLineRunner {
             superAdmin.setNombre("Super Administrador Global");
             superAdmin.setEmail("superadmin@bikeassembly.com");
             superAdmin.setRol(Rol.SUPER_ADMIN);
-            superAdmin.setOrganizacion(null); // No pertenece a ninguna tienda específica
-
+            superAdmin.setOrganizacion(null);
             usuarioDao.save(superAdmin);
             System.out.println(">>> Super Admin creado con éxito: Username 'superadmin' / Clave 'superadmin123'");
+            
         }
     }
 }
