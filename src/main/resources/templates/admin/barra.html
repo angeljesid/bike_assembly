@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Barra Lateral</title>
+</head>
+<body>
+
+    <!-- Menú Lateral (Sidebar) con el estilo visual de Nexora -->
+    <div class="d-flex flex-column flex-shrink-0 p-3 text-white sidebar-custom" style="width: 260px; min-height: 100vh; background-color: var(--nexora-blue);" th:fragment="sidebar">
+        
+        <!-- Logo y Título -->
+        <a href="/admin" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none px-2 py-3">
+            <div class="brand-logo bg-white text-dark rounded-circle p-2 d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
+                <i class="bi bi-bicycle fs-5"></i>
+            </div>
+            <span class="fs-5 fw-bold">Bike Assembly</span>
+        </a>
+        
+        <hr class="text-white-50">
+        
+        <!-- Opciones de Navegación -->
+        <ul class="nav nav-pills flex-column mb-auto gap-1">
+            <li class="nav-item">
+                <a href="/admin" class="nav-link text-white d-flex align-items-center gap-2">
+                    <i class="bi bi-house-door fs-5"></i>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/producto" class="nav-link active text-white d-flex align-items-center gap-2" style="background-color: rgba(255, 255, 255, 0.15);">
+                    <i class="bi bi-box-seam fs-5"></i>
+                    <span>Productos</span>
+                </a>
+            </li>
+            <!-- Puedes agregar más enlaces de roles aquí en el futuro -->
+        </ul>
+        
+        <hr class="text-white-50">
+        
+        <!-- Botón de Salir / Cerrar Sesión -->
+        <div>
+            <form th:action="@{/logout}" method="post" class="m-0">
+                <button type="submit" class="nav-link text-white d-flex align-items-center gap-2 border-0 bg-transparent w-100 py-2">
+                    <i class="bi bi-box-arrow-right fs-5 text-danger"></i>
+                    <span>Cerrar sesión</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>
