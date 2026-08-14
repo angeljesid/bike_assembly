@@ -5,33 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bike Assembly - Gestión de Productos</title>
     
-    <!-- Bootstrap y Iconos -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     
-    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
 
-    <!-- Estilos específicos para el catálogo -->
     <style>
         .catalogo-img {
-            max-width: 80px; 
-            max-height: 80px; 
+            max-width: 110px; 
+            max-height: 110px; 
             object-fit: contain;
         }
         .header-catalogo {
-            background-color: #aee0eb !important; /* Color celeste */
-            color: #000;
+            background-color: var(--nexora-blue) !important;
+            color: #ffffff !important;
         }
     </style>
 </head>
-<body class="bg-light">
+<body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-        <div class="container-fluid px-5">
-            <a class="navbar-brand" href="/admin">
-                <i class="bi bi-bicycle me-2"></i>Bike Assembly Admin
+    <nav class="navbar navbar-expand-lg top-bar-custom px-4 mb-4">
+        <div class="container-fluid px-0">
+            <a class="navbar-brand d-flex align-items-center gap-2 text-dark fw-bold text-decoration-none" href="/admin">
+                <div class="brand-logo">
+                    <i class="bi bi-bicycle"></i>
+                </div>
+                <span>Bike Assembly Admin</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -39,11 +40,11 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item">
-                        <a class="nav-link active" href="/admin/producto"><i class="bi bi-box-seam me-1"></i> Inventario</a>
+                        <a class="nav-link active fw-semibold" style="color: var(--nexora-blue);" href="/admin/producto"><i class="bi bi-box-seam me-1"></i> Inventario</a>
                     </li>
                     <li class="nav-item ms-3">
                         <form th:action="@{/logout}" method="post" class="m-0">
-                            <button type="submit" class="btn btn-outline-danger btn-sm">Salir</button>
+                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">Salir</button>
                         </form>
                     </li>
                 </ul>
@@ -51,83 +52,54 @@
         </div>
     </nav>
 
-    <div class="container-fluid px-5">
+    <div class="container-fluid px-5 pb-5">
         
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h2 class="text-primary fw-bold">Gestión de Productos</h2>
+                <h2 class="fw-bold" style="color: var(--nexora-blue);">Gestión de Productos</h2>
                 <p class="text-muted m-0">Administra el inventario y lista de precios del taller.</p>
             </div>
-            <a th:href="@{/admin/producto/nuevo}" class="btn btn-success shadow-sm">
+            <a th:href="@{/admin/producto/nuevo}" class="btn btn-accent shadow-sm">
                 <i class="bi bi-plus-circle me-1"></i> Añadir Producto
             </a>
         </div>
 
-        <!-- Tarjetas de Categorías Visuales -->
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <div class="card shadow-sm border-primary text-center p-3 bg-white">
-                    <i class="bi bi-gear-wide-connected fs-1 text-primary"></i>
-                    <h5 class="mt-2 fw-bold">Transmisión</h5>
-                    <p class="text-muted small m-0">Pachas, cadenas, tensores, biplatos</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card shadow-sm border-success text-center p-3 bg-white">
-                    <i class="bi bi-vinyl fs-1 text-success"></i>
-                    <h5 class="mt-2 fw-bold">Ruedas y Llantas</h5>
-                    <p class="text-muted small m-0">Corazas, neumáticos, aros, radios</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card shadow-sm border-danger text-center p-3 bg-white">
-                    <i class="bi bi-stop-circle fs-1 text-danger"></i>
-                    <h5 class="mt-2 fw-bold">Frenos</h5>
-                    <p class="text-muted small m-0">Discos, zapatas, guayas, mordazas</p>
-                </div>
-            </div>
+        <div class="mb-4 d-flex align-items-center flex-wrap gap-2">
+            <span class="fw-bold me-2 text-secondary">Filtrar por compatibilidad:</span>
+            <a href="/admin/producto" class="btn btn-sm btn-outline-secondary rounded-pill px-3" th:classappend="${tipoSeleccionado == null} ? 'active'">Todos</a>
+            <a href="/admin/producto?tipo=T" class="btn btn-sm btn-outline-secondary rounded-pill px-3" th:classappend="${tipoSeleccionado == 'T'} ? 'active'">Todo Terreno (T)</a>
+            <a href="/admin/producto?tipo=R" class="btn btn-sm btn-outline-secondary rounded-pill px-3" th:classappend="${tipoSeleccionado == 'R'} ? 'active'">Ruta (R)</a>
         </div>
 
-        <!-- Botones de filtrado -->
-        <div class="mb-4">
-            <span class="fw-bold me-2">Filtrar por compatibilidad:</span>
-            <a href="/admin/producto" class="btn btn-sm btn-outline-secondary" th:classappend="${tipoSeleccionado == null} ? 'active'">Todos</a>
-            <a href="/admin/producto?tipo=T" class="btn btn-sm btn-outline-secondary" th:classappend="${tipoSeleccionado == 'T'} ? 'active'">Todo Terreno (T)</a>
-            <a href="/admin/producto?tipo=R" class="btn btn-sm btn-outline-secondary" th:classappend="${tipoSeleccionado == 'R'} ? 'active'">Ruta (R)</a>
-        </div>
-
-        <!-- Tabla de Componentes Estilo Catálogo -->
-        <div class="card shadow-sm mb-5 border-0">
+        <div class="card card-custom mb-5 border-0 overflow-hidden">
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table id="tabla-inventario" class="table table-bordered table-hover align-middle mb-0 w-100">
                         <thead>
                             <tr>
-                                <th class="text-center header-catalogo" style="width: 120px;">Foto</th>
-                                <th class="header-catalogo" style="width: 120px;">Referencia</th>
-                                <th class="header-catalogo">Descripción del Componente</th>
-                                <th class="header-catalogo text-center" style="width: 150px;">Precio Unitario</th>
-                                <th class="header-catalogo text-center" style="width: 120px;">Stock</th>
-                                <th class="header-catalogo text-center" style="width: 120px;">Acciones</th>
+                                <th class="text-center header-catalogo py-3" style="width: 140px;">Foto</th>
+                                <th class="header-catalogo py-3" style="width: 120px;">Referencia</th>
+                                <th class="header-catalogo py-3">Descripción del Componente</th>
+                                <th class="header-catalogo py-3 text-center" style="width: 150px;">Precio Unitario</th>
+                                <th class="header-catalogo py-3 text-center" style="width: 120px;">Stock</th>
+                                <th class="header-catalogo py-3 text-center" style="width: 120px;">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr th:each="producto : ${productos}">
                                 
-                                <!-- Foto cargada dinámicamente desde la carpeta externa vía WebConfig -->
                                 <td class="text-center bg-white">
                                     <img th:if="${producto.imagen != null and !producto.imagen.isEmpty()}" 
                                            th:src="@{'/recursos/' + ${producto.imagen}}" 
                                            alt="Repuesto" class="catalogo-img" loading="lazy">
                                     
                                     <img th:if="${producto.imagen == null or producto.imagen.isEmpty()}" 
-                                           src="https://via.placeholder.com/80x80.png?text=Sin+Foto" 
+                                           src="https://via.placeholder.com/110x110.png?text=Sin+Foto" 
                                            alt="Default" class="catalogo-img" loading="lazy">
                                 </td>
                                 
                                 <td class="fw-bold text-muted bg-white" th:text="${'ID-' + producto.idProducto}">ID-1</td>
                                 
-                                <!-- Descripción combinada -->
                                 <td class="bg-white">
                                     <span class="fw-bold fs-6 text-dark" th:text="${producto.nombre}">Componente</span><br>
                                     <small class="text-muted">
@@ -137,7 +109,7 @@
                                     </small>
                                 </td>
                                 
-                                <td class="text-end fw-bold fs-5 bg-white text-primary" th:text="${'$ ' + producto.precio}">$ 0</td>
+                                <td class="text-end fw-bold fs-5 bg-white" style="color: var(--nexora-blue);" th:text="${'$ ' + producto.precio}">$ 0</td>
                                 
                                 <td class="text-center bg-white">
                                     <span th:class="${producto.stock != null && producto.stock < 5 ? 'badge bg-danger fs-6' : 'badge bg-info text-dark fs-6'}"
@@ -169,7 +141,6 @@
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
