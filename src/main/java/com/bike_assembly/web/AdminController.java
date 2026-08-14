@@ -13,6 +13,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Controller
 @RequestMapping("/admin")
@@ -53,12 +58,6 @@ public class AdminController {
         return "admin/formulario-producto";
     }
 
-    @PostMapping("/producto/guardar")
-    public String guardarProducto(Producto producto) {
-        productoService.guardar(producto);
-        return "redirect:/admin/producto";
-    }
-
     @GetMapping("/producto/editar/{id}")
     public String editarProducto(@PathVariable("id") Long id, Model model) {
         Producto producto = new Producto();
@@ -75,6 +74,32 @@ public class AdminController {
         producto.setIdProducto(id);
         productoService.eliminar(producto);
         
+        return "redirect:/admin/producto";
+    }
+
+    @PostMapping("/producto/guardar")
+    public String guardarProducto(Producto producto, @RequestParam(value = "file", required = false) MultipartFile imagen) {
+        
+        if (imagen != null && !imagen.isEmpty()) {
+            Path directorioImagenes = Paths.get("uploads");
+            String rutaAbsoluta = directorioImagenes.toFile().getAbsolutePath();
+
+            try {
+                if (!Files.exists(directorioImagenes)) {
+                    Files.createDirectories(directorioImagenes);
+                }
+
+                byte[] bytesImg = imagen.getBytes();
+                Path rutaCompleta = Paths.get(rutaAbsoluta + "/" + imagen.getOriginalFilename());
+                Files.write(rutaCompleta, bytesImg);
+
+                producto.setImagen(imagen.getOriginalFilename());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        productoService.guardar(producto);
         return "redirect:/admin/producto";
     }
 }

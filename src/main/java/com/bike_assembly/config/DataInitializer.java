@@ -36,7 +36,7 @@ public class DataInitializer implements CommandLineRunner {
             adminTaller.setUsername("admin_taller");
             adminTaller.setNombre("Dueño de Taller");
             adminTaller.setEmail("admintaller@bikeassembly.com");
-            adminTaller.setPassword(passwordEncoder.encode("12345")); // Tu contraseña deseada
+            adminTaller.setPassword(passwordEncoder.encode("12345"));
             adminTaller.setRol(Rol.ADMIN);
             usuarioDao.save(adminTaller);
             System.out.println("-> Admin de taller creado exitosamente.");

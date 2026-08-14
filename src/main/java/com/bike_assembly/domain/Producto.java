@@ -21,6 +21,7 @@ public class Producto implements Serializable {
     private String marca;
     private String condicion;
     private String proveedor;
+    private String imagen;
 
     public Producto() {
     }
@@ -74,4 +75,6 @@ public class Producto implements Serializable {
     public void setProveedor(String proveedor) {
         this.proveedor = proveedor;
     }
+    public String getImagen() { return imagen; }
+public void setImagen(String imagen) { this.imagen = imagen; }
 }
