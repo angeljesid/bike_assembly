@@ -19,7 +19,6 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // 1. Verificación independiente para el Super Admin
         if (!usuarioDao.existsByRol(Rol.SUPER_ADMIN)) {
             Usuario superAdmin = new Usuario();
             superAdmin.setUsername("superadmin");
@@ -41,6 +40,28 @@ public class DataInitializer implements CommandLineRunner {
             adminTaller.setRol(Rol.ADMIN);
             usuarioDao.save(adminTaller);
             System.out.println("-> Admin de taller creado exitosamente.");
+        }
+
+        if (usuarioDao.findByEmail("mecanico@taller.com").isEmpty()) {
+            Usuario operario = new Usuario();
+            operario.setUsername("mecanico1");
+            operario.setNombre("Mecánico Principal");
+            operario.setEmail("mecanico@taller.com");
+            operario.setPassword(passwordEncoder.encode("12345"));
+            operario.setRol(Rol.OPERARIO);
+            usuarioDao.save(operario);
+            System.out.println("-> Operario creado exitosamente.");
+        }
+
+        if (usuarioDao.findByEmail("cliente@correo.com").isEmpty()) {
+            Usuario cliente = new Usuario();
+            cliente.setUsername("cliente1");
+            cliente.setNombre("Juan Cliente");
+            cliente.setEmail("cliente@correo.com");
+            cliente.setPassword(passwordEncoder.encode("12345"));
+            cliente.setRol(Rol.CLIENTE);
+            usuarioDao.save(cliente);
+            System.out.println("-> Cliente creado exitosamente.");
         }
     }
 }

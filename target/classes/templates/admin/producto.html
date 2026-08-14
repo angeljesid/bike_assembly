@@ -63,7 +63,6 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Iteramos sobre "componentes" que es el nombre que le diste en tu controlador -->
                             <tr th:each="producto : ${componentes}">
                                 <td th:text="${producto.idProducto}">1</td>
                                 <td class="fw-bold" th:text="${producto.nombre}">Marco</td>
@@ -79,7 +78,6 @@
                                     </button>
                                 </td>
                             </tr>
-                            <!-- Mensaje si la base de datos está vacía o no hay compatibles -->
                             <tr th:if="${componentes == null or componentes.isEmpty()}">
                                 <td colspan="7" class="text-center text-muted py-4">
                                     <i class="bi bi-inbox fs-2 d-block mb-2"></i>
