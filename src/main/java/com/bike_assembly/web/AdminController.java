@@ -29,12 +29,9 @@ public class AdminController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String usernameOrEmail = auth.getName();
         
-        // Buscamos de forma segura por email
         Usuario admin = usuarioDao.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail).orElse(null);
-
         model.addAttribute("admin", admin);
         
-        // Verificación limpia del if sin caracteres raros
         if (admin != null && admin.getOrganizacion() != null) {
             model.addAttribute("nombreTienda", admin.getOrganizacion().getNombre());
         } else {
@@ -45,7 +42,7 @@ public class AdminController {
     }
 
     @GetMapping("/producto")
-    public String listarproductos(Model model) {
+    public String listarProductos(Model model) {
         model.addAttribute("productos", productoService.listarProductos());
         return "admin/producto";
     }
@@ -53,23 +50,23 @@ public class AdminController {
     @GetMapping("/producto/nuevo")
     public String nuevoProducto(Model model) {
         model.addAttribute("producto", new Producto());
-        return "admin/formulario-suministro";
+        return "admin/formulario-producto";
     }
 
-    @PostMapping("/Producto/guardar")
+    @PostMapping("/producto/guardar")
     public String guardarProducto(Producto producto) {
         productoService.guardar(producto);
-        return "redirect:/admin/suministros";
+        return "redirect:/admin/producto";
     }
 
-    @GetMapping("/Producto/editar/{id}")
+    @GetMapping("/producto/editar/{id}")
     public String editarProducto(@PathVariable("id") Long id, Model model) {
         Producto producto = new Producto();
         producto.setIdProducto(id);
         producto = productoService.encontrarProducto(producto);
         
         model.addAttribute("producto", producto);
-        return "admin/formulario-suministro";
+        return "admin/formulario-producto";
     }
 
     @GetMapping("/producto/eliminar/{id}")
@@ -79,5 +76,5 @@ public class AdminController {
         productoService.eliminar(producto);
         
         return "redirect:/admin/producto";
-}
     }
+}

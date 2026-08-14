@@ -29,48 +29,49 @@ public class Producto implements Serializable {
     public Long getIdProducto() {
         return idProducto;
     }
-
     public void setIdProducto(Long idProducto) {
         this.idProducto = idProducto;
     }
-
     public String getNombre() {
         return nombre;
     }
-
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
-
     public Double getPrecio() {
         return precio;
     }
-
     public void setPrecio(Double precio) {
         this.precio = precio;
     }
-
     public String getTipo() {
         return tipo;
     }
-
     public void setTipo(String tipo) {
         this.tipo = tipo;
     }
-
     public Integer getStock() {
         return stock;
     }
-
     public void setStock(Integer stock) {
         this.stock = stock;
     }
-
     public String getMarca() {
         return marca;
     }
-
     public void setMarca(String marca) {
         this.marca = marca;
+    }
+    public String getCondicion() {
+        return condicion;
+    }
+    public void setCondicion(String condicion) {
+        this.condicion = condicion;
+    }
+    public String getProveedor() {
+        return proveedor;
+    }
+    public void setProveedor(String proveedor) {
+        this.proveedor = proveedor;
     }
 }

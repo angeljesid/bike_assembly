@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bike Assembly - Formulario de Suministro</title>
+    <title>Bike Assembly - Formulario de Producto</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
@@ -14,16 +14,14 @@
             <div class="col-md-8">
                 <div class="card shadow-sm">
                     <div class="card-header bg-dark text-white">
-                        <h4 class="mb-0" th:text="${producto.idProducto == null ? 'Añadir Nuevo Suministro' : 'Editar Suministro'}">Formulario</h4>
+                        <h4 class="mb-0" th:text="${producto.idProducto == null ? 'Añadir Nuevo Producto' : 'Editar Producto'}">Formulario</h4>
                     </div>
                     <div class="card-body">
                         
-                        <!-- El formulario apunta a la ruta POST que creamos en el controlador -->
-                        <form th:action="@{/admin/suministros/guardar}" th:object="${producto}" method="POST">
+                        <form th:action="@{/admin/producto/guardar}" th:object="${producto}" method="POST">
                             
-                            <!-- Campo oculto para el ID (vital para que Spring sepa si es editar o crear) -->
                             <input type="hidden" th:field="*{idProducto}"/>
-
+                            
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="nombre" class="form-label fw-bold">Nombre del Componente</label>
@@ -35,7 +33,7 @@
                                 </div>
                             </div>
 
-                            <div class="row mb-3">
+                            <div class="row mb-4">
                                 <div class="col-md-4">
                                     <label for="tipo" class="form-label fw-bold">Tipo / Categoría</label>
                                     <select class="form-select" th:field="*{tipo}" required>
@@ -46,34 +44,19 @@
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label for="condicion" class="form-label fw-bold">Condición</label>
-                                    <select class="form-select" th:field="*{condicion}" required>
-                                        <option value="">Seleccione...</option>
-                                        <option value="Nuevo">Nuevo</option>
-                                        <option value="De Segunda">De Segunda</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
                                     <label for="stock" class="form-label fw-bold">Cantidad en Stock</label>
                                     <input type="number" class="form-control" th:field="*{stock}" required min="0">
                                 </div>
-                            </div>
-
-                            <div class="row mb-4">
-                                <div class="col-md-6">
-                                    <label for="proveedor" class="form-label fw-bold">Proveedor (Empresa)</label>
-                                    <input type="text" class="form-control" th:field="*{proveedor}" placeholder="Nombre del proveedor">
-                                </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <label for="precio" class="form-label fw-bold">Precio Unitario ($)</label>
                                     <input type="number" step="0.01" class="form-control" th:field="*{precio}" required min="0">
                                 </div>
                             </div>
 
                             <div class="d-flex justify-content-end gap-2">
-                                <a th:href="@{/admin/suministros}" class="btn btn-secondary">Cancelar</a>
+                                <a th:href="@{/admin/producto}" class="btn btn-secondary">Cancelar</a>
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-save me-1"></i> Guardar Suministro
+                                    <i class="bi bi-save me-1"></i> Guardar Producto
                                 </button>
                             </div>
                         </form>
