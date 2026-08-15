@@ -1,9 +1,6 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     const buscador = document.getElementById('buscadorProductos');
-    
-    if (!buscador) return; 
-
-    let temporizador;
+    if (!buscador) return;
 
     const tbodys = {
         'llantas': document.getElementById('tbody-llantas'),
@@ -16,8 +13,10 @@ document.addEventListener('DOMContentLoaded', function() {
         'otros': document.getElementById('tbody-otros')
     };
 
-    buscador.addEventListener('input', function() {
-        const termino = this.value;
+    let temporizador;
+
+    buscador.addEventListener('input', (evento) => {
+        const termino = evento.target.value;
         
         clearTimeout(temporizador);
         temporizador = setTimeout(() => {
@@ -25,66 +24,72 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 300);
     });
 
-    function buscarEnServidor(termino) {
-        fetch(`/api/buscar/productos?termino=${encodeURIComponent(termino)}`)
-            .then(response => response.json())
-            .then(productos => actualizarTablas(productos))
-            .catch(error => console.error('Error en la búsqueda:', error));
-    }
-
-    // Función para limpiar tildes y evitar fallos de categoría
-    function normalizarCategoria(cat) {
-        if (!cat) return 'otros';
-        const c = cat.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-        if (c.includes('llanta')) return 'llantas';
-        if (c.includes('marco') || c.includes('cuadro')) return 'marcos';
-        if (c.includes('transmision') || c.includes('arrastre')) return 'transmision';
-        if (c.includes('bicicleta')) return 'bicicletas';
-        if (c.includes('freno')) return 'frenos';
-        if (c.includes('suspension') || c.includes('horquilla')) return 'suspension';
-        if (c.includes('sillin') || c.includes('tija')) return 'sillines';
-        return 'otros';
+    async function buscarEnServidor(termino) {
+        try {
+            const url = `/api/buscar/productos?termino=${encodeURIComponent(termino)}`;
+            const response = await fetch(url);
+            
+            if (!response.ok) throw new Error('Error en la respuesta del servidor');
+            
+            const productos = await response.json();
+            actualizarTablas(productos);
+        } catch (error) {
+            console.error('Fallo en la búsqueda de productos:', error);
+        }
     }
 
     function actualizarTablas(productos) {
         Object.values(tbodys).forEach(tbody => {
-            if(tbody) tbody.innerHTML = '';
+            if (tbody) tbody.innerHTML = '';
         });
 
         productos.forEach(p => {
-            const catKey = normalizarCategoria(p.categoria);
-            const tbody = tbodys[catKey];
+            const cat = p.categoria ? p.categoria.toLowerCase() : 'otros';
+            const tbody = tbodys[cat] || tbodys['otros'];
             
             if (tbody) {
-                const tr = document.createElement('tr');
-                
-                const imgSrc = (p.imagen && p.imagen.trim() !== '') 
-                    ? '/recursos/' + p.imagen 
-                    : 'https://via.placeholder.com/80x80.png?text=Sin+Foto';
-                
-                const badgeClass = (p.stock < 5) ? 'bg-danger' : 'bg-info text-dark';
-                let extraInfo = (catKey === 'llantas') ? `| Comp: <span>${p.tipo || ''}</span>` : '';
-
-                tr.innerHTML = `
-                    <td class="ps-4"><img src="${imgSrc}" class="catalogo-img rounded" alt="Foto"></td>
-                    <td class="fw-bold text-muted">ID-${p.idProducto}</td>
-                    <td>
-                        <span class="fw-bold text-dark">${p.nombre}</span><br>
-                        <small class="text-muted"><i class="bi bi-tag-fill me-1"></i><span>${p.marca}</span> ${extraInfo}</small>
-                    </td>
-                    <td>${p.condicion || ''}</td>
-                    <td>${p.proveedor || ''}</td>
-                    <td class="text-end fw-bold" style="color: var(--brand-blue);">$ ${p.precio}</td>
-                    <td class="text-center"><span class="badge ${badgeClass}">${p.stock} und</span></td>
-                    <td class="text-center">
-                        <div class="btn-group">
-                            <a href="/admin/producto/editar/${p.idProducto}" class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil-square"></i></a>
-                            <a href="/admin/producto/eliminar/${p.idProducto}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar este producto?');" title="Eliminar"><i class="bi bi-trash"></i></a>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(tr);
+                tbody.insertAdjacentHTML('beforeend', generarFilaHTML(p, cat));
             }
         });
+    }
+
+    function generarFilaHTML(p, cat) {
+        const imgSrc = (p.imagen && p.imagen.trim() !== '') 
+            ? `/recursos/${p.imagen}` 
+            : 'https://via.placeholder.com/80x80.png?text=Sin+Foto';
+        
+        const badgeClass = (p.stock < 5) ? 'bg-danger' : 'bg-info text-dark';
+        const extraInfo = (cat === 'llantas' && p.tipo) ? `| Comp: <span>${p.tipo}</span>` : '';
+
+        return `
+            <tr>
+                <td class="ps-4">
+                    <img src="${imgSrc}" class="catalogo-img rounded" alt="Foto">
+                </td>
+                <td class="fw-bold text-muted">ID-${p.idProducto}</td>
+                <td>
+                    <span class="fw-bold text-dark">${p.nombre || 'Sin nombre'}</span><br>
+                    <small class="text-muted">
+                        <i class="bi bi-tag-fill me-1"></i><span>${p.marca || 'Genérica'}</span> ${extraInfo}
+                    </small>
+                </td>
+                <td>${p.condicion || ''}</td>
+                <td>${p.proveedor || ''}</td>
+                <td class="text-end fw-bold" style="color: var(--brand-blue);">$ ${p.precio || 0}</td>
+                <td class="text-center">
+                    <span class="badge ${badgeClass}">${p.stock || 0} und</span>
+                </td>
+                <td class="text-center">
+                    <div class="btn-group">
+                        <a href="/admin/producto/editar/${p.idProducto}" class="btn btn-sm btn-outline-primary" title="Editar">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <a href="/admin/producto/eliminar/${p.idProducto}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar este producto?');" title="Eliminar">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        `;
     }
 });

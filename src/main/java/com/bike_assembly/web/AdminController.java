@@ -103,6 +103,3 @@ public class AdminController {
         return "redirect:/admin/producto";
     }
 }
-
-
-//.\mvnw.cmd spring-boot:run
