@@ -25,6 +25,6 @@ public class OperarioController {
         Usuario operario = usuarioDao.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail).orElse(null);
         model.addAttribute("operario", operario);
 
-        return "operario/ensambles"; // Apunta a templates/operario/ensambles.html
+        return "operario/ensambles";
     }
 }

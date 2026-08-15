@@ -19,6 +19,7 @@ public class Producto implements Serializable {
     private String tipo;
     private Integer stock;
     private String marca;
+    private String categoria;
     private String condicion;
     private String proveedor;
     private String imagen;
@@ -26,7 +27,14 @@ public class Producto implements Serializable {
     public Producto() {
     }
 
-    // Getters y Setters
+    public String getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
+    }
+
     public Long getIdProducto() {
         return idProducto;
     }

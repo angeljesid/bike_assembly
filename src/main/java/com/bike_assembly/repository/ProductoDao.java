@@ -10,4 +10,7 @@ public interface ProductoDao extends JpaRepository<Producto, Long> {
 
     @Query("SELECT p FROM Producto p WHERE p.tipo = :tipoElegido OR p.tipo = 'U'")
     List<Producto> findComponentesCompatibles(@Param("tipoElegido") String tipoElegido);
+
+    @Query("SELECT p FROM Producto p WHERE LOWER(p.nombre) LIKE LOWER(CONCAT('%', :termino, '%')) OR LOWER(p.marca) LIKE LOWER(CONCAT('%', :termino, '%'))")
+    List<Producto> buscarPorNombreOMarca(@Param("termino") String termino);
 }

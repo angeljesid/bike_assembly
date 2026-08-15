@@ -50,7 +50,6 @@
                         <form th:action="@{/admin/producto/guardar}" th:object="${producto}" method="POST" enctype="multipart/form-data">
                             
                             <input type="hidden" th:field="*{idProducto}"/>
-                            
                             <input type="hidden" th:field="*{imagen}"/>
 
                             <div class="mb-3" th:if="${producto.imagen != null and !producto.imagen.isEmpty()}">
@@ -72,6 +71,40 @@
                                 <div class="col-md-6">
                                     <label for="marca" class="form-label fw-bold">Marca</label>
                                     <input type="text" class="form-control" th:field="*{marca}" required placeholder="Ej: Shimano, Maxxis">
+                                </div>
+                            </div>
+
+                            <!-- Selector de Categoría (valores normalizados para el filtro de la tabla) -->
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <label for="categoria" class="form-label fw-bold">Categoría del Componente</label>
+                                    <select class="form-select" th:field="*{categoria}" required>
+                                        <option value="" disabled selected>Seleccione la categoría...</option>
+                                        <option value="llantas">Llantas y Neumáticos</option>
+                                        <option value="marcos">Marcos y Cuadros</option>
+                                        <option value="transmision">Grupo de Arrastre y Transmisión</option>
+                                        <option value="bicicletas">Bicicletas Completas y Ensamble</option>
+                                        <option value="frenos">Frenos y Sistemas de Frenado</option>
+                                        <option value="suspension">Suspensión y Amortiguadores</option>
+                                        <option value="sillines">Asientos y Tijas</option>
+                                        <option value="otros">Accesorios y Componentes Adicionales</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="condicion" class="form-label fw-bold">Condición</label>
+                                    <select class="form-select" th:field="*{condicion}" required>
+                                        <option value="" disabled selected>Seleccione estado...</option>
+                                        <option value="Nuevo">Nuevo</option>
+                                        <option value="Usado">Usado</option>
+                                        <option value="Reacondicionado">Reacondicionado</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="proveedor" class="form-label fw-bold">Proveedor</label>
+                                    <input type="text" class="form-control" th:field="*{proveedor}" required placeholder="Nombre del proveedor">
                                 </div>
                             </div>
 
