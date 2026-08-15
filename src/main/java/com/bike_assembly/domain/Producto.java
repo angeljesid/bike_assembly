@@ -21,8 +21,11 @@ public class Producto implements Serializable {
     private String marca;
     private String categoria;
     private String condicion;
-    private String proveedor;
     private String imagen;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_proveedor")
+    private Proveedor proveedor;
 
     public Producto() {
     }
@@ -77,12 +80,13 @@ public class Producto implements Serializable {
     public void setCondicion(String condicion) {
         this.condicion = condicion;
     }
-    public String getProveedor() {
-        return proveedor;
+    public Proveedor getProveedor() {
+        return proveedor; 
     }
-    public void setProveedor(String proveedor) {
-        this.proveedor = proveedor;
+    public void setProveedor(Proveedor proveedor) {
+        this.proveedor = proveedor; 
     }
+
     public String getImagen() { return imagen; }
 public void setImagen(String imagen) { this.imagen = imagen; }
 }
