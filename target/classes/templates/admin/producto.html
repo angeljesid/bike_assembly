@@ -8,37 +8,22 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
-    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    
+    <!-- Archivo CSS externo con todos los estilos centralizados -->
     <link rel="stylesheet" th:href="@{/css/styles.css}">
-
-    <style>
-        .catalogo-img {
-            max-width: 110px; 
-            max-height: 110px; 
-            object-fit: contain;
-        }
-        .header-catalogo {
-            background-color: var(--nexora-blue) !important;
-            color: #ffffff !important;
-        }
-    </style>
 </head>
 <body class="bg-light">
 
-    <!-- Contenedor Principal en Disposición de Panel (Sidebar a la izquierda, Contenido a la derecha) -->
     <div class="d-flex">
         
-        <!-- Inserción de la barra lateral -->
         <div th:replace="~{admin/barra :: sidebar}"></div>
 
-        <!-- Contenido de la Pantalla de Productos -->
         <div class="flex-grow-1 p-4 overflow-auto">
             
+
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h2 class="fw-bold" style="color: var(--nexora-blue);">Gestión de Productos</h2>
-                    <p class="text-muted m-0">Administra el inventario y lista de precios del taller.</p>
+                    <h2 class="fw-bold" style="color: var(--brand-blue);">Gestión de Productos</h2>
+                    <p class="text-muted m-0">Administra el inventario y clasifica los repuestos por categoría.</p>
                 </div>
                 <a th:href="@{/admin/producto/nuevo}" class="btn btn-accent shadow-sm">
                     <i class="bi bi-plus-circle me-1"></i> Añadir Producto
@@ -46,89 +31,211 @@
             </div>
 
             <div class="mb-4 d-flex align-items-center flex-wrap gap-2">
-                <span class="fw-bold me-2 text-secondary">Filtrar por compatibilidad:</span>
+                <span class="fw-bold me-2 text-secondary">Compatibilidad general:</span>
                 <a href="/admin/producto" class="btn btn-sm btn-outline-secondary rounded-pill px-3" th:classappend="${tipoSeleccionado == null} ? 'active'">Todos</a>
                 <a href="/admin/producto?tipo=T" class="btn btn-sm btn-outline-secondary rounded-pill px-3" th:classappend="${tipoSeleccionado == 'T'} ? 'active'">Todo Terreno (T)</a>
                 <a href="/admin/producto?tipo=R" class="btn btn-sm btn-outline-secondary rounded-pill px-3" th:classappend="${tipoSeleccionado == 'R'} ? 'active'">Ruta (R)</a>
             </div>
 
-            <div class="card card-custom mb-5 border-0 overflow-hidden shadow-sm">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table id="tabla-inventario" class="table table-bordered table-hover align-middle mb-0 w-100">
-                            <thead>
-                                <tr>
-                                    <th class="text-center header-catalogo py-3" style="width: 140px;">Foto</th>
-                                    <th class="header-catalogo py-3" style="width: 120px;">Referencia</th>
-                                    <th class="header-catalogo py-3">Descripción del Componente</th>
-                                    <th class="header-catalogo py-3 text-center" style="width: 150px;">Precio Unitario</th>
-                                    <th class="header-catalogo py-3 text-center" style="width: 120px;">Stock</th>
-                                    <th class="header-catalogo py-3 text-center" style="width: 120px;">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="producto : ${productos}">
-                                    
-                                    <td class="text-center bg-white">
-                                        <img th:if="${producto.imagen != null and !producto.imagen.isEmpty()}" 
-                                               th:src="@{'/recursos/' + ${producto.imagen}}" 
-                                               alt="Repuesto" class="catalogo-img" loading="lazy">
-                                        
-                                        <img th:if="${producto.imagen == null or producto.imagen.isEmpty()}" 
-                                               src="https://via.placeholder.com/110x110.png?text=Sin+Foto" 
-                                               alt="Default" class="catalogo-img" loading="lazy">
-                                    </td>
-                                    
-                                    <td class="fw-bold text-muted bg-white" th:text="${'ID-' + producto.idProducto}">ID-1</td>
-                                    
-                                    <td class="bg-white">
-                                        <span class="fw-bold fs-6 text-dark" th:text="${producto.nombre}">Componente</span><br>
-                                        <small class="text-muted">
-                                            <i class="bi bi-tag-fill me-1"></i><span th:text="${producto.marca}">Marca</span> | 
-                                            Compatibilidad: <span th:text="${producto.tipo}">T</span> | 
-                                            Condición: <span th:text="${producto.condicion != null ? producto.condicion : 'N/A'}">Nuevo</span>
-                                        </small>
-                                    </td>
-                                    
-                                    <td class="text-end fw-bold fs-5 bg-white" style="color: var(--nexora-blue);" th:text="${'$ ' + producto.precio}">$ 0</td>
-                                    
-                                    <td class="text-center bg-white">
-                                        <span th:class="${producto.stock != null && producto.stock < 5 ? 'badge bg-danger fs-6' : 'badge bg-info text-dark fs-6'}"
-                                              th:text="${producto.stock} + ' und'">0 und</span>
-                                    </td>
-                                    
-                                    <td class="text-center bg-white">
-                                        <div class="btn-group" role="group">
-                                            <a th:href="@{/admin/producto/editar/{id}(id=${producto.idProducto})}" class="btn btn-sm btn-outline-primary" title="Editar">
-                                                <i class="bi bi-pencil-square"></i>
-                                            </a>
-                                            <a th:href="@{/admin/producto/eliminar/{id}(id=${producto.idProducto})}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Seguro que deseas eliminar este producto?');" title="Eliminar">
-                                                <i class="bi bi-trash"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr th:if="${productos == null or productos.isEmpty()}">
-                                    <td colspan="6" class="text-center text-muted py-5 bg-white">
-                                        <i class="bi bi-inbox fs-1 d-block mb-3"></i>
-                                        <h5>No hay repuestos registrados en el inventario</h5>
-                                        <p>Haz clic en "Añadir Producto" para comenzar.</p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+            <div class="row g-4">
+
+                <div class="col-12">
+                    <div class="card category-card overflow-hidden">
+                        <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
+                            <h5 class="fw-bold m-0" style="color: var(--brand-blue);">
+                                <i class="bi bi-circle-fill me-2 fs-6 text-warning"></i> Llantas y Neumáticos
+                            </h5>
+                            <span class="badge bg-light text-dark border">Sección de Rodamiento</span>
+                        </div>
+                        <div class="card-body p-0 card-scroll-body">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light sticky-top">
+                                    <tr>
+                                        <th class="py-2 ps-4" style="width: 100px;">Foto</th>
+                                        <th class="py-2">Referencia</th>
+                                        <th class="py-2">Componente / Marca</th>
+                                        <th class="py-2 text-end">Precio Unitario</th>
+                                        <th class="py-2 text-center">Stock</th>
+                                        <th class="py-2 text-center" style="width: 120px;">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="producto : ${productos}" th:if="${producto.nombre != null and #strings.contains(#strings.toLowerCase(producto.nombre), 'llanta') or #strings.contains(#strings.toLowerCase(producto.nombre), 'maxxis')}">
+                                        <td class="ps-4">
+                                            <img th:if="${producto.imagen != null and !producto.imagen.isEmpty()}" th:src="@{'/recursos/' + ${producto.imagen}}" class="catalogo-img rounded" alt="Foto">
+                                            <img th:if="${producto.imagen == null or producto.imagen.isEmpty()}" src="https://via.placeholder.com/80x80.png?text=Sin+Foto" class="catalogo-img rounded" alt="Default">
+                                        </td>
+                                        <td class="fw-bold text-muted" th:text="${'ID-' + producto.idProducto}">ID-1</td>
+                                        <td>
+                                            <span class="fw-bold text-dark" th:text="${producto.nombre}">Llanta</span><br>
+                                            <small class="text-muted"><i class="bi bi-tag-fill me-1"></i><span th:text="${producto.marca}">Marca</span> | Comp: <span th:text="${producto.tipo}">T</span></small>
+                                        </td>
+                                        <td class="text-end fw-bold" style="color: var(--brand-blue);" th:text="${'$ ' + producto.precio}">$ 0</td>
+                                        <td class="text-center">
+                                            <span th:class="${producto.stock != null && producto.stock < 5 ? 'badge bg-danger' : 'badge bg-info text-dark'}" th:text="${producto.stock} + ' und'">0 und</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group">
+                                                <a th:href="@{/admin/producto/editar/{id}(id=${producto.idProducto})}" class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil-square"></i></a>
+                                                <a th:href="@{/admin/producto/eliminar/{id}(id=${producto.idProducto})}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar este producto?');" title="Eliminar"><i class="bi bi-trash"></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
+
+                <div class="col-12">
+                    <div class="card category-card overflow-hidden">
+                        <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
+                            <h5 class="fw-bold m-0" style="color: var(--brand-blue);">
+                                <i class="bi bi-shield-shaded me-2 fs-6 text-primary"></i> Marcos y Cuadros
+                            </h5>
+                            <span class="badge bg-light text-dark border">Estructura Principal</span>
+                        </div>
+                        <div class="card-body p-0 card-scroll-body">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light sticky-top">
+                                    <tr>
+                                        <th class="py-2 ps-4" style="width: 100px;">Foto</th>
+                                        <th class="py-2">Referencia</th>
+                                        <th class="py-2">Componente / Marca</th>
+                                        <th class="py-2 text-end">Precio Unitario</th>
+                                        <th class="py-2 text-center">Stock</th>
+                                        <th class="py-2 text-center" style="width: 120px;">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="producto : ${productos}" th:if="${producto.nombre != null and #strings.contains(#strings.toLowerCase(producto.nombre), 'marco') or #strings.contains(#strings.toLowerCase(producto.nombre), 'cuadro')}">
+                                        <td class="ps-4">
+                                            <img th:if="${producto.imagen != null and !producto.imagen.isEmpty()}" th:src="@{'/recursos/' + ${producto.imagen}}" class="catalogo-img rounded" alt="Foto">
+                                            <img th:if="${producto.imagen == null or producto.imagen.isEmpty()}" src="https://via.placeholder.com/80x80.png?text=Sin+Foto" class="catalogo-img rounded" alt="Default">
+                                        </td>
+                                        <td class="fw-bold text-muted" th:text="${'ID-' + producto.idProducto}">ID-X</td>
+                                        <td>
+                                            <span class="fw-bold text-dark" th:text="${producto.nombre}">Marco</span><br>
+                                            <small class="text-muted"><i class="bi bi-tag-fill me-1"></i><span th:text="${producto.marca}">Marca</span></small>
+                                        </td>
+                                        <td class="text-end fw-bold" style="color: var(--brand-blue);" th:text="${'$ ' + producto.precio}">$ 0</td>
+                                        <td class="text-center">
+                                            <span class="badge bg-info text-dark" th:text="${producto.stock} + ' und'">0 und</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group">
+                                                <a th:href="@{/admin/producto/editar/{id}(id=${producto.idProducto})}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil-square"></i></a>
+                                                <a th:href="@{/admin/producto/eliminar/{id}(id=${producto.idProducto})}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar?');"><i class="bi bi-trash"></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="card category-card overflow-hidden">
+                        <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
+                            <h5 class="fw-bold m-0" style="color: var(--brand-blue);">
+                                <i class="bi bi-gear-fill me-2 fs-6 text-success"></i> Grupo de Arrastre y Transmisión
+                            </h5>
+                            <span class="badge bg-light text-dark border">Sistema de Transmisión</span>
+                        </div>
+                        <div class="card-body p-0 card-scroll-body">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light sticky-top">
+                                    <tr>
+                                        <th class="py-2 ps-4" style="width: 100px;">Foto</th>
+                                        <th class="py-2">Referencia</th>
+                                        <th class="py-2">Componente / Marca</th>
+                                        <th class="py-2 text-end">Precio Unitario</th>
+                                        <th class="py-2 text-center">Stock</th>
+                                        <th class="py-2 text-center" style="width: 120px;">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="producto : ${productos}" th:if="${producto.nombre != null and (#strings.contains(#strings.toLowerCase(producto.nombre), 'freno') or #strings.contains(#strings.toLowerCase(producto.nombre), 'cadena') or #strings.contains(#strings.toLowerCase(producto.nombre), 'pacha') or #strings.contains(#strings.toLowerCase(producto.nombre), 'tensor'))}">
+                                        <td class="ps-4">
+                                            <img th:if="${producto.imagen != null and !producto.imagen.isEmpty()}" th:src="@{'/recursos/' + ${producto.imagen}}" class="catalogo-img rounded" alt="Foto">
+                                            <img th:if="${producto.imagen == null or producto.imagen.isEmpty()}" src="https://via.placeholder.com/80x80.png?text=Sin+Foto" class="catalogo-img rounded" alt="Default">
+                                        </td>
+                                        <td class="fw-bold text-muted" th:text="${'ID-' + producto.idProducto}">ID-X</td>
+                                        <td>
+                                            <span class="fw-bold text-dark" th:text="${producto.nombre}">Transmisión</span><br>
+                                            <small class="text-muted"><i class="bi bi-tag-fill me-1"></i><span th:text="${producto.marca}">Marca</span></small>
+                                        </td>
+                                        <td class="text-end fw-bold" style="color: var(--brand-blue);" th:text="${'$ ' + producto.precio}">$ 0</td>
+                                        <td class="text-center">
+                                            <span class="badge bg-info text-dark" th:text="${producto.stock} + ' und'">0 und</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group">
+                                                <a th:href="@{/admin/producto/editar/{id}(id=${producto.idProducto})}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil-square"></i></a>
+                                                <a th:href="@{/admin/producto/eliminar/{id}(id=${producto.idProducto})}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar?');"><i class="bi bi-trash"></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="card category-card overflow-hidden">
+                        <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-bottom">
+                            <h5 class="fw-bold m-0" style="color: var(--brand-blue);">
+                                <i class="bi bi-bicycle me-2 fs-6 text-danger"></i> Bicicletas Completas y Ensamble
+                            </h5>
+                            <span class="badge bg-light text-dark border">Unidades Armadas</span>
+                        </div>
+                        <div class="card-body p-0 card-scroll-body">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light sticky-top">
+                                    <tr>
+                                        <th class="py-2 ps-4" style="width: 100px;">Foto</th>
+                                        <th class="py-2">Referencia</th>
+                                        <th class="py-2">Componente / Marca</th>
+                                        <th class="py-2 text-end">Precio Unitario</th>
+                                        <th class="py-2 text-center">Stock</th>
+                                        <th class="py-2 text-center" style="width: 120px;">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="producto : ${productos}" th:if="${producto.nombre != null and #strings.contains(#strings.toLowerCase(producto.nombre), 'bicicleta')}">
+                                        <td class="ps-4">
+                                            <img th:if="${producto.imagen != null and !producto.imagen.isEmpty()}" th:src="@{'/recursos/' + ${producto.imagen}}" class="catalogo-img rounded" alt="Foto">
+                                            <img th:if="${producto.imagen == null or producto.imagen.isEmpty()}" src="https://via.placeholder.com/80x80.png?text=Sin+Foto" class="catalogo-img rounded" alt="Default">
+                                        </td>
+                                        <td class="fw-bold text-muted" th:text="${'ID-' + producto.idProducto}">ID-X</td>
+                                        <td>
+                                            <span class="fw-bold text-dark" th:text="${producto.nombre}">Bicicleta</span><br>
+                                            <small class="text-muted"><i class="bi bi-tag-fill me-1"></i><span th:text="${producto.marca}">Marca</span></small>
+                                        </td>
+                                        <td class="text-end fw-bold" style="color: var(--brand-blue);" th:text="${'$ ' + producto.precio}">$ 0</td>
+                                        <td class="text-center">
+                                            <span class="badge bg-info text-dark" th:text="${producto.stock} + ' und'">0 und</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group">
+                                                <a th:href="@{/admin/producto/editar/{id}(id=${producto.idProducto})}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil-square"></i></a>
+                                                <a th:href="@{/admin/producto/eliminar/{id}(id=${producto.idProducto})}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar?');"><i class="bi bi-trash"></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-            
+
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-    <script th:src="@{/js/inventario.js}"></script>
-
 </body>
 </html>
