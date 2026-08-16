@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
@@ -26,5 +27,17 @@ public class ClienteController {
         model.addAttribute("cliente", cliente);
 
         return "cliente/catalogo"; // Apunta a templates/cliente/catalogo.html
+    }
+
+    @GetMapping("/producto/{id}")
+    public String detalleProducto(@PathVariable("id") Long id, Model model) {
+        // En un futuro cercano aquí buscaremos el producto en la BD para mandarlo a la vista
+        model.addAttribute("idProducto", id);
+        return "cliente/producto-detalle"; 
+    }
+
+    @GetMapping("/carrito")
+    public String verCarrito(Model model) {
+        return "cliente/carrito"; 
     }
 }

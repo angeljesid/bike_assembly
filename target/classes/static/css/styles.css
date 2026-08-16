@@ -288,3 +288,28 @@ footer {
     max-height: 340px;
     overflow-y: auto;
 }
+
+/* Variables de la marca */
+:root {
+    --brand-blue: #0056b3; /* Puedes cambiar este azul por el color oficial de tu marca */
+}
+
+/* Animación simple para el icono del carrito cuando se agrega un producto */
+.animate__animated {
+    animation-duration: 0.5s;
+    animation-fill-mode: both;
+}
+
+@keyframes bounceIn {
+    0%, 20%, 40%, 60%, 80%, 100% { animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1); }
+    0% { opacity: 0; transform: scale3d(0.3, 0.3, 0.3); }
+    20% { transform: scale3d(1.1, 1.1, 1.1); }
+    40% { transform: scale3d(0.9, 0.9, 0.9); }
+    60% { opacity: 1; transform: scale3d(1.03, 1.03, 1.03); }
+    80% { transform: scale3d(0.97, 0.97, 0.97); }
+    100% { opacity: 1; transform: scale3d(1, 1, 1); }
+}
+
+.animate__bounceIn {
+    animation-name: bounceIn;
+}
