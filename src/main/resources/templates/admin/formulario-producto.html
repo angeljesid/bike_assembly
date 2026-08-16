@@ -124,10 +124,20 @@
                                 <label for="stock" class="form-label fw-bold">Cantidad en Stock</label>
                                 <input type="number" class="form-control" th:field="*{stock}" required min="0">
                             </div>
-                            
+
                             <div class="col-md-4">
-                                <label for="precio" class="form-label fw-bold">Precio Unitario ($)</label>
-                                <input type="number" step="0.01" class="form-control" th:field="*{precio}" required min="0">
+                                <label for="precioInicial" class="form-label fw-bold">Precio Inicial ($)</label>
+                                <input type="number" step="0.01" class="form-control calc-precio" id="precioInicial" th:field="*{precioInicial}" required min="0">
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="iva" class="form-label fw-bold">IVA (%)</label>
+                                <input type="number" step="0.01" class="form-control calc-precio" id="iva" th:field="*{iva}" required min="0" placeholder="Ej: 19">
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="precioTotal" class="form-label fw-bold text-primary">Precio Total ($)</label>
+                                <input type="number" step="0.01" class="form-control bg-white" id="precioTotal" th:field="*{precioTotal}" required readonly>
                             </div>
 
                             <div class="col-12 d-flex justify-content-end gap-2 mt-4">
@@ -144,5 +154,25 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const precioInicialInput = document.getElementById('precioInicial');
+            const ivaInput = document.getElementById('iva');
+            const precioTotalInput = document.getElementById('precioTotal');
+
+            function calcularTotal() {
+                const precioInicial = parseFloat(precioInicialInput.value) || 0;
+                const iva = parseFloat(ivaInput.value) || 0;
+                const total = precioInicial + (precioInicial * (iva / 100));
+                
+                // Redondear a dos decimales y actualizar el campo total
+                precioTotalInput.value = total.toFixed(2);
+            }
+
+            precioInicialInput.addEventListener('input', calcularTotal);
+            ivaInput.addEventListener('input', calcularTotal);
+        });
+    </script>
 </body>
 </html>

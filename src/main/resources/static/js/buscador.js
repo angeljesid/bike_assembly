@@ -9,9 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
             .trim();
     };
 
-    // =========================================================================
-    // MÓDULO 1: BUSCADOR DE PRODUCTOS
-    // =========================================================================
     const buscadorProductos = document.getElementById('buscadorProductos');
     if (buscadorProductos) {
         const tbodys = {
@@ -101,6 +98,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 : (p.proveedor || '');
 
             const codigoBarrasText = (p.codigoBarras && p.codigoBarras.trim() !== '') ? p.codigoBarras : 'N/A';
+            const precioInicialVal = p.precioInicial != null ? p.precioInicial : (p.precio != null ? p.precio : '0.00');
+            const ivaVal = p.iva != null ? p.iva : '0';
+            const precioTotalVal = p.precioTotal != null ? p.precioTotal : (p.precio != null ? p.precio : '0.00');
 
             return `
                 <tr>
@@ -117,7 +117,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${p.condicion || ''}</td>
                     <td>${nombreProveedor}</td>
                     <td><span class="text-muted">${codigoBarrasText}</span></td>
-                    <td class="text-end fw-bold" style="color: var(--brand-blue);">$ ${p.precio || 0}</td>
+                    <td class="text-end text-muted">$ ${precioInicialVal}</td>
+                    <td class="text-center text-muted">${ivaVal}%</td>
+                    <td class="text-end fw-bold" style="color: var(--brand-blue);">$ ${precioTotalVal}</td>
                     <td class="text-center">
                         <span class="badge ${badgeClass}">${p.stock || 0} und</span>
                     </td>
@@ -136,10 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
-    // =========================================================================
-    // MÓDULO 2: BUSCADOR DE PROVEEDORES
-    // =========================================================================
     const buscadorProveedores = document.getElementById('buscadorProveedores');
     if (buscadorProveedores) {
         const tbodyProveedores = document.getElementById('tbody-proveedores');

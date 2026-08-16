@@ -17,6 +17,15 @@ public class Producto implements Serializable {
 
     private String nombre;
     private Double precio;
+    
+    @Column(name = "precio_inicial")
+    private Double precioInicial;
+    
+    private Double iva;
+    
+    @Column(name = "precio_total")
+    private Double precioTotal;
+    
     private String tipo;
     private Integer stock;
     private String marca;
@@ -25,7 +34,7 @@ public class Producto implements Serializable {
     private String imagen;
 
     @Column(name = "codigo_barras")
-    private String codigoBarras; // <--- NUEVO CAMPO OPCIONAL
+    private String codigoBarras;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_proveedor")
@@ -35,33 +44,45 @@ public class Producto implements Serializable {
     public Producto() {
     }
 
+    public Double getPrecioInicial() { return precioInicial; }
+    public void setPrecioInicial(Double precioInicial) { this.precioInicial = precioInicial; }
+    
+    public Double getIva() { return iva; }
+    public void setIva(Double iva) { this.iva = iva; }
+    
+    public Double getPrecioTotal() { return precioTotal; }
+    public void setPrecioTotal(Double precioTotal) { this.precioTotal = precioTotal; }
 
-    public String getCodigoBarras() {
-        return codigoBarras;
-    }
-
-    public void setCodigoBarras(String codigoBarras) {
-        this.codigoBarras = codigoBarras;
-    }
+    public String getCodigoBarras() { return codigoBarras; }
+    public void setCodigoBarras(String codigoBarras) { this.codigoBarras = codigoBarras; }
 
     public String getCategoria() { return categoria; }
     public void setCategoria(String categoria) { this.categoria = categoria; }
+    
     public Long getIdProducto() { return idProducto; }
     public void setIdProducto(Long idProducto) { this.idProducto = idProducto; }
+    
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
+    
     public Double getPrecio() { return precio; }
     public void setPrecio(Double precio) { this.precio = precio; }
+    
     public String getTipo() { return tipo; }
     public void setTipo(String tipo) { this.tipo = tipo; }
+    
     public Integer getStock() { return stock; }
     public void setStock(Integer stock) { this.stock = stock; }
+    
     public String getMarca() { return marca; }
     public void setMarca(String marca) { this.marca = marca; }
+    
     public String getCondicion() { return condicion; }
     public void setCondicion(String condicion) { this.condicion = condicion; }
+    
     public Proveedor getProveedor() { return proveedor; }
     public void setProveedor(Proveedor proveedor) { this.proveedor = proveedor; }
+    
     public String getImagen() { return imagen; }
     public void setImagen(String imagen) { this.imagen = imagen; }
 }
