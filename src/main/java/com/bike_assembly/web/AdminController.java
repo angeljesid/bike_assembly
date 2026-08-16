@@ -3,6 +3,7 @@ package com.bike_assembly.web;
 import com.bike_assembly.domain.Producto;
 import com.bike_assembly.domain.Usuario;
 import com.bike_assembly.services.producto.IProductoService;
+import com.bike_assembly.services.proveedor.IProveedorService;
 import com.bike_assembly.repository.UsuarioDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -22,6 +23,9 @@ import java.nio.file.Paths;
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
+
+    @Autowired
+    private IProveedorService proveedorService;
 
     @Autowired
     private UsuarioDao usuarioDao;
@@ -55,6 +59,7 @@ public class AdminController {
     @GetMapping("/producto/nuevo")
     public String nuevoProducto(Model model) {
         model.addAttribute("producto", new Producto());
+        model.addAttribute("proveedores", proveedorService.listarProveedores());
         return "admin/formulario-producto";
     }
 
@@ -65,6 +70,7 @@ public class AdminController {
         producto = productoService.encontrarProducto(producto);
         
         model.addAttribute("producto", producto);
+        model.addAttribute("proveedores", proveedorService.listarProveedores());
         return "admin/formulario-producto";
     }
 

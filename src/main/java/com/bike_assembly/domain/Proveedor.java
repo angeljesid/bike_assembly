@@ -1,5 +1,6 @@
 package com.bike_assembly.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.List;
@@ -20,12 +21,12 @@ public class Proveedor implements Serializable {
     private String correo;
     
     @Column(name = "tipo_establecimiento")
-    private String tipoEstablecimiento; // "Empresa" o "Bodega"
+    private String tipoEstablecimiento; 
     
     private String direccion;
 
-    // Relación Inversa (Opcional pero recomendada): Un proveedor puede tener muchos productos
     @OneToMany(mappedBy = "proveedor", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties({"proveedor", "hibernateLazyInitializer", "handler"}) // <--- EVITA BUCLES JSON
     private List<Producto> productos;
 
     public Proveedor() {}

@@ -63,6 +63,11 @@
                                 <label for="nombre" class="form-label fw-bold">Nombre del Componente</label>
                                 <input type="text" class="form-control" th:field="*{nombre}" required placeholder="Ej: Llanta Maxxis, Marco, Freno mt200">
                             </div>
+
+                            <div class="col-md-6">
+                                <label for="codigoBarras" class="form-label fw-bold">Código de Barras <span class="text-muted fw-normal">(Opcional)</span></label>
+                                <input type="text" class="form-control" id="codigoBarras" name="codigoBarras" th:value="${producto.codigoBarras}" placeholder="Escanee o digite el código de barras">
+                            </div>
                             
                             <div class="col-md-6">
                                 <label for="marca" class="form-label fw-bold">Marca</label>
@@ -96,7 +101,13 @@
                             
                             <div class="col-md-6">
                                 <label for="proveedor" class="form-label fw-bold">Proveedor</label>
-                                <input type="text" class="form-control" th:field="*{proveedor}" required placeholder="Nombre del proveedor">
+                                <select class="form-select" th:field="*{proveedor}" required>
+                                    <option value="" disabled selected>Seleccione un proveedor...</option>
+                                      <option th:each="prov : ${proveedores}" 
+                                            th:value="${prov.idProveedor}" 
+                                            th:text="${prov.nombre} + ' (' + ${prov.tipoEstablecimiento} + ')'">
+                                    </option>
+                                </select>
                             </div>
 
                             <div class="col-md-4">

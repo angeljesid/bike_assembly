@@ -68,6 +68,7 @@
                                 <th class="py-2">Componente / Marca</th>
                                 <th class="py-2">Condición</th>
                                 <th class="py-2">Proveedor</th>
+                                <th class="py-2">Código de Barras</th>
                                 <th class="py-2 text-end">Precio Unitario</th>
                                 <th class="py-2 text-center">Stock</th>
                                 <th class="py-2 text-center" style="width: 120px;">Acciones</th>
@@ -89,6 +90,9 @@
                                 </td>
                                 <td th:text="${producto.condicion}"></td>
                                 <td th:text="${producto.proveedor}"></td>
+                                <td>
+                                    <span class="text-muted" th:text="${producto.codigoBarras != null && !producto.codigoBarras.isEmpty() ? producto.codigoBarras : 'N/A'}"></span>
+                                </td>
                                 <td class="text-end fw-bold" style="color: var(--brand-blue);" th:text="${'$ ' + producto.precio}"></td>
                                 <td class="text-center">
                                     <span th:class="${producto.stock != null && producto.stock < 5 ? 'badge bg-danger' : 'badge bg-info text-dark'}" th:text="${producto.stock} + ' und'"></span>
