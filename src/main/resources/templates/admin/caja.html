@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- ETIQUETAS CSRF NECESARIAS PARA QUE EL JS PUEDA GUARDAR LA VENTA -->
     <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}"/>
     <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}"/>
     
@@ -16,6 +15,19 @@
         .tabla-scroll { max-height: 55vh; overflow-y: auto; }
         .resumen-caja { background-color: #f8f9fa; border-radius: 12px; }
         .total-display { font-size: 2.5rem; font-weight: 900; color: var(--brand-blue); }
+        .sugerencias-caja {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 1050;
+            max-height: 300px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid rgba(0,0,0,.15);
+            border-radius: 0.375rem;
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -35,16 +47,16 @@
 
             <div class="row flex-grow-1 g-3">
                 
-                <!-- PANEL IZQUIERDO -->
                 <div class="col-lg-8 d-flex flex-column">
-                    <div class="mb-3">
+                    <div class="mb-3 position-relative">
                         <div class="input-group input-group-lg shadow-sm border rounded overflow-hidden bg-white">
                             <span class="input-group-text bg-transparent border-0 text-primary">
                                 <i class="bi bi-upc-scan fs-4"></i>
                             </span>
                             <input type="text" id="buscadorCaja" class="form-control border-0 shadow-none bg-transparent" 
-                                   placeholder="Escanea el código de barras o busca el producto..." autofocus autocomplete="off">
+                                   placeholder="Escanea el código de barras o busca por nombre/marca..." autofocus autocomplete="off">
                         </div>
+                        <div id="listaSugerenciasCaja" class="sugerencias-caja" style="display: none;"></div>
                     </div>
 
                     <div class="card shadow-sm flex-grow-1 overflow-hidden">
@@ -72,7 +84,6 @@
                     </div>
                 </div>
 
-                <!-- PANEL DERECHO -->
                 <div class="col-lg-4 d-flex flex-column">
                     <div class="card shadow-sm flex-grow-1 resumen-caja p-4 d-flex flex-column justify-content-between">
                         

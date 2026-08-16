@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -28,7 +29,13 @@ public class CajaController {
         return "admin/caja"; 
     }
 
-    // ARREGLADO: Ahora sí busca el producto en la base de datos
+    @GetMapping("/api/productos")
+    @ResponseBody
+    public ResponseEntity<List<Producto>> listarProductosCaja() {
+        List<Producto> productos = productoDao.findAll();
+        return ResponseEntity.ok(productos);
+    }
+
     @GetMapping("/api/buscar-producto")
     @ResponseBody
     public ResponseEntity<?> buscarProductoPorCodigo(@RequestParam("codigo") String codigoBarras) {
