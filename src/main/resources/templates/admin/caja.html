@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ETIQUETAS CSRF NECESARIAS PARA QUE EL JS PUEDA GUARDAR LA VENTA -->
+    <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}"/>
+    <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}"/>
+    
+    <title>Bike Assembly - Punto de Venta (POS)</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        .tabla-scroll { max-height: 55vh; overflow-y: auto; }
+        .resumen-caja { background-color: #f8f9fa; border-radius: 12px; }
+        .total-display { font-size: 2.5rem; font-weight: 900; color: var(--brand-blue); }
+    </style>
+</head>
+<body class="bg-light">
+
+    <div class="d-flex vh-100">
+        
+        <div th:replace="~{admin/barra :: sidebar}"></div>
+
+        <div class="flex-grow-1 p-4 overflow-hidden d-flex flex-column">
+            
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="fw-bold" style="color: var(--brand-blue);">
+                    <i class="bi bi-cart-check-fill me-2"></i> Punto de Venta
+                </h2>
+                <span class="badge bg-secondary fs-6" id="relojCaja">00:00:00</span>
+            </div>
+
+            <div class="row flex-grow-1 g-3">
+                
+                <!-- PANEL IZQUIERDO -->
+                <div class="col-lg-8 d-flex flex-column">
+                    <div class="mb-3">
+                        <div class="input-group input-group-lg shadow-sm border rounded overflow-hidden bg-white">
+                            <span class="input-group-text bg-transparent border-0 text-primary">
+                                <i class="bi bi-upc-scan fs-4"></i>
+                            </span>
+                            <input type="text" id="buscadorCaja" class="form-control border-0 shadow-none bg-transparent" 
+                                   placeholder="Escanea el código de barras o busca el producto..." autofocus autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm flex-grow-1 overflow-hidden">
+                        <div class="tabla-scroll">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light sticky-top">
+                                    <tr>
+                                        <th class="ps-4">Producto</th>
+                                        <th class="text-end">Precio Un.</th>
+                                        <th class="text-center" style="width: 140px;">Cant.</th>
+                                        <th class="text-end">Subtotal</th>
+                                        <th class="text-center" style="width: 60px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaCarrito">
+                                    <tr id="fila-vacia">
+                                        <td colspan="5" class="text-center text-muted py-5">
+                                            <i class="bi bi-cart-x fs-1 d-block mb-2"></i>
+                                            El carrito está vacío. Escanea un producto para comenzar.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PANEL DERECHO -->
+                <div class="col-lg-4 d-flex flex-column">
+                    <div class="card shadow-sm flex-grow-1 resumen-caja p-4 d-flex flex-column justify-content-between">
+                        
+                        <div>
+                            <h4 class="fw-bold mb-4 border-bottom pb-2">Resumen de Venta</h4>
+                            
+                            <div class="d-flex justify-content-between mb-2 fs-5">
+                                <span class="text-muted">Subtotal:</span>
+                                <span id="resumenSubtotal">$ 0.00</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-4 mt-3">
+                                <span class="fs-4 fw-bold text-dark">TOTAL:</span>
+                                <span class="total-display" id="resumenTotal">$ 0.00</span>
+                            </div>
+
+                            <hr>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Método de Pago</label>
+                                <select id="metodoPago" class="form-select form-select-lg">
+                                    <option value="EFECTIVO" selected>💵 Efectivo</option>
+                                    <option value="TARJETA">💳 Tarjeta (Datáfono)</option>
+                                    <option value="TRANSFERENCIA">📱 Transferencia / Nequi</option>
+                                </select>
+                            </div>
+
+                            <div id="divCambio" class="mb-4">
+                                <label class="form-label fw-bold">Recibido:</label>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" id="montoRecibido" class="form-control" placeholder="0">
+                                </div>
+                                <div class="d-flex justify-content-between mt-2 text-success fw-bold fs-5">
+                                    <span>Cambio:</span>
+                                    <span id="montoCambio">$ 0.00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button id="btnCobrar" class="btn btn-success btn-lg w-100 shadow fw-bold fs-4 py-3" disabled>
+                            <i class="bi bi-check-circle me-2"></i> COBRAR (F12)
+                        </button>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/caja.js}"></script> 
+</body>
+</html>
