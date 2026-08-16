@@ -4,6 +4,7 @@ import com.bike_assembly.domain.Producto;
 import com.bike_assembly.domain.Usuario;
 import com.bike_assembly.services.producto.IProductoService;
 import com.bike_assembly.services.proveedor.IProveedorService;
+import com.bike_assembly.services.venta.IVentaService; // <--- Importar servicio de ventas
 import com.bike_assembly.repository.UsuarioDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -33,6 +34,9 @@ public class AdminController {
     @Autowired
     private IProductoService productoService;
 
+    @Autowired
+    private IVentaService ventaService; // <--- Inyección del servicio de ventas
+
     @GetMapping({"", "/", "/inicio", "/dashboard"})
     public String inicioAdmin(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -48,6 +52,13 @@ public class AdminController {
         }
 
         return "admin/inicio"; 
+    }
+
+    // --- NUEVO MÉTODO PARA EL HISTORIAL DE VENTAS ---
+    @GetMapping("/ventas")
+    public String listarVentasAdmin(Model model) {
+        model.addAttribute("ventas", ventaService.listarVentas());
+        return "admin/historial-admin";
     }
 
     @GetMapping("/producto")
