@@ -1,14 +1,18 @@
 package com.bike_assembly.controller;
 
 import com.bike_assembly.domain.Producto;
+import com.bike_assembly.domain.Rol;
+import com.bike_assembly.domain.Usuario;
+import com.bike_assembly.domain.Venta;
 import com.bike_assembly.domain.VentaRequestDTO;
 import com.bike_assembly.repository.ProductoDao;
+import com.bike_assembly.repository.UsuarioDao;
 import com.bike_assembly.services.venta.IVentaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +27,9 @@ public class CajaController {
 
     @Autowired
     private IVentaService ventaService;
+
+    @Autowired
+    private UsuarioDao usuarioDao;
 
     @GetMapping({"", "/"})
     public String mostrarCaja() {
@@ -40,7 +47,6 @@ public class CajaController {
     @ResponseBody
     public ResponseEntity<?> buscarProductoPorCodigo(@RequestParam("codigo") String codigoBarras) {
         Optional<Producto> producto = productoDao.findByCodigoBarras(codigoBarras);
-        
         if (producto.isPresent()) {
             return ResponseEntity.ok(producto.get());
         } else {
@@ -48,19 +54,33 @@ public class CajaController {
         }
     }
 
+    @GetMapping("/api/buscar-cliente")
+    @ResponseBody
+    public ResponseEntity<List<Usuario>> buscarCliente(@RequestParam("termino") String termino) {
+        List<Usuario> clientes = usuarioDao.findByNombreContainingIgnoreCaseOrCedulaContainingIgnoreCaseAndRol(termino, termino, Rol.CLIENTE);
+        return ResponseEntity.ok(clientes);
+    }
+
     @PostMapping("/api/cobrar")
     @ResponseBody
     public ResponseEntity<?> cobrarVenta(@RequestBody VentaRequestDTO request) {
         Map<String, Object> response = new HashMap<>();
         try {
-            ventaService.procesarCobro(request);
+            Venta ventaGuardada = ventaService.procesarCobro(request);
             response.put("success", true);
-            response.put("mensaje", "Venta registrada con éxito");
+            response.put("idVenta", ventaGuardada.getIdVenta());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.put("success", false);
             response.put("mensaje", e.getMessage());
             return ResponseEntity.badRequest().body(response);
         }
+    }
+
+    @GetMapping("/factura/{id}")
+    public String verFactura(@PathVariable("id") Long id, Model model) {
+        Venta venta = ventaService.encontrarPorId(id);
+        model.addAttribute("venta", venta);
+        return "admin/factura";
     }
 }

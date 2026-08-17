@@ -20,6 +20,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const montoCambioSpan = document.getElementById('montoCambio');
     const relojCaja = document.getElementById('relojCaja');
 
+    const inputBuscadorCliente = document.getElementById('buscadorCliente');
+    const listaSugerenciasCliente = document.getElementById('listaSugerenciasCliente');
+    const clienteSeleccionadoInfo = document.getElementById('clienteSeleccionadoInfo');
+    const inputIdClienteSeleccionado = document.getElementById('idClienteSeleccionado');
+
     let listaProductosGlobal = [];
     let carrito = [];
 
@@ -41,6 +46,48 @@ document.addEventListener('DOMContentLoaded', () => {
             relojCaja.textContent = ahora.toLocaleTimeString();
         }, 1000);
     }
+
+    inputBuscadorCliente.addEventListener('input', async (e) => {
+        const termino = e.target.value.trim();
+        if (termino.length < 2) {
+            listaSugerenciasCliente.style.display = 'none';
+            listaSugerenciasCliente.innerHTML = '';
+            return;
+        }
+        try {
+            const res = await fetch(`/admin/caja/api/buscar-cliente?termino=${encodeURIComponent(termino)}`);
+            if (res.ok) {
+                const clientes = await res.json();
+                if (clientes.length > 0) {
+                    let html = '';
+                    clientes.forEach(c => {
+                        html += `
+                            <button type="button" class="list-group-item list-group-item-action py-2 px-3 border-0 border-bottom text-start" data-id="${c.idUsuario}" data-nombre="${c.nombre}" data-cedula="${c.cedula || 'N/A'}">
+                                <span class="fw-bold text-dark">${c.nombre}</span><br>
+                                <small class="text-muted">CC: ${c.cedula || 'N/A'}</small>
+                            </button>
+                        `;
+                    });
+                    listaSugerenciasCliente.innerHTML = html;
+                    listaSugerenciasCliente.style.display = 'block';
+
+                    listaSugerenciasCliente.querySelectorAll('button').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            inputIdClienteSeleccionado.value = btn.getAttribute('data-id');
+                            clienteSeleccionadoInfo.innerHTML = `Cliente: ${btn.getAttribute('data-nombre')} <br><small>CC: ${btn.getAttribute('data-cedula')}</small>`;
+                            clienteSeleccionadoInfo.style.display = 'block';
+                            inputBuscadorCliente.value = '';
+                            listaSugerenciasCliente.style.display = 'none';
+                        });
+                    });
+                } else {
+                    listaSugerenciasCliente.style.display = 'none';
+                }
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    });
 
     inputBuscador.addEventListener('input', (e) => {
         const termino = e.target.value;
@@ -130,6 +177,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', (e) => {
         if (!e.target.closest('#buscadorCaja') && !e.target.closest('#listaSugerenciasCaja')) {
             listaSugerencias.style.display = 'none';
+        }
+        if (!e.target.closest('#buscadorCliente') && !e.target.closest('#listaSugerenciasCliente')) {
+            listaSugerenciasCliente.style.display = 'none';
         }
     });
 
@@ -257,9 +307,12 @@ document.addEventListener('DOMContentLoaded', () => {
             subtotal: item.subtotal
         }));
 
+        const idClienteV = inputIdClienteSeleccionado.value ? parseInt(inputIdClienteSeleccionado.value) : null;
+
         const ventaRequest = {
             metodoPago: metodoPago,
             total: totalGeneral,
+            idCliente: idClienteV,
             detalles: detalles
         };
 
@@ -282,10 +335,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const resultado = await response.json();
             if (response.ok && resultado.success) {
-                alert('¡Venta cobrada con éxito!');
+                
+                window.open(`/admin/caja/factura/${resultado.idVenta}`, '_blank');
+                
                 carrito = [];
                 renderizarCarrito();
                 montoRecibidoInput.value = '';
+                inputIdClienteSeleccionado.value = '';
+                clienteSeleccionadoInfo.style.display = 'none';
+                clienteSeleccionadoInfo.textContent = '';
                 cargarProductosCaja();
             } else {
                 alert('Error al cobrar: ' + (resultado.mensaje || 'Error desconocido'));

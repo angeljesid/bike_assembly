@@ -2,10 +2,11 @@ package com.bike_assembly.services.venta;
 
 import com.bike_assembly.domain.DetalleVenta;
 import com.bike_assembly.domain.Producto;
+import com.bike_assembly.domain.Usuario;
 import com.bike_assembly.domain.Venta;
-import com.bike_assembly.domain.VentaRequestDTO; // Ajustado a tu ruta
-import com.bike_assembly.repository.DetalleVentaDao;
+import com.bike_assembly.domain.VentaRequestDTO;
 import com.bike_assembly.repository.ProductoDao;
+import com.bike_assembly.repository.UsuarioDao;
 import com.bike_assembly.repository.VentaDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,11 +21,11 @@ public class VentaService implements IVentaService {
     private VentaDao ventaDao;
 
     @Autowired
-    private DetalleVentaDao detalleVentaDao;
-
-    @Autowired
     private ProductoDao productoDao;
 
+    @Autowired
+    private UsuarioDao usuarioDao;
+    
     @Override
     @Transactional
     public Venta procesarCobro(VentaRequestDTO request) {
@@ -32,32 +33,117 @@ public class VentaService implements IVentaService {
         venta.setFechaHora(LocalDateTime.now());
         venta.setMetodoPago(request.getMetodoPago());
         venta.setTotal(request.getTotal());
-        Venta ventaGuardada = ventaDao.save(venta);
+        venta.setEstado("COMPLETADA");
 
-        for (VentaRequestDTO.DetalleRequestDTO det : request.getDetalles()) {
-            Producto producto = productoDao.findById(det.getIdProducto())
-                    .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        if (request.getIdCliente() != null) {
+            venta.setCliente(usuarioDao.findById(request.getIdCliente()).orElse(null));
+        }
 
-            if (producto.getStock() < det.getCantidad()) {
+        for (VentaRequestDTO.DetalleVentaDTO detDTO : request.getDetalles()) {
+            Producto producto = productoDao.findById(detDTO.getIdProducto())
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+            
+            if(producto.getStock() != null && producto.getStock() < detDTO.getCantidad()) {
                 throw new RuntimeException("Stock insuficiente para: " + producto.getNombre());
             }
             
-            producto.setStock(producto.getStock() - det.getCantidad());
-            productoDao.save(producto);
-
+            if(producto.getStock() != null) {
+                producto.setStock(producto.getStock() - detDTO.getCantidad());
+                productoDao.save(producto);
+            }
+            
             DetalleVenta detalle = new DetalleVenta();
-            detalle.setVenta(ventaGuardada);
+            detalle.setVenta(venta);
             detalle.setProducto(producto);
-            detalle.setCantidad(det.getCantidad());
-            detalle.setPrecioUnitario(det.getPrecioUnitario());
-            detalle.setSubtotal(det.getSubtotal());
-            detalleVentaDao.save(detalle);
+            detalle.setCantidad(detDTO.getCantidad());
+            detalle.setPrecioUnitario(detDTO.getPrecioUnitario());
+            detalle.setSubtotal(detDTO.getSubtotal());
+            venta.getDetalles().add(detalle);
         }
-        return ventaGuardada;
+        
+        return ventaDao.save(venta);
+    }
+
+    @Override
+    public Venta encontrarPorId(Long id) {
+        return ventaDao.findById(id).orElse(null);
+    }
+
+    @Override
+    @Transactional
+    public Venta procesarPedidoCliente(VentaRequestDTO request, Usuario cliente) {
+        Venta venta = new Venta();
+        venta.setFechaHora(LocalDateTime.now());
+        venta.setMetodoPago(request.getMetodoPago());
+        venta.setTotal(request.getTotal());
+        venta.setEstado("PENDIENTE");
+        venta.setCliente(cliente);
+
+        for (VentaRequestDTO.DetalleVentaDTO detDTO : request.getDetalles()) {
+            Producto producto = productoDao.findById(detDTO.getIdProducto())
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+            
+            if(producto.getStock() != null && producto.getStock() < detDTO.getCantidad()) {
+                throw new RuntimeException("Stock insuficiente para: " + producto.getNombre());
+            }
+            
+            if(producto.getStock() != null) {
+                producto.setStock(producto.getStock() - detDTO.getCantidad());
+                productoDao.save(producto);
+            }
+            
+            DetalleVenta detalle = new DetalleVenta();
+            detalle.setVenta(venta);
+            detalle.setProducto(producto);
+            detalle.setCantidad(detDTO.getCantidad());
+            detalle.setPrecioUnitario(detDTO.getPrecioUnitario());
+            detalle.setSubtotal(detDTO.getSubtotal());
+            venta.getDetalles().add(detalle);
+        }
+        
+        return ventaDao.save(venta);
     }
 
     @Override
     public List<Venta> listarVentas() {
         return ventaDao.findAll();
+    }
+
+    @Override
+    public List<Venta> listarPedidosPendientes() {
+        try {
+            return ventaDao.findByEstado("PENDIENTE");
+        } catch (Exception e) {
+            return ventaDao.findAll().stream()
+                    .filter(v -> "PENDIENTE".equalsIgnoreCase(v.getEstado()))
+                    .toList();
+        }
+    }
+
+    @Override
+    public List<Venta> listarHistorialVentasAdmin() {
+        return ventaDao.findAll();
+    }
+
+    @Override
+    public List<Venta> listarPedidosCliente(Usuario cliente) {
+        try {
+            return ventaDao.findByCliente(cliente);
+        } catch (Exception e) {
+            return ventaDao.findAll().stream()
+                    .filter(v -> v.getCliente() != null && v.getCliente().getIdUsuario().equals(cliente.getIdUsuario()))
+                    .toList();
+        }
+    }
+
+    @Override
+    @Transactional
+    public Venta marcarPedidoCompletado(Long idVenta) {
+        Venta venta = encontrarPorId(idVenta);
+        if (venta != null) {
+            venta.setEstado("COMPLETADA");
+            return ventaDao.save(venta);
+        }
+        throw new RuntimeException("Pedido no encontrado con ID: " + idVenta);
     }
 }

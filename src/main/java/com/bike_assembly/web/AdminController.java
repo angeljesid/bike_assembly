@@ -4,7 +4,7 @@ import com.bike_assembly.domain.Producto;
 import com.bike_assembly.domain.Usuario;
 import com.bike_assembly.services.producto.IProductoService;
 import com.bike_assembly.services.proveedor.IProveedorService;
-import com.bike_assembly.services.venta.IVentaService; // <--- Importar servicio de ventas
+import com.bike_assembly.services.venta.IVentaService;
 import com.bike_assembly.repository.UsuarioDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -35,7 +35,7 @@ public class AdminController {
     private IProductoService productoService;
 
     @Autowired
-    private IVentaService ventaService; // <--- Inyección del servicio de ventas
+    private IVentaService ventaService;
 
     @GetMapping({"", "/", "/inicio", "/dashboard"})
     public String inicioAdmin(Model model) {
@@ -54,11 +54,22 @@ public class AdminController {
         return "admin/inicio"; 
     }
 
-    // --- NUEVO MÉTODO PARA EL HISTORIAL DE VENTAS ---
     @GetMapping("/ventas")
     public String listarVentasAdmin(Model model) {
-        model.addAttribute("ventas", ventaService.listarVentas());
+        model.addAttribute("ventas", ventaService.listarHistorialVentasAdmin());
         return "admin/historial-admin";
+    }
+
+    @GetMapping("/pedidos")
+    public String listarPedidosPendientes(Model model) {
+        model.addAttribute("pedidos", ventaService.listarPedidosPendientes());
+        return "admin/pedidos-pendientes";
+    }
+
+    @PostMapping("/pedidos/completar/{id}")
+    public String completarPedido(@PathVariable("id") Long id) {
+        ventaService.marcarPedidoCompletado(id);
+        return "redirect:/admin/pedidos";
     }
 
     @GetMapping("/producto")

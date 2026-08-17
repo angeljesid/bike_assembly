@@ -7,6 +7,7 @@ C:\java\bike_assembly\src\main\java\com\bike_assembly\controller\ClienteControll
 C:\java\bike_assembly\src\main\java\com\bike_assembly\controller\InicioController.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\controller\loginController.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\controller\OperarioController.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\controller\ProductoRestController.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\DetalleVenta.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\Organizacion.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\Producto.java

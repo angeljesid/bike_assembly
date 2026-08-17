@@ -23,13 +23,19 @@ public class Venta {
     @Column(nullable = false, length = 50)
     private String metodoPago;
 
+    @Column(nullable = false, length = 20)
+    private String estado;
+
+    @ManyToOne
+    @JoinColumn(name = "id_usuario")
+    private Usuario cliente;
+
     @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<DetalleVenta> detalles = new ArrayList<>();
 
     public Venta() {}
 
-    // Getters y Setters obligatorios
     public Long getIdVenta() { return idVenta; }
     public void setIdVenta(Long idVenta) { this.idVenta = idVenta; }
 
@@ -41,6 +47,12 @@ public class Venta {
 
     public String getMetodoPago() { return metodoPago; }
     public void setMetodoPago(String metodoPago) { this.metodoPago = metodoPago; }
+
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
+
+    public Usuario getCliente() { return cliente; }
+    public void setCliente(Usuario cliente) { this.cliente = cliente; }
 
     public List<DetalleVenta> getDetalles() { return detalles; }
     public void setDetalles(List<DetalleVenta> detalles) { this.detalles = detalles; }

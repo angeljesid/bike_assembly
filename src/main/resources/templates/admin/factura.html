@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Comprobante de Venta</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Courier New', Courier, monospace; }
+        .invoice-box {
+            max-width: 600px;
+            margin: auto;
+            padding: 30px;
+            border: 1px solid #eee;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+            background-color: #fff;
+        }
+        @media print {
+            body { background: white; margin: 0; padding: 0; }
+            .invoice-box { box-shadow: none; border: none; padding: 0; margin: 0; width: 100%; }
+        }
+    </style>
+</head>
+<body onload="window.print()" class="bg-light pt-5">
+    
+    <div class="invoice-box">
+        <div class="text-center mb-4 border-bottom pb-3">
+            <h2 class="fw-bold m-0">BIKE ASSEMBLY</h2>
+            <p class="text-muted m-0">Comprobante de Venta POS</p>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-sm-6">
+                <strong>Venta N°:</strong> <span th:text="${venta.idVenta}"></span><br>
+                <strong>Fecha:</strong> <span th:text="${#temporals.format(venta.fechaHora, 'dd/MM/yyyy HH:mm')}"></span>
+            </div>
+            <div class="col-sm-6 text-end" th:if="${venta.cliente != null}">
+                <strong>Cliente:</strong> <span th:text="${venta.cliente.nombre}"></span><br>
+                <strong>CC/NIT:</strong> <span th:text="${venta.cliente.cedula}"></span>
+            </div>
+            <div class="col-sm-6 text-end" th:if="${venta.cliente == null}">
+                <strong>Cliente:</strong> Consumidor Final
+            </div>
+        </div>
+
+        <table class="table table-sm table-borderless border-top border-bottom">
+            <thead>
+                <tr class="border-bottom">
+                    <th>Producto</th>
+                    <th class="text-center">Cant</th>
+                    <th class="text-end">Vr. Unit</th>
+                    <th class="text-end">Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="det : ${venta.detalles}">
+                    <td th:text="${det.producto.nombre}"></td>
+                    <td class="text-center" th:text="${det.cantidad}"></td>
+                    <td class="text-end" th:text="${'$ ' + #numbers.formatDecimal(det.precioUnitario, 1, 'DEFAULT', 2, 'DEFAULT')}"></td>
+                    <td class="text-end" th:text="${'$ ' + #numbers.formatDecimal(det.subtotal, 1, 'DEFAULT', 2, 'DEFAULT')}"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="d-flex justify-content-between mt-4">
+            <div>
+                <strong>Método de Pago:</strong> <span th:text="${venta.metodoPago}"></span>
+            </div>
+            <div class="text-end">
+                <h4 class="fw-bold m-0">TOTAL: <span th:text="${'$ ' + #numbers.formatDecimal(venta.total, 1, 'DEFAULT', 2, 'DEFAULT')}"></span></h4>
+            </div>
+        </div>
+        
+        <div class="text-center mt-5 pt-3 border-top text-muted small">
+            <p>¡Gracias por su compra!<br>El documento no representa una factura electrónica.</p>
+        </div>
+    </div>
+
+</body>
+</html>

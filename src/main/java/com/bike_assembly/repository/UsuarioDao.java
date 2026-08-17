@@ -10,10 +10,11 @@ public interface UsuarioDao extends JpaRepository<Usuario, Long> {
     Optional<Usuario> findByUsername(String username);
     Optional<Usuario> findByEmail(String email);
     Optional<Usuario> findByResetPasswordToken(String token);
-    
-    // El Pto Gmail :v
     Optional<Usuario> findByUsernameOrEmail(String username, String email);
-
+    Optional<Usuario> findByCedula(String cedula);
+    
+    List<Usuario> findByNombreContainingIgnoreCaseOrCedulaContainingIgnoreCaseAndRol(String nombre, String cedula, Rol rol);
+    
     boolean existsByRol(Rol rol);
     List<Usuario> findByRol(Rol rol);
 }

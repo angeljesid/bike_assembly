@@ -26,11 +26,13 @@ public class Usuario implements Serializable {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(unique = true)
+    private String cedula;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Rol rol;
 
-    // Token para recuperación de contraseña
     private String resetPasswordToken;
     private LocalDateTime tokenExpirationDate;
 
@@ -40,7 +42,6 @@ public class Usuario implements Serializable {
 
     public Usuario() {}
 
-    // Getters y Setters
     public Long getIdUsuario() { return idUsuario; }
     public void setIdUsuario(Long idUsuario) { this.idUsuario = idUsuario; }
 
@@ -55,6 +56,9 @@ public class Usuario implements Serializable {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+
+    public String getCedula() { return cedula; }
+    public void setCedula(String cedula) { this.cedula = cedula; }
 
     public Rol getRol() { return rol; }
     public void setRol(Rol rol) { this.rol = rol; }
