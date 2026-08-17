@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}"/>
+    <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}"/>
     <title>Bike Assembly - Mi Carrito</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
     <style>
         body { background-color: #f8fafc; }
         .navbar-custom { background-color: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
@@ -18,8 +21,30 @@
 
     <nav class="navbar navbar-expand-lg navbar-custom py-3 mb-4">
         <div class="container">
-            <a class="navbar-brand fw-bold text-dark" href="/cliente"><i class="bi bi-bicycle text-primary me-2"></i>Bike Assembly</a>
-            <span class="badge bg-danger rounded-pill fs-6" id="contadorCarrito">0</span>
+            <a class="navbar-brand fw-bold text-dark" href="/cliente/catalogo"><i class="bi bi-bicycle text-primary me-2"></i>Bike Assembly</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/cliente/catalogo">Catálogo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/cliente/pedidos">Mis Pedidos</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="text-muted fw-semibold" th:text="'Hola, ' + ${cliente != null ? cliente.nombre : 'Cliente'}">Hola, Cliente</span>
+                    <a href="/cliente/carrito" class="btn btn-primary position-relative me-2 text-decoration-none">
+                        <i class="bi bi-cart3"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="contadorCarrito">0</span>
+                    </a>
+                    <form th:action="@{/logout}" method="post" class="m-0">
+                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Cerrar Sesión"><i class="bi bi-box-arrow-right"></i></button>
+                    </form>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -27,12 +52,9 @@
         <h2 class="fw-bold mb-4">Tu Carrito de Compras</h2>
 
         <div class="row g-4">
-            <!-- Lista Dinámica de Productos -->
             <div class="col-lg-8" id="contenedorItemsCarrito">
-                <!-- Se inyecta por JS -->
             </div>
 
-            <!-- Resumen de Compra -->
             <div class="col-lg-4">
                 <div class="summary-card">
                     <h5 class="fw-bold mb-4">Resumen de la Orden</h5>
@@ -53,8 +75,8 @@
                         <h5 class="fw-bold text-primary mb-0" id="totalCarrito">$ 0</h5>
                     </div>
 
-                    <a href="/cliente" class="btn btn-outline-secondary w-100 py-2 mb-2 text-decoration-none">Seguir comprando</a>
-                    <button class="btn btn-primary w-100 py-3 fw-bold fs-5 shadow-sm" onclick="alert('¡Compra procesada con éxito! Conectando con historial...')">
+                    <a href="/cliente/catalogo" class="btn btn-outline-secondary w-100 py-2 mb-2 text-decoration-none">Seguir comprando</a>
+                    <button class="btn btn-primary w-100 py-3 fw-bold fs-5 shadow-sm" id="btnProcesarPago" onclick="procesarPago()">
                         Procesar Pago <i class="bi bi-credit-card ms-2"></i>
                     </button>
                 </div>
@@ -63,6 +85,160 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script th:src="@{/js/catalogo-cliente.js}"></script>
+    <script th:inline="javascript">
+        const username = /*[[${cliente != null ? (cliente.username != null ? cliente.username : cliente.email) : 'invitado'}]]*/ 'invitado';
+        const CART_KEY = 'carrito_' + username;
+
+        function obtenerCarrito() {
+            return JSON.parse(localStorage.getItem(CART_KEY)) || [];
+        }
+
+        function guardarCarrito(carrito) {
+            localStorage.setItem(CART_KEY, JSON.stringify(carrito));
+            actualizarContador();
+        }
+
+        function actualizarContador() {
+            const carrito = obtenerCarrito();
+            const totalItems = carrito.reduce((sum, item) => sum + (item.cantidad || 1), 0);
+            const badge = document.getElementById('contadorCarrito');
+            if (badge) badge.innerText = totalItems;
+        }
+
+        function renderizarCarrito() {
+            const carrito = obtenerCarrito();
+            const contenedor = document.getElementById('contenedorItemsCarrito');
+            const subtotalEl = document.getElementById('subtotalCarrito');
+            const totalEl = document.getElementById('totalCarrito');
+
+            if (!contenedor) return;
+
+            if (carrito.length === 0) {
+                contenedor.innerHTML = `
+                    <div class="text-center py-5 bg-white rounded-3 shadow-sm">
+                        <i class="bi bi-cart-x fs-1 text-muted opacity-50 d-block mb-3"></i>
+                        <h5 class="text-muted">Tu carrito está vacío</h5>
+                        <a href="/cliente/catalogo" class="btn btn-primary mt-3">Ir al Catálogo</a>
+                    </div>
+                `;
+                if (subtotalEl) subtotalEl.innerText = '$ 0';
+                if (totalEl) totalEl.innerText = '$ 0';
+                actualizarContador();
+                return;
+            }
+
+            let html = '';
+            let subtotalTotal = 0;
+
+            carrito.forEach((item, index) => {
+                const precio = item.precio || 0;
+                const cantidad = item.cantidad || 1;
+                const subtotalItem = precio * cantidad;
+                subtotalTotal += subtotalItem;
+                
+                const imagenSrc = item.imagen ? item.imagen : 'https://via.placeholder.com/100';
+
+                html += `
+                    <div class="cart-item">
+                        <img src="${imagenSrc}" alt="${item.nombre}">
+                        <div class="flex-grow-1">
+                            <h5 class="fw-bold mb-1">${item.nombre}</h5>
+                            <p class="text-muted small mb-2">Marca: ${item.marca || 'N/A'}</p>
+                            <h6 class="text-primary fw-bold">$ ${precio.toLocaleString()}</h6>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="number" min="1" value="${cantidad}" class="form-control form-control-sm text-center" style="width: 70px;" onchange="cambiarCantidad(${index}, this.value)">
+                            <button class="btn btn-outline-danger btn-sm" onclick="eliminarItem(${index})"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            contenedor.innerHTML = html;
+            if (subtotalEl) subtotalEl.innerText = '$ ' + subtotalTotal.toLocaleString();
+            if (totalEl) totalEl.innerText = '$ ' + subtotalTotal.toLocaleString();
+            actualizarContador();
+        }
+
+        function cambiarCantidad(index, nuevaCantidad) {
+            let carrito = obtenerCarrito();
+            nuevaCantidad = parseInt(nuevaCantidad);
+            if (nuevaCantidad > 0) {
+                carrito[index].cantidad = nuevaCantidad;
+            } else {
+                carrito.splice(index, 1);
+            }
+            guardarCarrito(carrito);
+            renderizarCarrito();
+        }
+
+        function eliminarItem(index) {
+            let carrito = obtenerCarrito();
+            carrito.splice(index, 1);
+            guardarCarrito(carrito);
+            renderizarCarrito();
+        }
+
+        function procesarPago() {
+            const carrito = obtenerCarrito();
+            if (carrito.length === 0) {
+                alert('El carrito está vacío');
+                return;
+            }
+
+            const detalles = carrito.map(item => ({
+                idProducto: item.idProducto,
+                cantidad: item.cantidad || 1,
+                precioUnitario: item.precio || 0,
+                subtotal: (item.precio || 0) * (item.cantidad || 1)
+            }));
+
+            const total = carrito.reduce((sum, item) => sum + ((item.precio || 0) * (item.cantidad || 1)), 0);
+
+            const payload = {
+                metodoPago: 'Efectivo',
+                total: total,
+                detalles: detalles,
+                estado: 'PENDIENTE'
+            };
+
+            const btn = document.getElementById('btnProcesarPago');
+            if (btn) btn.disabled = true;
+
+            const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+            
+            const headers = { 'Content-Type': 'application/json' };
+            if (csrfToken && csrfHeader) {
+                headers[csrfHeader] = csrfToken;
+            }
+
+            fetch('/cliente/api/checkout', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    localStorage.removeItem(CART_KEY);
+                    alert('¡Compra procesada con éxito! Redirigiendo a tus pedidos...');
+                    window.location.href = '/cliente/pedidos';
+                } else {
+                    alert('Error al procesar el pago: ' + (data.mensaje || 'Error desconocido'));
+                    if (btn) btn.disabled = false;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Error de conexión al procesar el pago.');
+                if (btn) btn.disabled = false;
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderizarCarrito();
+        });
+    </script>
 </body>
 </html>

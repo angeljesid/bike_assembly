@@ -11,18 +11,29 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Si estamos en la página de detalle del producto, cargamos sus datos específicos
     if (window.location.pathname.includes('/cliente/producto/')) {
         const partesRuta = window.location.pathname.split('/');
         const idProducto = partesRuta[partesRuta.length - 1];
         cargarDetalleProducto(idProducto);
     }
 
-    // Si estamos en la página del carrito, renderizamos los elementos guardados
     if (window.location.pathname.includes('/cliente/carrito')) {
         renderizarCarrito();
     }
 });
+
+function obtenerCartKey() {
+    return window.CART_KEY || 'carritoBikeAssembly';
+}
+
+function obtenerCarrito() {
+    return JSON.parse(localStorage.getItem(obtenerCartKey())) || [];
+}
+
+function guardarCarrito(carrito) {
+    localStorage.setItem(obtenerCartKey(), JSON.stringify(carrito));
+    actualizarContadorCarrito();
+}
 
 async function cargarProductos() {
     try {
@@ -68,7 +79,6 @@ function renderizarProductos(productos) {
         const precioAMostrar = prod.precioTotal ? prod.precioTotal : prod.precio;
         const precioFormateado = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(precioAMostrar);
         
-        // Sincronizado exactamente igual que el admin con /recursos/
         const imagen = (prod.imagen && prod.imagen !== 'null' && prod.imagen.trim() !== '') 
             ? `/recursos/${prod.imagen}` 
             : 'https://via.placeholder.com/80x80.png?text=Sin+Foto'; 
@@ -120,7 +130,6 @@ function filtrarProductos(termino) {
     renderizarProductos(filtrados);
 }
 
-// Cargar detalle del producto individual
 async function cargarDetalleProducto(id) {
     try {
         const response = await fetch(`/api/productos`);
@@ -168,7 +177,7 @@ function añadirDesdeDetalle() {
 }
 
 function agregarAlCarritoDirecto(prod) {
-    let carrito = JSON.parse(localStorage.getItem('carritoBikeAssembly')) || [];
+    let carrito = obtenerCarrito();
     
     const precioFinal = prod.precioTotal ? prod.precioTotal : prod.precio;
     const imagen = (prod.imagen && prod.imagen !== 'null' && prod.imagen.trim() !== '') 
@@ -189,12 +198,11 @@ function agregarAlCarritoDirecto(prod) {
         });
     }
 
-    localStorage.setItem('carritoBikeAssembly', JSON.stringify(carrito));
-    actualizarContadorCarrito();
+    guardarCarrito(carrito);
 }
 
 function actualizarContadorCarrito() {
-    const carrito = JSON.parse(localStorage.getItem('carritoBikeAssembly')) || [];
+    const carrito = obtenerCarrito();
     const totalItems = carrito.reduce((sum, item) => sum + item.cantidad, 0);
     const contador = document.getElementById("contadorCarrito");
     if (contador) {
@@ -205,7 +213,7 @@ function actualizarContadorCarrito() {
 }
 
 function renderizarCarrito() {
-    const carrito = JSON.parse(localStorage.getItem('carritoBikeAssembly')) || [];
+    const carrito = obtenerCarrito();
     const contenedorItems = document.getElementById("contenedorItemsCarrito");
     const subtotalEl = document.getElementById("subtotalCarrito");
     const totalEl = document.getElementById("totalCarrito");
@@ -256,20 +264,18 @@ function renderizarCarrito() {
 }
 
 function cambiarCantidad(index, nuevaCantidad) {
-    let carrito = JSON.parse(localStorage.getItem('carritoBikeAssembly')) || [];
+    let carrito = obtenerCarrito();
     let cant = parseInt(nuevaCantidad);
     if (cant > 0) {
         carrito[index].cantidad = cant;
-        localStorage.setItem('carritoBikeAssembly', JSON.stringify(carrito));
+        guardarCarrito(carrito);
         renderizarCarrito();
-        actualizarContadorCarrito();
     }
 }
 
 function eliminarDelCarrito(index) {
-    let carrito = JSON.parse(localStorage.getItem('carritoBikeAssembly')) || [];
+    let carrito = obtenerCarrito();
     carrito.splice(index, 1);
-    localStorage.setItem('carritoBikeAssembly', JSON.stringify(carrito));
+    guardarCarrito(carrito);
     renderizarCarrito();
-    actualizarContadorCarrito();
 }

@@ -1,6 +1,7 @@
 package com.bike_assembly.controller;
 
 import com.bike_assembly.domain.Usuario;
+import com.bike_assembly.domain.Venta;
 import com.bike_assembly.domain.VentaRequestDTO;
 import com.bike_assembly.repository.UsuarioDao;
 import com.bike_assembly.services.venta.IVentaService;
@@ -16,8 +17,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/cliente")
@@ -48,6 +52,12 @@ public class ClienteController {
 
     @GetMapping("/carrito")
     public String verCarrito(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String usernameOrEmail = auth.getName();
+        
+        Usuario cliente = usuarioDao.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail).orElse(null);
+        model.addAttribute("cliente", cliente);
+
         return "cliente/carrito"; 
     }
 
@@ -59,7 +69,18 @@ public class ClienteController {
         Usuario cliente = usuarioDao.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail).orElse(null);
         
         if (cliente != null) {
-            model.addAttribute("ventas", ventaService.listarPedidosCliente(cliente));
+            List<Venta> todasLasVentas = ventaService.listarPedidosCliente(cliente);
+            
+            List<Venta> pendientes = todasLasVentas.stream()
+                    .filter(v -> "PENDIENTE".equals(v.getEstado()))
+                    .collect(Collectors.toList());
+                    
+            List<Venta> completadas = todasLasVentas.stream()
+                    .filter(v -> "COMPLETADA".equals(v.getEstado()))
+                    .collect(Collectors.toList());
+            
+            model.addAttribute("pendientes", pendientes);
+            model.addAttribute("completadas", completadas);
             model.addAttribute("cliente", cliente);
         }
         
@@ -85,4 +106,4 @@ public class ClienteController {
             return ResponseEntity.badRequest().body(response);
         }
     }
-}
+}  
