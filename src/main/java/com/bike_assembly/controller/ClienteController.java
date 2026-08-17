@@ -46,6 +46,11 @@ public class ClienteController {
 
     @GetMapping("/producto/{id}")
     public String detalleProducto(@PathVariable("id") Long id, Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String usernameOrEmail = auth.getName();
+        Usuario cliente = usuarioDao.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail).orElse(null);
+        
+        model.addAttribute("cliente", cliente);
         model.addAttribute("idProducto", id);
         return "cliente/producto-detalle"; 
     }
@@ -106,4 +111,4 @@ public class ClienteController {
             return ResponseEntity.badRequest().body(response);
         }
     }
-}  
+}

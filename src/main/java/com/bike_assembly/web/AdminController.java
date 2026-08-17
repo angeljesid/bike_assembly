@@ -2,6 +2,7 @@ package com.bike_assembly.web;
 
 import com.bike_assembly.domain.Producto;
 import com.bike_assembly.domain.Usuario;
+import com.bike_assembly.domain.Venta;
 import com.bike_assembly.services.producto.IProductoService;
 import com.bike_assembly.services.proveedor.IProveedorService;
 import com.bike_assembly.services.venta.IVentaService;
@@ -17,9 +18,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")
@@ -56,7 +60,12 @@ public class AdminController {
 
     @GetMapping("/ventas")
     public String listarVentasAdmin(Model model) {
-        model.addAttribute("ventas", ventaService.listarHistorialVentasAdmin());
+        List<Venta> todasLasVentas = ventaService.listarHistorialVentasAdmin();
+        List<Venta> ventasFiltradas = todasLasVentas.stream()
+                .filter(v -> !"PENDIENTE".equals(v.getEstado()))
+                .collect(Collectors.toList());
+                
+        model.addAttribute("ventas", ventasFiltradas);
         return "admin/historial-admin";
     }
 
@@ -107,7 +116,6 @@ public class AdminController {
 
     @PostMapping("/producto/guardar")
     public String guardarProducto(Producto producto, @RequestParam(value = "file", required = false) MultipartFile imagen) {
-        
         if (imagen != null && !imagen.isEmpty()) {
             Path directorioImagenes = Paths.get("uploads");
             String rutaAbsoluta = directorioImagenes.toFile().getAbsolutePath();
