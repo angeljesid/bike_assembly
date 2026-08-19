@@ -36,24 +36,50 @@ public class Venta {
 
     public Venta() {}
 
-    public Long getIdVenta() { return idVenta; }
-    public void setIdVenta(Long idVenta) { this.idVenta = idVenta; }
+    public Long getIdVenta() {
+        return idVenta; 
+    }
+    public void setIdVenta(Long idVenta) {
+        this.idVenta = idVenta; 
+    }
 
-    public LocalDateTime getFechaHora() { return fechaHora; }
-    public void setFechaHora(LocalDateTime fechaHora) { this.fechaHora = fechaHora; }
+    public LocalDateTime getFechaHora() {
+        return fechaHora; 
+    }
+    public void setFechaHora(LocalDateTime fechaHora) {
+        this.fechaHora = fechaHora; }
 
-    public Double getTotal() { return total; }
-    public void setTotal(Double total) { this.total = total; }
+    public Double getTotal() {
+        return total; 
+    }
+    public void setTotal(Double total) {
+        this.total = total; 
+    }
 
-    public String getMetodoPago() { return metodoPago; }
-    public void setMetodoPago(String metodoPago) { this.metodoPago = metodoPago; }
+    public String getMetodoPago() {
+        return metodoPago; 
+    }
+    public void setMetodoPago(String metodoPago) {
+        this.metodoPago = metodoPago; 
+    }
 
-    public String getEstado() { return estado; }
-    public void setEstado(String estado) { this.estado = estado; }
+    public String getEstado() {
+        return estado; 
+    }
+    public void setEstado(String estado) {
+        this.estado = estado; 
+    }
 
-    public Usuario getCliente() { return cliente; }
-    public void setCliente(Usuario cliente) { this.cliente = cliente; }
+    public Usuario getCliente() {
+        return cliente; 
+    }
+    public void setCliente(Usuario cliente) {
+        this.cliente = cliente; 
+    }
 
-    public List<DetalleVenta> getDetalles() { return detalles; }
-    public void setDetalles(List<DetalleVenta> detalles) { this.detalles = detalles; }
+    public List<DetalleVenta> getDetalles() {
+    return detalles; }
+    public void setDetalles(List<DetalleVenta> detalles) {
+    this.detalles = detalles; 
+    }
 }

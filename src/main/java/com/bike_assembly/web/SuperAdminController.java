@@ -1,9 +1,8 @@
 package com.bike_assembly.web;
 
-import com.bike_assembly.domain.Rol;
 import com.bike_assembly.domain.Usuario;
 import com.bike_assembly.repository.OrganizacionDao;
-import com.bike_assembly.services.SuperAdmin.ISuperAdminService;
+import com.bike_assembly.services.usuario.ISuperAdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,30 +25,28 @@ public class SuperAdminController {
     @Autowired
     private OrganizacionDao organizacionDao;
 
-   @GetMapping("/dashboard")
+    @GetMapping("/dashboard")
     public String verDashboardGlobal(Model model) {
-        
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         
-        List<Usuario> listaUsuarios = superAdminService.listarTodosLosUsuarios();
-        
+        List<Usuario> listaAdmins = superAdminService.listarAdministradores();
+        List<Usuario> listaClientes = superAdminService.listarClientes();
         long totalOrganizaciones = organizacionDao.count();
 
         model.addAttribute("nombreUsuario", username);
-        model.addAttribute("listaUsuarios", listaUsuarios);
+        model.addAttribute("listaAdmins", listaAdmins);
+        model.addAttribute("listaClientes", listaClientes);
         model.addAttribute("totalOrganizaciones", totalOrganizaciones);
-        model.addAttribute("totalUsuarios", listaUsuarios.size());
-
+        model.addAttribute("totalAdmins", listaAdmins.size());
+        
         return "superadmin/dashboard";
     }
 
-    @PostMapping("/cambiar-rol")
-    public String procesarCambioRol(@RequestParam("idUsuario") Long idUsuario, 
-                                    @RequestParam("nuevoRol") Rol nuevoRol) {
-        
-        superAdminService.cambiarRolUsuario(idUsuario, nuevoRol);
-        
-        return "redirect:/superadmin/dashboard?actualizado=true";
+    @PostMapping("/promover-admin")
+    public String promoverAdmin(@RequestParam("idUsuario") Long idUsuario, 
+                                @RequestParam("nombreTaller") String nombreTaller) {
+        superAdminService.promoverAAdmin(idUsuario, nombreTaller);
+        return "redirect:/superadmin/dashboard?promovido=true";
     }
 }

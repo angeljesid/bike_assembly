@@ -64,7 +64,7 @@ function renderizarProductos(productos) {
     
     if (!contenedor) return;
     
-    contenedor.innerHTML = ""; 
+    contenedor.innerHTML = "";
 
     if (productos.length === 0) {
         contenedor.style.display = "none";
@@ -86,12 +86,14 @@ function renderizarProductos(productos) {
         const categoria = prod.categoria ? prod.categoria : 'General'; 
         const marca = prod.marca ? prod.marca : 'Sin marca';
         const condicion = prod.condicion ? prod.condicion : 'N/A';
+        const nombreTaller = (prod.organizacion && prod.organizacion.nombre) ? prod.organizacion.nombre : 'Taller Independiente';
 
         const cardHTML = `
             <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
-                <div class="card product-card h-100">
+                <div class="card product-card h-100 border-0 shadow-sm">
                     <a href="/cliente/producto/${prod.idProducto}" class="text-decoration-none text-dark">
-                        <div class="img-container p-3">
+                        <div class="img-container p-3 position-relative">
+                            <span class="position-absolute top-0 start-0 m-2 badge bg-dark opacity-75"><i class="bi bi-shop me-1"></i> ${nombreTaller}</span>
                             <img src="${imagen}" alt="${prod.nombre}" onerror="this.src='https://via.placeholder.com/80x80.png?text=Sin+Foto'">
                         </div>
                     </a>
@@ -104,7 +106,7 @@ function renderizarProductos(productos) {
                         
                         <div class="mt-auto d-flex justify-content-between align-items-center">
                             <span class="fw-bold fs-5" style="color: var(--brand-blue);">${precioFormateado}</span>
-                            <button class="btn btn-primary btn-sm rounded-circle" style="width: 35px; height: 35px;" onclick='agregarAlCarritoDirecto(${JSON.stringify(prod)})' title="Agregar al carrito">
+                            <button class="btn btn-primary btn-sm rounded-circle shadow-sm" style="width: 35px; height: 35px;" onclick='agregarAlCarritoDirecto(${JSON.stringify(prod)})' title="Agregar al carrito">
                                 <i class="bi bi-plus-lg"></i>
                             </button>
                         </div>

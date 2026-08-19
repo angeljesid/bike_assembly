@@ -10,6 +10,8 @@ import com.bike_assembly.repository.UsuarioDao;
 import com.bike_assembly.services.venta.IVentaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -39,19 +41,29 @@ public class CajaController {
     @GetMapping("/api/productos")
     @ResponseBody
     public ResponseEntity<List<Producto>> listarProductosCaja() {
-        List<Producto> productos = productoDao.findAll();
-        return ResponseEntity.ok(productos);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
+        
+        if (admin != null && admin.getOrganizacion() != null) {
+            List<Producto> productos = productoDao.findByOrganizacion(admin.getOrganizacion());
+            return ResponseEntity.ok(productos);
+        }
+        return ResponseEntity.ok(List.of());
     }
 
     @GetMapping("/api/buscar-producto")
     @ResponseBody
     public ResponseEntity<?> buscarProductoPorCodigo(@RequestParam("codigo") String codigoBarras) {
-        Optional<Producto> producto = productoDao.findByCodigoBarras(codigoBarras);
-        if (producto.isPresent()) {
-            return ResponseEntity.ok(producto.get());
-        } else {
-            return ResponseEntity.notFound().build();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
+        
+        if (admin != null && admin.getOrganizacion() != null) {
+            Optional<Producto> producto = productoDao.findByCodigoBarrasAndOrganizacion(codigoBarras, admin.getOrganizacion());
+            if (producto.isPresent()) {
+                return ResponseEntity.ok(producto.get());
+            }
         }
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/api/buscar-cliente")

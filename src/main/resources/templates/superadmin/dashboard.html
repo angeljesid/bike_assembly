@@ -4,21 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bike Assembly - Panel Super Admin</title>
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { 
-            background-color: #f4f6f9; 
+            background-color: #f4f6f9;
             font-family: 'Inter', sans-serif; 
             color: #334155;
         }
-        /* Sidebar Profesional */
         .sidebar { 
-            min-height: 100vh; 
+            min-height: 100vh;
             background-color: #0f172a; 
             color: #94a3b8; 
             padding-top: 24px; 
@@ -30,7 +26,7 @@
             letter-spacing: 0.5px;
         }
         .sidebar a { 
-            color: #94a3b8; 
+            color: #94a3b8;
             text-decoration: none; 
             padding: 12px 20px; 
             display: flex; 
@@ -41,18 +37,17 @@
             transition: all 0.2s ease-in-out;
         }
         .sidebar a:hover, .sidebar a.active { 
-            color: #ffffff; 
+            color: #ffffff;
             background-color: #1e293b; 
         }
         .sidebar a.active {
             color: #38bdf8;
         }
-        /* Tarjetas de Estadísticas Modernas */
         .stat-card { 
-            background: white; 
+            background: white;
             border-radius: 12px; 
             padding: 24px; 
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1); 
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
             border: 1px solid #e2e8f0;
             transition: transform 0.2s;
         }
@@ -60,7 +55,6 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-        /* Tarjetas de Contenido y Tablas */
         .card-custom {
             border: 1px solid #e2e8f0;
             border-radius: 12px;
@@ -86,7 +80,6 @@
     <div class="container-fluid">
         <div class="row">
             
-            <!-- Menú Lateral (Sidebar) -->
             <div class="col-md-2 sidebar d-flex flex-column px-0">
                 <div class="px-4 mb-4">
                     <h4 class="brand-title fs-5 m-0"><i class="bi bi-bicycle me-2 text-info"></i>Bike Assembly</h4>
@@ -100,7 +93,6 @@
                     <a href="#"><i class="bi bi-shield-lock me-3 fs-5"></i> Seguridad</a>
                 </div>
                 
-                <!-- Botón de Cerrar Sesión -->
                 <div class="px-3 mb-4">
                     <form th:action="@{/logout}" method="post">
                         <button type="submit" class="btn btn-outline-danger btn-sm w-100 d-flex align-items-center justify-content-center gap-2 py-2">
@@ -110,16 +102,13 @@
                 </div>
             </div>
             
-            <!-- Contenido Principal -->
             <div class="col-md-10 p-4 p-md-5">
                 
-                <!-- Alerta de éxito al cambiar rol -->
-                <div th:if="${param.actualizado}" class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
-                    <i class="bi bi-check-circle-fill me-2"></i> <strong>¡Éxito!</strong> El rol del usuario ha sido actualizado correctamente.
+                <div th:if="${param.promovido}" class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i> <strong>¡Éxito!</strong> El usuario ha sido promovido a Administrador y se le ha asignado una tienda.
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
 
-                <!-- Cabecera de Bienvenida -->
                 <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
                     <div>
                         <h2 class="fw-bold text-dark m-0">Panel de Super Administrador</h2>
@@ -136,7 +125,6 @@
                     </div>
                 </div>
 
-                <!-- Tarjetas de Estadísticas -->
                 <div class="row g-4 mb-5">
                     <div class="col-md-4">
                         <div class="stat-card d-flex align-items-center">
@@ -176,32 +164,26 @@
                     </div>
                 </div>
 
-                <!-- Tabla de Organizaciones / Usuarios -->
                 <div class="card card-custom mb-4">
                     <div class="card-header bg-white border-bottom px-4 py-3 d-flex justify-content-between align-items-center">
-                        <h5 class="fw-bold m-0 text-dark fs-6"><i class="bi bi-list-ul me-2 text-primary"></i>Últimas Tiendas Registradas</h5>
-                        <button class="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm">
-                            <i class="bi bi-plus-lg"></i> Registrar Nueva Tienda
-                        </button>
+                        <h5 class="fw-bold m-0 text-dark fs-6"><i class="bi bi-list-ul me-2 text-primary"></i>Tiendas Registradas (Admins)</h5>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0 px-3">
                                 <thead>
                                     <tr>
-                                        <th class="ps-4">ID</th>
+                                        <th class="ps-4">ID Admin</th>
                                         <th>Nombre del Taller</th>
                                         <th>Administrador Principal</th>
                                         <th>Estado</th>
-                                        <th class="text-end pe-4">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- Iteramos sobre la lista -->
                                     <tr th:each="admin : ${listaAdmins}">
-                                        <td class="ps-4 fw-bold text-muted" th:text="'#' + ${admin.organizacion.idOrganizacion}">#1</td>
+                                        <td class="ps-4 fw-bold text-muted" th:text="'#' + ${admin.idUsuario}">#1</td>
                                         <td>
-                                            <span class="fw-semibold text-dark" th:text="${admin.organizacion.nombre}">Taller X</span>
+                                            <span class="fw-semibold text-dark" th:text="${admin.organizacion != null ? admin.organizacion.nombre : 'Sin Tienda Asignada'}">Taller X</span>
                                         </td>
                                         <td>
                                             <span class="text-secondary" th:text="${admin.email}">correo@taller.com</span>
@@ -209,17 +191,11 @@
                                         <td>
                                             <span class="badge bg-success bg-opacity-10 text-success px-2 py-1 fw-medium">Activo</span>
                                         </td>
-                                        <td class="text-end pe-4">
-                                            <button type="button" class="btn btn-sm btn-outline-primary px-3" data-bs-toggle="modal" th:data-bs-target="'#modalRol' + ${admin.idUsuario}">
-                                                <i class="bi bi-person-gear me-1"></i> Cambiar Rol
-                                            </button>
-                                        </td>
                                     </tr>
-                                    <!-- Mensaje si no hay registros -->
                                     <tr th:if="${#lists.isEmpty(listaAdmins)}">
-                                        <td colspan="5" class="text-center text-muted py-5">
+                                        <td colspan="4" class="text-center text-muted py-5">
                                             <i class="bi bi-folder2-open fs-2 d-block mb-2 text-secondary"></i>
-                                            Aún no hay tiendas registradas en el sistema.
+                                            Aún no hay tiendas administradoras en el sistema.
                                         </td>
                                     </tr>
                                 </tbody>
@@ -227,44 +203,81 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="card card-custom mb-4">
+                    <div class="card-header bg-white border-bottom px-4 py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold m-0 text-dark fs-6"><i class="bi bi-people me-2 text-primary"></i>Clientes Registrados</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 px-3">
+                                <thead>
+                                    <tr>
+                                        <th class="ps-4">ID</th>
+                                        <th>Nombre</th>
+                                        <th>Cédula</th>
+                                        <th>Email</th>
+                                        <th class="text-end pe-4">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="cliente : ${listaClientes}">
+                                        <td class="ps-4 fw-bold text-muted" th:text="'#' + ${cliente.idUsuario}">#1</td>
+                                        <td>
+                                            <span class="fw-semibold text-dark" th:text="${cliente.nombre}">Juan</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-secondary" th:text="${cliente.cedula}">123</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-secondary" th:text="${cliente.email}">correo@taller.com</span>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <button type="button" class="btn btn-sm btn-outline-primary px-3" data-bs-toggle="modal" th:data-bs-target="'#modalPromover' + ${cliente.idUsuario}">
+                                                <i class="bi bi-person-gear me-1"></i> Convertir en Admin
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(listaClientes)}">
+                                        <td colspan="5" class="text-center text-muted py-5">
+                                            <i class="bi bi-folder2-open fs-2 d-block mb-2 text-secondary"></i>
+                                            No hay clientes registrados.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
     
-    <!-- ========================================== -->
-    <!-- MODALES GENERADOS DINÁMICAMENTE POR USUARIO -->
-    <!-- ========================================== -->
-    <th:block th:each="admin : ${listaAdmins}">
-        <div class="modal fade" th:id="'modalRol' + ${admin.idUsuario}" tabindex="-1" aria-hidden="true">
+    <th:block th:each="cliente : ${listaClientes}">
+        <div class="modal fade" th:id="'modalPromover' + ${cliente.idUsuario}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 shadow">
-                    <!-- Formulario que apunta al @PostMapping("/cambiar-rol") -->
-                    <form th:action="@{/superadmin/cambiar-rol}" method="post">
+                    <form th:action="@{/superadmin/promover-admin}" method="post">
                         <div class="modal-header bg-light border-bottom px-4 py-3">
-                            <h5 class="modal-title fw-bold fs-6"><i class="bi bi-shield-shaded me-2 text-primary"></i>Cambiar Rol de Usuario</h5>
+                            <h5 class="modal-title fw-bold fs-6"><i class="bi bi-shield-shaded me-2 text-primary"></i>Promover a Administrador</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body px-4 py-4">
-                            <!-- Input oculto para enviar el ID del usuario -->
-                            <input type="hidden" name="idUsuario" th:value="${admin.idUsuario}">
+                            <input type="hidden" name="idUsuario" th:value="${cliente.idUsuario}">
                             
-                            <p class="text-muted small mb-3">Estás a punto de modificar los permisos de acceso para:</p>
+                            <p class="text-muted small mb-3">Vas a convertir a este cliente en Administrador y le asignarás un nuevo taller independiente.</p>
                             <div class="p-2 bg-light rounded border mb-3">
-                                <strong class="text-dark" th:text="${admin.email}">correo@ejemplo.com</strong>
+                                <strong class="text-dark" th:text="${cliente.nombre}">Nombre</strong> <br>
+                                <small class="text-muted" th:text="${cliente.email}">correo@ejemplo.com</small>
                             </div>
                             
-                            <label class="form-label fw-semibold small text-secondary">Selecciona el nuevo rol:</label>
-                            <select class="form-select shadow-sm" name="nuevoRol" required>
-                                <option value="" disabled selected>Elige un rol...</option>
-                                <option value="SUPERADMIN">Super Administrador</option>
-                                <option value="ADMIN">Administrador (Dueño)</option>
-                                <option value="MECANICO">Mecánico</option>
-                                <option value="VENDEDOR">Vendedor</option>
-                            </select>
+                            <label class="form-label fw-semibold small text-secondary">Nombre de la nueva Tienda/Taller:</label>
+                            <input type="text" class="form-control shadow-sm" name="nombreTaller" required placeholder="Ej. Bike Center">
                         </div>
                         <div class="modal-footer bg-light px-4 py-3 border-top">
                             <button type="button" class="btn btn-outline-secondary btn-sm px-3" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-primary btn-sm px-4">Guardar Cambios</button>
+                            <button type="submit" class="btn btn-primary btn-sm px-4">Asignar Taller y Promover</button>
                         </div>
                     </form>
                 </div>
@@ -272,7 +285,6 @@
         </div>
     </th:block>
 
-    <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

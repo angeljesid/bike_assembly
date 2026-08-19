@@ -26,12 +26,16 @@ public class Proveedor implements Serializable {
     private String direccion;
 
     @OneToMany(mappedBy = "proveedor", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties({"proveedor", "hibernateLazyInitializer", "handler"}) // <--- EVITA BUCLES JSON
+    @JsonIgnoreProperties({"proveedor", "hibernateLazyInitializer", "handler"})
     private List<Producto> productos;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_organizacion")
+    @JsonIgnoreProperties({"proveedores", "productos", "hibernateLazyInitializer", "handler"})
+    private Organizacion organizacion;
 
     public Proveedor() {}
 
-    // Getters y Setters
     public Long getIdProveedor() { return idProveedor; }
     public void setIdProveedor(Long idProveedor) { this.idProveedor = idProveedor; }
     public String getNombre() { return nombre; }
@@ -46,4 +50,6 @@ public class Proveedor implements Serializable {
     public void setDireccion(String direccion) { this.direccion = direccion; }
     public List<Producto> getProductos() { return productos; }
     public void setProductos(List<Producto> productos) { this.productos = productos; }
+    public Organizacion getOrganizacion() { return organizacion; }
+    public void setOrganizacion(Organizacion organizacion) { this.organizacion = organizacion; }
 }

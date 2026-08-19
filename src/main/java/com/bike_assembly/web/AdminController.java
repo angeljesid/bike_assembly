@@ -3,6 +3,7 @@ package com.bike_assembly.web;
 import com.bike_assembly.domain.Producto;
 import com.bike_assembly.domain.Usuario;
 import com.bike_assembly.domain.Venta;
+import com.bike_assembly.repository.ProductoDao;
 import com.bike_assembly.services.producto.IProductoService;
 import com.bike_assembly.services.proveedor.IProveedorService;
 import com.bike_assembly.services.venta.IVentaService;
@@ -29,6 +30,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/admin")
 public class AdminController {
 
+    private final ProductoDao productoDao;
+
     @Autowired
     private IProveedorService proveedorService;
 
@@ -40,6 +43,10 @@ public class AdminController {
 
     @Autowired
     private IVentaService ventaService;
+
+    AdminController(ProductoDao productoDao) {
+        this.productoDao = productoDao;
+    }
 
     @GetMapping({"", "/", "/inicio", "/dashboard"})
     public String inicioAdmin(Model model) {
@@ -55,23 +62,26 @@ public class AdminController {
             model.addAttribute("nombreTienda", "Mi Taller");
         }
 
-        return "admin/inicio"; 
+        return "admin/inicio";
     }
 
     @GetMapping("/ventas")
     public String listarVentasAdmin(Model model) {
         List<Venta> todasLasVentas = ventaService.listarHistorialVentasAdmin();
         List<Venta> ventasFiltradas = todasLasVentas.stream()
-                .filter(v -> !"PENDIENTE".equals(v.getEstado()))
+                .filter(v -> "COMPLETADA".equalsIgnoreCase(v.getEstado()))
                 .collect(Collectors.toList());
-                
         model.addAttribute("ventas", ventasFiltradas);
         return "admin/historial-admin";
     }
 
     @GetMapping("/pedidos")
     public String listarPedidosPendientes(Model model) {
-        model.addAttribute("pedidos", ventaService.listarPedidosPendientes());
+        List<Venta> todosLosPedidos = ventaService.listarPedidosPendientes();
+        List<Venta> pendientesFiltrados = todosLosPedidos.stream()
+                .filter(v -> "PENDIENTE".equalsIgnoreCase(v.getEstado()))
+                .collect(Collectors.toList());
+        model.addAttribute("pedidos", pendientesFiltrados);
         return "admin/pedidos-pendientes";
     }
 
@@ -83,39 +93,81 @@ public class AdminController {
 
     @GetMapping("/producto")
     public String listarProductos(Model model) {
-        model.addAttribute("productos", productoService.listarProductos());
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
+
+        if (admin != null && admin.getOrganizacion() != null) {
+            model.addAttribute("productos", productoDao.findByOrganizacion(admin.getOrganizacion()));
+        } else {
+            model.addAttribute("productos", List.of());
+        }
         return "admin/producto";
     }
     
     @GetMapping("/producto/nuevo")
     public String nuevoProducto(Model model) {
         model.addAttribute("producto", new Producto());
-        model.addAttribute("proveedores", proveedorService.listarProveedores());
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
+        
+        if (admin != null && admin.getOrganizacion() != null) {
+            model.addAttribute("proveedores", proveedorService.listarProveedores().stream()
+                .filter(p -> p.getOrganizacion() != null && p.getOrganizacion().getIdOrganizacion().equals(admin.getOrganizacion().getIdOrganizacion()))
+                .collect(Collectors.toList()));
+        } else {
+            model.addAttribute("proveedores", List.of());
+        }
+            
         return "admin/formulario-producto";
     }
 
     @GetMapping("/producto/editar/{id}")
     public String editarProducto(@PathVariable("id") Long id, Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
+        
         Producto producto = new Producto();
         producto.setIdProducto(id);
         producto = productoService.encontrarProducto(producto);
         
+        if (admin == null || admin.getOrganizacion() == null || producto == null || producto.getOrganizacion() == null || !producto.getOrganizacion().getIdOrganizacion().equals(admin.getOrganizacion().getIdOrganizacion())) {
+            return "redirect:/admin/producto";
+        }
+        
         model.addAttribute("producto", producto);
-        model.addAttribute("proveedores", proveedorService.listarProveedores());
+        
+        model.addAttribute("proveedores", proveedorService.listarProveedores().stream()
+            .filter(p -> p.getOrganizacion() != null && p.getOrganizacion().getIdOrganizacion().equals(admin.getOrganizacion().getIdOrganizacion()))
+            .collect(Collectors.toList()));
+            
         return "admin/formulario-producto";
     }
 
     @GetMapping("/producto/eliminar/{id}")
     public String eliminarProducto(@PathVariable("id") Long id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
+        
         Producto producto = new Producto();
         producto.setIdProducto(id);
-        productoService.eliminar(producto);
+        Producto productoExistente = productoService.encontrarProducto(producto);
+        
+        if (admin != null && admin.getOrganizacion() != null && productoExistente != null && productoExistente.getOrganizacion() != null && productoExistente.getOrganizacion().getIdOrganizacion().equals(admin.getOrganizacion().getIdOrganizacion())) {
+            productoService.eliminar(productoExistente);
+        }
         
         return "redirect:/admin/producto";
     }
 
     @PostMapping("/producto/guardar")
     public String guardarProducto(Producto producto, @RequestParam(value = "file", required = false) MultipartFile imagen) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
+
+        if (admin != null && admin.getOrganizacion() != null) {
+            producto.setOrganizacion(admin.getOrganizacion());
+        }
+
         if (imagen != null && !imagen.isEmpty()) {
             Path directorioImagenes = Paths.get("uploads");
             String rutaAbsoluta = directorioImagenes.toFile().getAbsolutePath();
@@ -124,11 +176,9 @@ public class AdminController {
                 if (!Files.exists(directorioImagenes)) {
                     Files.createDirectories(directorioImagenes);
                 }
-
                 byte[] bytesImg = imagen.getBytes();
                 Path rutaCompleta = Paths.get(rutaAbsoluta + "/" + imagen.getOriginalFilename());
                 Files.write(rutaCompleta, bytesImg);
-
                 producto.setImagen(imagen.getOriginalFilename());
             } catch (Exception e) {
                 e.printStackTrace();

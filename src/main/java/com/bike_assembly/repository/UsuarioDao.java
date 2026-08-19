@@ -5,6 +5,7 @@ import com.bike_assembly.domain.Rol;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 import java.util.List;
+import org.springframework.data.jpa.repository.Query;
 
 public interface UsuarioDao extends JpaRepository<Usuario, Long> {
     Optional<Usuario> findByUsername(String username);
@@ -16,5 +17,6 @@ public interface UsuarioDao extends JpaRepository<Usuario, Long> {
     List<Usuario> findByNombreContainingIgnoreCaseOrCedulaContainingIgnoreCaseAndRol(String nombre, String cedula, Rol rol);
     
     boolean existsByRol(Rol rol);
+    @Query("SELECT u FROM Usuario u WHERE u.rol = :rol")
     List<Usuario> findByRol(Rol rol);
 }

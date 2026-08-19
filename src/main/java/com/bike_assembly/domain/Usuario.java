@@ -42,14 +42,26 @@ public class Usuario implements Serializable {
 
     public Usuario() {}
 
-    public Long getIdUsuario() { return idUsuario; }
-    public void setIdUsuario(Long idUsuario) { this.idUsuario = idUsuario; }
+    public Long getIdUsuario() {
+        return idUsuario; 
+        }
+    public void setIdUsuario(Long idUsuario) {
+        this.idUsuario = idUsuario;
+        }
 
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
+    public String getUsername() {
+        return username; 
+    }
+    public void setUsername(String username) {
+        this.username = username; 
+    }
 
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    public String getPassword() {
+        return password; 
+        }
+    public void setPassword(String password) {
+        this.password = password; 
+        }
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
