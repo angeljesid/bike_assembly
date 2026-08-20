@@ -32,7 +32,7 @@ public class SuperAdminService implements ISuperAdminService {
 
     @Override
     @Transactional
-    public void promoverAAdmin(Long idUsuario, String nombreTaller , String direccionTaller, String telefonoTaller) {
+    public void promoverAAdmin(Long idUsuario, String nombreTaller, String direccionTaller, String telefonoTaller) {
         Usuario usuario = usuarioDao.findById(idUsuario)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -45,5 +45,21 @@ public class SuperAdminService implements ISuperAdminService {
         usuario.setRol(Rol.ADMIN);
         usuario.setOrganizacion(orgGuardada);
         usuarioDao.save(usuario);
+    }
+
+    @Override
+    @Transactional
+    public void actualizarAdminYOrganizacion(Long idUsuario, String nombreTaller, String direccion, String telefono, String tipo) {
+        Usuario usuario = usuarioDao.findById(idUsuario)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (usuario.getOrganizacion() != null) {
+            Organizacion org = usuario.getOrganizacion();
+            org.setNombre(nombreTaller);
+            org.setDireccion(direccion);
+            org.setTelefono(telefono);
+            org.setTipo(tipo);
+            organizacionDao.save(org);
+        }
     }
 }

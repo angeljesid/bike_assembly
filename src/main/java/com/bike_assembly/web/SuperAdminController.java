@@ -46,9 +46,19 @@ public class SuperAdminController {
     @PostMapping("/promover-admin")
     public String promoverAdmin(@RequestParam("idUsuario") Long idUsuario, 
                                 @RequestParam("nombreTaller") String nombreTaller,
-                                @RequestParam("direccionTaller") String direccionTaller,
-                                @RequestParam("telefonoTaller") String telefonoTaller) {
+                                @RequestParam("direccion") String direccionTaller,
+                                @RequestParam("telefono") String telefonoTaller) {
         superAdminService.promoverAAdmin(idUsuario, nombreTaller, direccionTaller, telefonoTaller);
         return "redirect:/superadmin/dashboard?promovido=true";
+    }
+
+    @PostMapping("/actualizar-admin")
+    public String actualizarAdmin(@RequestParam("idUsuario") Long idUsuario,
+                                  @RequestParam("nombreTaller") String nombreTaller,
+                                  @RequestParam("direccion") String direccion,
+                                  @RequestParam("telefono") String telefono,
+                                  @RequestParam("tipo") String tipo) {
+        superAdminService.actualizarAdminYOrganizacion(idUsuario, nombreTaller, direccion, telefono, tipo);
+        return "redirect:/superadmin/dashboard?actualizado=true";
     }
 }

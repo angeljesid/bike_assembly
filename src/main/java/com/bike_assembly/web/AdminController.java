@@ -67,7 +67,23 @@ public class AdminController {
 
     @GetMapping("/ventas")
     public String listarVentasAdmin(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String usernameOrEmail = auth.getName();
+        Usuario admin = usuarioDao.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail).orElse(null);
+
         List<Venta> todasLasVentas = ventaService.listarHistorialVentasAdmin();
+        
+        if (admin != null && admin.getOrganizacion() != null) {
+            todasLasVentas = todasLasVentas.stream().filter(v -> 
+                v.getDetalles() != null && v.getDetalles().stream().anyMatch(d -> 
+                    d.getProducto() != null && d.getProducto().getOrganizacion() != null &&
+                    d.getProducto().getOrganizacion().getIdOrganizacion().equals(admin.getOrganizacion().getIdOrganizacion())
+                )
+            ).collect(Collectors.toList());
+        } else {
+            todasLasVentas = List.of();
+        }
+
         List<Venta> ventasFiltradas = todasLasVentas.stream()
                 .filter(v -> "COMPLETADA".equalsIgnoreCase(v.getEstado()))
                 .collect(Collectors.toList());
@@ -77,7 +93,23 @@ public class AdminController {
 
     @GetMapping("/pedidos")
     public String listarPedidosPendientes(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String usernameOrEmail = auth.getName();
+        Usuario admin = usuarioDao.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail).orElse(null);
+
         List<Venta> todosLosPedidos = ventaService.listarPedidosPendientes();
+
+        if (admin != null && admin.getOrganizacion() != null) {
+            todosLosPedidos = todosLosPedidos.stream().filter(v -> 
+                v.getDetalles() != null && v.getDetalles().stream().anyMatch(d -> 
+                    d.getProducto() != null && d.getProducto().getOrganizacion() != null &&
+                    d.getProducto().getOrganizacion().getIdOrganizacion().equals(admin.getOrganizacion().getIdOrganizacion())
+                )
+            ).collect(Collectors.toList());
+        } else {
+            todosLosPedidos = List.of();
+        }
+
         List<Venta> pendientesFiltrados = todosLosPedidos.stream()
                 .filter(v -> "PENDIENTE".equalsIgnoreCase(v.getEstado()))
                 .collect(Collectors.toList());
