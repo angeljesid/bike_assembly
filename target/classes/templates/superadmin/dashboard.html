@@ -7,90 +7,22 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { 
-            background-color: #f4f6f9;
-            font-family: 'Inter', sans-serif; 
-            color: #334155;
-        }
-        .sidebar { 
-            min-height: 100vh;
-            background-color: #0f172a; 
-            color: #94a3b8; 
-            padding-top: 24px; 
-            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.05);
-        }
-        .sidebar .brand-title {
-            color: #ffffff;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-        .sidebar a { 
-            color: #94a3b8;
-            text-decoration: none; 
-            padding: 12px 20px; 
-            display: flex; 
-            align-items: center; 
-            font-weight: 500;
-            border-radius: 6px;
-            margin: 4px 12px;
-            transition: all 0.2s ease-in-out;
-        }
-        .sidebar a:hover, .sidebar a.active { 
-            color: #ffffff;
-            background-color: #1e293b; 
-        }
-        .sidebar a.active {
-            color: #38bdf8;
-        }
-        .stat-card { 
-            background: white;
-            border-radius: 12px; 
-            padding: 24px; 
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e2e8f0;
-            transition: transform 0.2s;
-        }
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        .card-custom {
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-            background: white;
-        }
-        .table th {
-            font-weight: 600;
-            color: #475569;
-            background-color: #f8fafc !important;
-            border-bottom: 2px solid #e2e8f0;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
-        }
-        .table td {
-            color: #334155;
-            vertical-align: middle;
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
     <div class="container-fluid">
         <div class="row">
-            
-            <div class="col-md-2 sidebar d-flex flex-column px-0">
-                <div class="px-4 mb-4">
-                    <h4 class="brand-title fs-5 m-0"><i class="bi bi-bicycle me-2 text-info"></i>Bike Assembly</h4>
-                    <small class="text-muted fs-7">SaaS Administration</small>
+            <div class="col-md-2 sidebar-custom d-flex flex-column px-0">
+                <div class="px-4 mb-4 pt-3">
+                    <h4 class="brand-title fs-5 m-0 text-white"><i class="bi bi-bicycle me-2 text-info"></i>Bike Assembly</h4>
+                    <small class="text-white-50 fs-7">SaaS Administration</small>
                 </div>
                 
                 <div class="flex-grow-1">
-                    <a th:href="@{/superadmin/dashboard}" class="active"><i class="bi bi-speedometer2 me-3 fs-5"></i> Dashboard</a>
-                    <a th:href="@{/superadmin/organizaciones}"><i class="bi bi-buildings me-3 fs-5"></i> Tiendas</a>
-                    <a href="#"><i class="bi bi-people me-3 fs-5"></i> Admins</a>
-                    <a href="#"><i class="bi bi-shield-lock me-3 fs-5"></i> Seguridad</a>
+                    <a th:href="@{/superadmin/dashboard}" class="active text-white text-decoration-none px-4 py-2 d-flex align-items-center mb-1"><i class="bi bi-speedometer2 me-3 fs-5"></i> Dashboard</a>
+                    <a th:href="@{/superadmin/organizaciones}" class="text-white-50 text-decoration-none px-4 py-2 d-flex align-items-center mb-1"><i class="bi bi-buildings me-3 fs-5"></i> Tiendas</a>
+                    <a href="#" class="text-white-50 text-decoration-none px-4 py-2 d-flex align-items-center mb-1"><i class="bi bi-people me-3 fs-5"></i> Admins</a>
+                    <a href="#" class="text-white-50 text-decoration-none px-4 py-2 d-flex align-items-center"><i class="bi bi-shield-lock me-3 fs-5"></i> Seguridad</a>
                 </div>
                 
                 <div class="px-3 mb-4">
@@ -103,7 +35,6 @@
             </div>
             
             <div class="col-md-10 p-4 p-md-5">
-                
                 <div th:if="${param.promovido}" class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
                     <i class="bi bi-check-circle-fill me-2"></i> <strong>¡Éxito!</strong> El usuario ha sido promovido a Administrador y se le ha asignado una tienda.
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -127,7 +58,7 @@
 
                 <div class="row g-4 mb-5">
                     <div class="col-md-4">
-                        <div class="stat-card d-flex align-items-center">
+                        <div class="card-custom d-flex align-items-center p-4">
                             <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-3 me-3 fs-3">
                                 <i class="bi bi-shop"></i>
                             </div>
@@ -139,7 +70,7 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="stat-card d-flex align-items-center">
+                        <div class="card-custom d-flex align-items-center p-4">
                             <div class="bg-success bg-opacity-10 text-success p-3 rounded-3 me-3 fs-3">
                                 <i class="bi bi-people-fill"></i>
                             </div>
@@ -151,7 +82,7 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="stat-card d-flex align-items-center">
+                        <div class="card-custom d-flex align-items-center p-4">
                             <div class="bg-info bg-opacity-10 text-info p-3 rounded-3 me-3 fs-3">
                                 <i class="bi bi-cpu-fill"></i>
                             </div>
@@ -177,6 +108,7 @@
                                         <th>Nombre del Taller</th>
                                         <th>Administrador Principal</th>
                                         <th>Estado</th>
+                                        <th class="text-end pe-4">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -191,9 +123,14 @@
                                         <td>
                                             <span class="badge bg-success bg-opacity-10 text-success px-2 py-1 fw-medium">Activo</span>
                                         </td>
+                                        <td class="text-end pe-4">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary px-3" data-bs-toggle="modal" th:data-bs-target="'#modalEditarAdmin' + ${admin.idUsuario}">
+                                                <i class="bi bi-pencil-square me-1"></i> Asignar / Editar
+                                            </button>
+                                        </td>
                                     </tr>
                                     <tr th:if="${#lists.isEmpty(listaAdmins)}">
-                                        <td colspan="4" class="text-center text-muted py-5">
+                                        <td colspan="5" class="text-center text-muted py-5">
                                             <i class="bi bi-folder2-open fs-2 d-block mb-2 text-secondary"></i>
                                             Aún no hay tiendas administradoras en el sistema.
                                         </td>
@@ -272,12 +209,80 @@
                                 <small class="text-muted" th:text="${cliente.email}">correo@ejemplo.com</small>
                             </div>
                             
-                            <label class="form-label fw-semibold small text-secondary">Nombre de la nueva Tienda/Taller:</label>
+                            <label class="form-label fw-semibold small text-secondary mt-2">Nombre de la nueva Tienda/Taller:</label>
                             <input type="text" class="form-control shadow-sm" name="nombreTaller" required placeholder="Ej. Bike Center">
+
+                            <label class="form-label fw-semibold small text-secondary mt-2">Dirección:</label>
+                            <input type="text" class="form-control shadow-sm" name="direccion" required placeholder="Ej. Calle Falsa 123">
+
+                            <label class="form-label fw-semibold small text-secondary mt-2">Contacto WhatsApp (Teléfono):</label>
+                            <input type="text" class="form-control shadow-sm" name="telefono" required placeholder="Ej. 3001234567">
+
+                            <label class="form-label fw-semibold small text-secondary mt-2">Tipo de Organización:</label>
+                            <select name="tipo" class="form-select shadow-sm" required>
+                                <option value="Taller Pequeño">Taller Pequeño</option>
+                                <option value="Taller Mediano">Taller Mediano</option>
+                                <option value="Taller Grande">Taller Grande</option>
+                                <option value="Bodega">Bodega</option>
+                                <option value="Bodega Grande">Bodega Grande</option>
+                            </select>
                         </div>
                         <div class="modal-footer bg-light px-4 py-3 border-top">
                             <button type="button" class="btn btn-outline-secondary btn-sm px-3" data-bs-dismiss="modal">Cancelar</button>
                             <button type="submit" class="btn btn-primary btn-sm px-4">Asignar Taller y Promover</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </th:block>
+
+    <th:block th:each="admin : ${listaAdmins}">
+        <div class="modal fade" th:id="'modalEditarAdmin' + ${admin.idUsuario}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                    <form th:action="@{/superadmin/actualizar-admin}" method="post">
+                        <div class="modal-header bg-light border-bottom px-4 py-3">
+                            <h5 class="modal-title fw-bold fs-6"><i class="bi bi-pencil-square me-2 text-primary"></i>Información del Administrador</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body px-4 py-4">
+                            <input type="hidden" name="idUsuario" th:value="${admin.idUsuario}">
+                            
+                            <div class="p-2 bg-light rounded border mb-4">
+                                <strong class="text-dark">Admin ID:</strong> <span th:text="'#' + ${admin.idUsuario}"></span> <br>
+                                <strong class="text-dark">Email:</strong> <span class="text-muted" th:text="${admin.email}"></span>
+                            </div>
+                            
+                            <h6 class="fw-bold mb-3 border-bottom pb-2 text-dark">Datos de la Tienda / Taller</h6>
+                            
+                            <label class="form-label fw-semibold small text-secondary mt-2">Nombre de la Tienda:</label>
+                            <input type="text" class="form-control shadow-sm" name="nombreTaller" required 
+                                   th:value="${admin.organizacion != null ? admin.organizacion.nombre : ''}" 
+                                   placeholder="Ej. Bike Center">
+
+                            <label class="form-label fw-semibold small text-secondary mt-3">Dirección:</label>
+                            <input type="text" class="form-control shadow-sm" name="direccion" required 
+                                   th:value="${admin.organizacion != null ? admin.organizacion.direccion : ''}" 
+                                   placeholder="Ej. Calle Falsa 123">
+
+                            <label class="form-label fw-semibold small text-secondary mt-3">Contacto WhatsApp:</label>
+                            <input type="text" class="form-control shadow-sm" name="telefono" required 
+                                   th:value="${admin.organizacion != null ? admin.organizacion.telefono : ''}" 
+                                   placeholder="Ej. 3001234567">
+
+                            <label class="form-label fw-semibold small text-secondary mt-3">Tipo de Organización:</label>
+                            <select name="tipo" class="form-select shadow-sm" required>
+                                <option value="Taller Pequeño" th:selected="${admin.organizacion != null and admin.organizacion.tipo == 'Taller Pequeño'}">Taller Pequeño</option>
+                                <option value="Taller Mediano" th:selected="${admin.organizacion != null and admin.organizacion.tipo == 'Taller Mediano'}">Taller Mediano</option>
+                                <option value="Taller Grande" th:selected="${admin.organizacion != null and admin.organizacion.tipo == 'Taller Grande'}">Taller Grande</option>
+                                <option value="Bodega" th:selected="${admin.organizacion != null and admin.organizacion.tipo == 'Bodega'}">Bodega</option>
+                                <option value="Bodega Grande" th:selected="${admin.organizacion != null and admin.organizacion.tipo == 'Bodega Grande'}">Bodega Grande</option>
+                            </select>
+                        </div>
+                        <div class="modal-footer bg-light px-4 py-3 border-top">
+                            <button type="button" class="btn btn-outline-secondary btn-sm px-3" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary btn-sm px-4">Guardar Información</button>
                         </div>
                     </form>
                 </div>

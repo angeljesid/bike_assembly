@@ -45,8 +45,10 @@ public class SuperAdminController {
 
     @PostMapping("/promover-admin")
     public String promoverAdmin(@RequestParam("idUsuario") Long idUsuario, 
-                                @RequestParam("nombreTaller") String nombreTaller) {
-        superAdminService.promoverAAdmin(idUsuario, nombreTaller);
+                                @RequestParam("nombreTaller") String nombreTaller,
+                                @RequestParam("direccionTaller") String direccionTaller,
+                                @RequestParam("telefonoTaller") String telefonoTaller) {
+        superAdminService.promoverAAdmin(idUsuario, nombreTaller, direccionTaller, telefonoTaller);
         return "redirect:/superadmin/dashboard?promovido=true";
     }
 }

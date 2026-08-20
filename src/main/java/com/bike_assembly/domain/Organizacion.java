@@ -23,6 +23,8 @@ public class Organizacion implements Serializable {
     @Column(nullable = false)
     private String direccion;
 
+    private String tipo;
+
     public Organizacion() {
     }
 
@@ -62,5 +64,13 @@ public class Organizacion implements Serializable {
 
     public void setTelefono(String telefono) {
         this.telefono = telefono;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
     }
 }

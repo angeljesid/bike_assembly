@@ -32,7 +32,7 @@ public class SuperAdminService implements ISuperAdminService {
 
     @Override
     @Transactional
-    public void promoverAAdmin(Long idUsuario, String nombreTaller) {
+    public void promoverAAdmin(Long idUsuario, String nombreTaller , String direccionTaller, String telefonoTaller) {
         Usuario usuario = usuarioDao.findById(idUsuario)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 

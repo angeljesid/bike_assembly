@@ -7,6 +7,6 @@ public interface ISuperAdminService {
     List<Usuario> listarAdministradores();
     List<Usuario> listarClientes();
     
-    void promoverAAdmin(Long idUsuario, String nombreTaller);
+    void promoverAAdmin(Long idUsuario, String nombreTaller , String direccionTaller, String telefonoTaller );
 
 }

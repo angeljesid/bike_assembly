@@ -11,6 +11,7 @@ public interface UsuarioDao extends JpaRepository<Usuario, Long> {
     Optional<Usuario> findByUsername(String username);
     Optional<Usuario> findByEmail(String email);
     Optional<Usuario> findByResetPasswordToken(String token);
+    @Query("SELECT u FROM Usuario u WHERE u.username = :username OR u.email = :email")
     Optional<Usuario> findByUsernameOrEmail(String username, String email);
     Optional<Usuario> findByCedula(String cedula);
     

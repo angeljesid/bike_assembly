@@ -12,13 +12,9 @@
     <style>
         body { background-color: #f8fafc; }
         .navbar-custom { background-color: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .cart-item { background: #fff; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.02); display: flex; align-items: center; gap: 1.5rem; }
-        .cart-item img { width: 100px; height: 100px; object-fit: contain; background: #f1f5f9; border-radius: 8px; padding: 0.5rem; }
-        .summary-card { background: #fff; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: sticky; top: 20px; }
     </style>
 </head>
 <body>
-
     <nav class="navbar navbar-expand-lg navbar-custom py-3 mb-4">
         <div class="container">
             <a class="navbar-brand fw-bold text-dark" href="/cliente/catalogo"><i class="bi bi-bicycle text-primary me-2"></i>Bike Assembly</a>
@@ -35,7 +31,7 @@
                     </li>
                 </ul>
                 <div class="d-flex align-items-center gap-3">
-                    <span class="text-muted fw-semibold" th:text="'Hola, ' + ${cliente != null ? cliente.nombre : 'Cliente'}">Hola, Cliente</span>
+                    <span class="text-muted fw-semibold" th:text="'Hola, ' + ${cliente != null ? cliente.nombre : 'Cliente'}"></span>
                     <a href="/cliente/carrito" class="btn btn-primary position-relative me-2 text-decoration-none">
                         <i class="bi bi-cart3"></i>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="contadorCarrito">0</span>
@@ -47,198 +43,18 @@
             </div>
         </div>
     </nav>
-
     <div class="container pb-5">
         <h2 class="fw-bold mb-4">Tu Carrito de Compras</h2>
-
-        <div class="row g-4">
-            <div class="col-lg-8" id="contenedorItemsCarrito">
-            </div>
-
-            <div class="col-lg-4">
-                <div class="summary-card">
-                    <h5 class="fw-bold mb-4">Resumen de la Orden</h5>
-                    
-                    <div class="d-flex justify-content-between mb-3">
-                        <span class="text-muted">Subtotal</span>
-                        <span class="fw-bold" id="subtotalCarrito">$ 0</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-3">
-                        <span class="text-muted">Costo de Envío</span>
-                        <span class="text-success fw-bold">Gratis</span>
-                    </div>
-                    
-                    <hr class="my-4">
-                    
-                    <div class="d-flex justify-content-between mb-4">
-                        <h5 class="fw-bold mb-0">Total</h5>
-                        <h5 class="fw-bold text-primary mb-0" id="totalCarrito">$ 0</h5>
-                    </div>
-
-                    <a href="/cliente/catalogo" class="btn btn-outline-secondary w-100 py-2 mb-2 text-decoration-none">Seguir comprando</a>
-                    <button class="btn btn-primary w-100 py-3 fw-bold fs-5 shadow-sm" id="btnProcesarPago" onclick="procesarPago()">
-                        Procesar Pago <i class="bi bi-credit-card ms-2"></i>
-                    </button>
-                </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-10" id="contenedorItemsCarrito">
             </div>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script th:inline="javascript">
         const username = /*[[${cliente != null ? (cliente.username != null ? cliente.username : cliente.email) : 'invitado'}]]*/ 'invitado';
-        const CART_KEY = 'carrito_' + username;
-
-        function obtenerCarrito() {
-            return JSON.parse(localStorage.getItem(CART_KEY)) || [];
-        }
-
-        function guardarCarrito(carrito) {
-            localStorage.setItem(CART_KEY, JSON.stringify(carrito));
-            actualizarContador();
-        }
-
-        function actualizarContador() {
-            const carrito = obtenerCarrito();
-            const totalItems = carrito.reduce((sum, item) => sum + (item.cantidad || 1), 0);
-            const badge = document.getElementById('contadorCarrito');
-            if (badge) badge.innerText = totalItems;
-        }
-
-        function renderizarCarrito() {
-            const carrito = obtenerCarrito();
-            const contenedor = document.getElementById('contenedorItemsCarrito');
-            const subtotalEl = document.getElementById('subtotalCarrito');
-            const totalEl = document.getElementById('totalCarrito');
-
-            if (!contenedor) return;
-
-            if (carrito.length === 0) {
-                contenedor.innerHTML = `
-                    <div class="text-center py-5 bg-white rounded-3 shadow-sm">
-                        <i class="bi bi-cart-x fs-1 text-muted opacity-50 d-block mb-3"></i>
-                        <h5 class="text-muted">Tu carrito está vacío</h5>
-                        <a href="/cliente/catalogo" class="btn btn-primary mt-3">Ir al Catálogo</a>
-                    </div>
-                `;
-                if (subtotalEl) subtotalEl.innerText = '$ 0';
-                if (totalEl) totalEl.innerText = '$ 0';
-                actualizarContador();
-                return;
-            }
-
-            let html = '';
-            let subtotalTotal = 0;
-
-            carrito.forEach((item, index) => {
-                const precio = item.precio || 0;
-                const cantidad = item.cantidad || 1;
-                const subtotalItem = precio * cantidad;
-                subtotalTotal += subtotalItem;
-                
-                const imagenSrc = item.imagen ? item.imagen : 'https://via.placeholder.com/100';
-
-                html += `
-                    <div class="cart-item">
-                        <img src="${imagenSrc}" alt="${item.nombre}">
-                        <div class="flex-grow-1">
-                            <h5 class="fw-bold mb-1">${item.nombre}</h5>
-                            <p class="text-muted small mb-2">Marca: ${item.marca || 'N/A'}</p>
-                            <h6 class="text-primary fw-bold">$ ${precio.toLocaleString()}</h6>
-                        </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <input type="number" min="1" value="${cantidad}" class="form-control form-control-sm text-center" style="width: 70px;" onchange="cambiarCantidad(${index}, this.value)">
-                            <button class="btn btn-outline-danger btn-sm" onclick="eliminarItem(${index})"><i class="bi bi-trash"></i></button>
-                        </div>
-                    </div>
-                `;
-            });
-
-            contenedor.innerHTML = html;
-            if (subtotalEl) subtotalEl.innerText = '$ ' + subtotalTotal.toLocaleString();
-            if (totalEl) totalEl.innerText = '$ ' + subtotalTotal.toLocaleString();
-            actualizarContador();
-        }
-
-        function cambiarCantidad(index, nuevaCantidad) {
-            let carrito = obtenerCarrito();
-            nuevaCantidad = parseInt(nuevaCantidad);
-            if (nuevaCantidad > 0) {
-                carrito[index].cantidad = nuevaCantidad;
-            } else {
-                carrito.splice(index, 1);
-            }
-            guardarCarrito(carrito);
-            renderizarCarrito();
-        }
-
-        function eliminarItem(index) {
-            let carrito = obtenerCarrito();
-            carrito.splice(index, 1);
-            guardarCarrito(carrito);
-            renderizarCarrito();
-        }
-
-        function procesarPago() {
-            const carrito = obtenerCarrito();
-            if (carrito.length === 0) {
-                alert('El carrito está vacío');
-                return;
-            }
-
-            const detalles = carrito.map(item => ({
-                idProducto: item.idProducto,
-                cantidad: item.cantidad || 1,
-                precioUnitario: item.precio || 0,
-                subtotal: (item.precio || 0) * (item.cantidad || 1)
-            }));
-
-            const total = carrito.reduce((sum, item) => sum + ((item.precio || 0) * (item.cantidad || 1)), 0);
-
-            const payload = {
-                metodoPago: 'Efectivo',
-                total: total,
-                detalles: detalles,
-                estado: 'PENDIENTE'
-            };
-
-            const btn = document.getElementById('btnProcesarPago');
-            if (btn) btn.disabled = true;
-
-            const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
-            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
-            
-            const headers = { 'Content-Type': 'application/json' };
-            if (csrfToken && csrfHeader) {
-                headers[csrfHeader] = csrfToken;
-            }
-
-            fetch('/cliente/api/checkout', {
-                method: 'POST',
-                headers: headers,
-                body: JSON.stringify(payload)
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    localStorage.removeItem(CART_KEY);
-                    alert('¡Compra procesada con éxito! Redirigiendo a tus pedidos...');
-                    window.location.href = '/cliente/pedidos';
-                } else {
-                    alert('Error al procesar el pago: ' + (data.mensaje || 'Error desconocido'));
-                    if (btn) btn.disabled = false;
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert('Error de conexión al procesar el pago.');
-                if (btn) btn.disabled = false;
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            renderizarCarrito();
-        });
+        window.CART_KEY = 'carrito_' + username;
     </script>
+    <script th:src="@{/js/catalogo-cliente.js}"></script>
 </body>
 </html>

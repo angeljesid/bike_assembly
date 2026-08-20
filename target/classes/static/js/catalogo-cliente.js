@@ -1,4 +1,4 @@
-let productosData = []; 
+let productosData = [];
 
 document.addEventListener("DOMContentLoaded", () => {
     cargarProductos();
@@ -180,11 +180,14 @@ function añadirDesdeDetalle() {
 
 function agregarAlCarritoDirecto(prod) {
     let carrito = obtenerCarrito();
-    
     const precioFinal = prod.precioTotal ? prod.precioTotal : prod.precio;
     const imagen = (prod.imagen && prod.imagen !== 'null' && prod.imagen.trim() !== '') 
         ? `/recursos/${prod.imagen}` 
         : 'https://via.placeholder.com/80x80.png?text=Sin+Foto';
+
+    const idOrg = prod.organizacion ? prod.organizacion.idOrganizacion : 0;
+    const nombreTaller = (prod.organizacion && prod.organizacion.nombre) ? prod.organizacion.nombre : 'Taller Independiente';
+    const telefonoTaller = (prod.organizacion && prod.organizacion.telefono) ? prod.organizacion.telefono : '';
 
     const productoExistente = carrito.find(item => item.idProducto === prod.idProducto);
     if (productoExistente) {
@@ -196,10 +199,12 @@ function agregarAlCarritoDirecto(prod) {
             marca: prod.marca || 'Sin marca',
             precio: precioFinal,
             imagen: imagen,
-            cantidad: 1
+            cantidad: 1,
+            idOrganizacion: idOrg,
+            nombreTaller: nombreTaller,
+            telefonoTaller: telefonoTaller
         });
     }
-
     guardarCarrito(carrito);
 }
 
@@ -215,12 +220,10 @@ function actualizarContadorCarrito() {
 }
 
 function renderizarCarrito() {
-    const carrito = obtenerCarrito();
     const contenedorItems = document.getElementById("contenedorItemsCarrito");
-    const subtotalEl = document.getElementById("subtotalCarrito");
-    const totalEl = document.getElementById("totalCarrito");
-    
     if (!contenedorItems) return;
+
+    const carrito = obtenerCarrito();
 
     if (carrito.length === 0) {
         contenedorItems.innerHTML = `
@@ -230,39 +233,71 @@ function renderizarCarrito() {
                 <a href="/cliente" class="btn btn-primary mt-3">Ir a configurar bicicleta</a>
             </div>
         `;
-        if (subtotalEl) subtotalEl.innerText = "$ 0";
-        if (totalEl) totalEl.innerText = "$ 0";
         return;
     }
 
-    let html = "";
-    let subtotalGeneral = 0;
+    const grupos = carrito.reduce((acc, item) => {
+        if (!acc[item.idOrganizacion]) {
+            acc[item.idOrganizacion] = {
+                nombreTaller: item.nombreTaller,
+                telefonoTaller: item.telefonoTaller,
+                items: [],
+                total: 0
+            };
+        }
+        acc[item.idOrganizacion].items.push(item);
+        acc[item.idOrganizacion].total += (item.precio * item.cantidad);
+        return acc;
+    }, {});
 
-    carrito.forEach((item, index) => {
-        const totalItem = item.precio * item.cantidad;
-        subtotalGeneral += totalItem;
-        const precioFormateado = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(totalItem);
+    let html = "";
+
+    for (const idOrg in grupos) {
+        const taller = grupos[idOrg];
+        const totalFormateado = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(taller.total);
 
         html += `
-            <div class="cart-item">
-                <img src="${item.imagen}" alt="${item.nombre}" onerror="this.src='https://via.placeholder.com/80x80.png?text=Sin+Foto'">
-                <div class="flex-grow-1">
-                    <h5 class="fw-bold mb-1">${item.nombre}</h5>
-                    <p class="text-muted small mb-2">Marca: ${item.marca}</p>
-                    <h5 class="text-primary fw-bold mb-0">${precioFormateado}</h5>
+            <div class="card mb-4 shadow-sm border-0 rounded-4">
+                <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold m-0 text-dark"><i class="bi bi-shop me-2 text-primary"></i> ${taller.nombreTaller}</h5>
                 </div>
-                <div class="d-flex align-items-center gap-3">
-                    <input type="number" class="form-control text-center" value="${item.cantidad}" min="1" style="width: 70px;" onchange="cambiarCantidad(${index}, this.value)">
-                    <button class="btn btn-outline-danger btn-sm" title="Eliminar" onclick="eliminarDelCarrito(${index})"><i class="bi bi-trash"></i></button>
+                <div class="card-body p-4">
+        `;
+
+        taller.items.forEach(item => {
+            const totalItem = item.precio * item.cantidad;
+            const precioFormateado = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(totalItem);
+            const index = carrito.findIndex(i => i.idProducto === item.idProducto);
+
+            html += `
+                <div class="d-flex align-items-center gap-3 mb-3 border-bottom pb-3">
+                    <img src="${item.imagen}" alt="${item.nombre}" style="width: 80px; height: 80px; object-fit: contain; background: #f1f5f9; border-radius: 8px; padding: 0.5rem;" onerror="this.src='https://via.placeholder.com/80x80.png?text=Sin+Foto'">
+                    <div class="flex-grow-1">
+                        <h6 class="fw-bold mb-1">${item.nombre}</h6>
+                        <p class="text-muted small mb-2">Marca: ${item.marca}</p>
+                        <h6 class="text-primary fw-bold mb-0">${precioFormateado}</h6>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <input type="number" class="form-control text-center form-control-sm" value="${item.cantidad}" min="1" style="width: 60px;" onchange="cambiarCantidad(${index}, this.value)">
+                        <button class="btn btn-outline-danger btn-sm" title="Eliminar" onclick="eliminarDelCarrito(${index})"><i class="bi bi-trash"></i></button>
+                    </div>
+                </div>
+            `;
+        });
+
+        html += `
+                </div>
+                <div class="card-footer bg-light border-top-0 py-3 d-flex justify-content-between align-items-center rounded-bottom-4">
+                    <h5 class="fw-bold m-0 text-dark">Total: ${totalFormateado}</h5>
+                    <button class="btn btn-success fw-bold px-4 rounded-pill shadow-sm" onclick="procesarPagoPorTaller('${idOrg}')">
+                        <i class="bi bi-whatsapp me-2"></i> Solicitar Reserva
+                    </button>
                 </div>
             </div>
         `;
-    });
+    }
 
     contenedorItems.innerHTML = html;
-    const subtotalFormateado = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(subtotalGeneral);
-    if (subtotalEl) subtotalEl.innerText = subtotalFormateado;
-    if (totalEl) totalEl.innerText = subtotalFormateado;
 }
 
 function cambiarCantidad(index, nuevaCantidad) {
@@ -280,4 +315,73 @@ function eliminarDelCarrito(index) {
     carrito.splice(index, 1);
     guardarCarrito(carrito);
     renderizarCarrito();
+}
+
+function procesarPagoPorTaller(idOrganizacion) {
+    let carrito = obtenerCarrito();
+    const itemsTaller = carrito.filter(item => String(item.idOrganizacion) === String(idOrganizacion));
+
+    if (itemsTaller.length === 0) return;
+
+    const detalles = itemsTaller.map(item => ({
+        idProducto: item.idProducto,
+        cantidad: item.cantidad,
+        precioUnitario: item.precio,
+        subtotal: item.precio * item.cantidad
+    }));
+
+    const total = itemsTaller.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+    const telefonoTaller = itemsTaller[0].telefonoTaller;
+    const nombreTaller = itemsTaller[0].nombreTaller;
+
+    const payload = {
+        metodoPago: 'Acuerdo con el vendedor',
+        total: total,
+        detalles: detalles,
+        estado: 'PENDIENTE'
+    };
+
+    const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+
+    const headers = { 'Content-Type': 'application/json' };
+    if (csrfToken && csrfHeader) {
+        headers[csrfHeader] = csrfToken;
+    }
+
+    fetch('/cliente/api/checkout', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            carrito = carrito.filter(item => String(item.idOrganizacion) !== String(idOrganizacion));
+            guardarCarrito(carrito);
+            renderizarCarrito();
+
+            let mensaje = `Hola, vengo de Bike Assembly. Quiero hacer este pedido a ${nombreTaller}:\n\n`;
+            itemsTaller.forEach(item => {
+                const subtotalItem = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(item.precio * item.cantidad);
+                mensaje += `- ${item.cantidad}x ${item.nombre} (${subtotalItem})\n`;
+            });
+            const totalFormateado = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(total);
+            mensaje += `\nTotal: ${totalFormateado}\n\nQuedo atento para coordinar la entrega y el pago.`;
+
+            let telefonoFormat = telefonoTaller.replace(/\D/g, '');
+            if (!telefonoFormat.startsWith('57')) {
+                telefonoFormat = '57' + telefonoFormat;
+            }
+
+            const waUrl = `https://wa.me/${telefonoFormat}?text=${encodeURIComponent(mensaje)}`;
+            window.open(waUrl, '_blank');
+        } else {
+            alert('Error al registrar la solicitud: ' + (data.mensaje || 'Error desconocido'));
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Error de conexión al procesar la solicitud.');
+    });
 }
