@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bike Assembly - Formulario de Proveedor</title>
+    <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}"/>
+    <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}"/>
+    <title>Bike Assembly - Ficha de Proveedor</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -11,18 +13,15 @@
 </head>
 <body class="bg-light">
 
-    <nav class="navbar navbar-expand-lg top-bar-custom px-4 mb-4">
+    <nav class="navbar navbar-expand-lg top-bar-custom px-4 mb-4 shadow-sm">
         <div class="container-fluid px-0">
             <a class="navbar-brand d-flex align-items-center gap-2 text-dark fw-bold text-decoration-none" href="/admin">
-                <i class="bi bi-bicycle"></i> <span>Bike Assembly Admin</span>
+                <i class="bi bi-bicycle text-primary"></i> <span>Bike Assembly Admin</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold" style="color: var(--brand-blue);" href="/admin/proveedor"><i class="bi bi-buildings me-1"></i> Proveedores</a>
+                        <a class="nav-link fw-semibold" style="color: var(--brand-blue);" href="/admin/proveedor"><i class="bi bi-arrow-left me-1"></i> Volver a Proveedores</a>
                     </li>
                 </ul>
             </div>
@@ -30,60 +29,224 @@
     </nav>
 
     <div class="container-fluid px-5 pb-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card card-custom border-0 shadow-sm overflow-hidden">
-                    <div class="card-header header-form py-3">
-                        <h4 class="mb-0" th:text="${proveedor.idProveedor == null ? 'Añadir Nuevo Proveedor' : 'Editar Proveedor'}">Formulario</h4>
-                    </div>
-                    <div class="card-body p-4">
-                        
+        <div class="card card-custom border-0 shadow-sm overflow-hidden">
+            
+            <div class="card-header bg-white border-bottom pt-4 pb-0">
+                <h4 class="mb-3 fw-bold text-dark" th:text="${proveedor.idProveedor == null ? 'Añadir Nuevo Proveedor' : 'Gestión Integral del Proveedor'}"></h4>
+                
+                <ul class="nav nav-tabs border-bottom-0" id="proveedorTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active fw-semibold" id="datos-tab" data-bs-toggle="tab" data-bs-target="#datos" type="button" role="tab">Datos Principales</button>
+                    </li>
+                    <li class="nav-item" role="presentation" th:if="${proveedor.idProveedor != null}">
+                        <button class="nav-link fw-semibold text-muted" id="historial-tab" data-bs-toggle="tab" data-bs-target="#historial" type="button" role="tab">Historial de Suministros</button>
+                    </li>
+                    <li class="nav-item" role="presentation" th:if="${proveedor.idProveedor != null}">
+                        <button class="nav-link fw-bold text-primary" id="ingreso-tab" data-bs-toggle="tab" data-bs-target="#ingreso" type="button" role="tab"><i class="bi bi-box-arrow-in-down me-1"></i> Ingresar Mercancía</button>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card-body p-4 bg-white">
+                <div class="tab-content" id="proveedorTabsContent">
+                    
+                    <div class="tab-pane fade show active" id="datos" role="tabpanel">
                         <form th:action="@{/admin/proveedor/guardar}" th:object="${proveedor}" method="POST" class="row g-3">
-                            
-                            <input type="hidden" th:field="*{idProveedor}"/>
+                            <input type="hidden" id="proveedorIdHidden" th:field="*{idProveedor}"/>
                             
                             <div class="col-md-8">
-                                <label for="nombre" class="form-label fw-bold">Nombre de la Empresa o Bodega</label>
+                                <label class="form-label fw-bold">Nombre de la Empresa o Bodega</label>
                                 <input type="text" class="form-control" th:field="*{nombre}" required placeholder="Ej: Shimano Distribuidor S.A.">
                             </div>
-
                             <div class="col-md-4">
-                                <label for="tipoEstablecimiento" class="form-label fw-bold">Tipo</label>
+                                <label class="form-label fw-bold">Tipo</label>
                                 <select class="form-select" th:field="*{tipoEstablecimiento}" required>
                                     <option value="" disabled selected>Seleccione...</option>
                                     <option value="Empresa">Empresa</option>
                                     <option value="Bodega">Bodega</option>
                                 </select>
                             </div>
-                            
                             <div class="col-md-6">
-                                <label for="numero" class="form-label fw-bold">Número de Teléfono</label>
+                                <label class="form-label fw-bold">Número de Teléfono</label>
                                 <input type="text" class="form-control" th:field="*{numero}" required placeholder="Ej: 3001234567">
                             </div>
-
                             <div class="col-md-6">
-                                <label for="correo" class="form-label fw-bold">Correo Electrónico</label>
+                                <label class="form-label fw-bold">Correo Electrónico</label>
                                 <input type="email" class="form-control" th:field="*{correo}" required placeholder="contacto@empresa.com">
                             </div>
-
                             <div class="col-12">
-                                <label for="direccion" class="form-label fw-bold">Dirección Física</label>
+                                <label class="form-label fw-bold">Dirección Física</label>
                                 <input type="text" class="form-control" th:field="*{direccion}" required placeholder="Ej: Calle 123 #45-67, Zona Industrial">
                             </div>
-
-                            <div class="col-12 d-flex justify-content-end gap-2 mt-4">
-                                <a th:href="@{/admin/proveedor}" class="btn btn-outline-secondary">Cancelar</a>
-                                <button type="submit" class="btn btn-primary px-4">
-                                    <i class="bi bi-save me-1"></i> Guardar
+                            <div class="col-12 d-flex justify-content-end mt-4">
+                                <button type="submit" class="btn btn-primary px-5 fw-bold shadow-sm">
+                                    <i class="bi bi-save me-1"></i> Guardar Cambios
                                 </button>
                             </div>
                         </form>
+                    </div>
+
+                    <div class="tab-pane fade" id="historial" role="tabpanel" th:if="${proveedor.idProveedor != null}">
+                        
+                        <div th:if="${historialSuministros == null or historialSuministros.isEmpty()}" class="text-center py-5 text-muted">
+                            <i class="bi bi-box-seam fs-1 d-block mb-3 opacity-50"></i>
+                            <p class="fs-5">Este proveedor aún no te ha suministrado mercancía.</p>
+                        </div>
+
+                        <div th:each="entry : ${historialSuministros}" class="mb-5">
+                            <h5 class="border-bottom pb-2 text-primary fw-bold mb-3">
+                                <i class="bi bi-calendar-check me-2"></i> Ingreso del <span th:text="${#temporals.format(entry.key, 'dd/MM/yyyy')}"></span>
+                            </h5>
+                            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+                                <div class="col" th:each="prod : ${entry.value}">
+                                    <div class="card shadow-sm border-0 h-100 bg-light">
+                                        <div class="card-body d-flex align-items-center gap-3">
+                                            <img th:src="${prod.imagen != null and !prod.imagen.isEmpty() ? '/recursos/' + prod.imagen : 'https://via.placeholder.com/60?text=Foto'}" class="rounded border" style="width: 70px; height: 70px; object-fit: cover;">
+                                            <div>
+                                                <h6 class="mb-1 fw-bold text-dark text-truncate" style="max-width: 180px;" th:text="${prod.nombre}" th:title="${prod.nombre}">Producto</h6>
+                                                <small class="text-muted d-block mb-1"><i class="bi bi-tag-fill me-1"></i>[[${prod.marca}]] | [[${prod.condicion}]]</small>
+                                                <span class="badge bg-success rounded-pill px-3 py-2 fw-bold text-white shadow-sm">+ [[${prod.stock}]] unds en inventario</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="ingreso" role="tabpanel" th:if="${proveedor.idProveedor != null}">
+                        
+                        <div class="d-flex flex-column align-items-center py-4">
+                            <h3 class="fw-bold text-dark mb-4 text-center">Registrar Llegada de Mercancía</h3>
+                            
+                            <div class="input-group input-group-lg shadow border rounded-pill overflow-hidden bg-white w-75 mb-3 border-primary border-2">
+                                <span class="input-group-text bg-transparent border-0 text-primary ps-4">
+                                    <i class="bi bi-search fs-4"></i>
+                                </span>
+                                <input type="text" id="buscadorSuministros" class="form-control border-0 shadow-none bg-transparent py-3" placeholder="Busca por repuesto, marca o código de barras..." autocomplete="off" style="font-size: 1.1rem;">
+                            </div>
+
+                            <div id="alertaSuministros" class="alert w-75 shadow-sm text-start" style="display: none; background-color: #fff3cd; border-left: 6px solid #ffc107; color: #856404;">
+                                <h5 class="fw-bold mb-1"><i class="bi bi-exclamation-triangle-fill me-2"></i> ¡Ojo! Encontramos similitudes</h5>
+                                <p class="mb-0">Ya existen productos similares en tu sistema. Evita duplicar fichas y selecciona uno de la lista para sumar stock (si llegó de segunda, te lo separaremos automáticamente).</p>
+                            </div>
+
+                            <div id="resultadosSuministros" class="w-75 list-group mb-5 shadow-sm"></div>
+
+                            <div class="mt-2 border-top pt-5 w-100 text-center">
+                                <button type="button" class="btn btn-light text-secondary border shadow-sm rounded-pill px-4 py-2" id="btnMostrarNuevo">
+                                    <i class="bi bi-plus-circle me-2"></i> ¿No encuentras el repuesto? Crear nueva ficha técnica desde cero
+                                </button>
+                            </div>
+
+                            <div id="formNuevoProducto" class="w-100 mt-4 text-start p-4 bg-light rounded border shadow-sm" style="display: none;">
+                                <h5 class="fw-bold text-dark border-bottom pb-2 mb-4">Crear Ficha Técnica de Producto</h5>
+                                <form th:action="@{/admin/producto/guardar}" th:object="${nuevoProducto}" method="POST" enctype="multipart/form-data" class="row g-3">
+                                    <input type="hidden" name="proveedor.idProveedor" th:value="${proveedor.idProveedor}">
+                                    
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Nombre del Componente</label>
+                                        <input type="text" class="form-control" th:field="*{nombre}" placeholder="Ej: Llanta Maxxis">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Marca</label>
+                                        <input type="text" class="form-control" th:field="*{marca}" placeholder="Ej: Shimano">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Código de Barras</label>
+                                        <input type="text" class="form-control" th:field="*{codigoBarras}" placeholder="Ej: 770123456789">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Categoría</label>
+                                        <select class="form-select" th:field="*{categoria}">
+                                            <option value="llantas">Llantas y Neumáticos</option>
+                                            <option value="marcos">Marcos y Cuadros</option>
+                                            <option value="frenos">Frenos y Sistemas</option>
+                                            <option value="transmision">Transmisión</option>
+                                            <option value="otros" selected>Otros Accesorios</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Condición</label>
+                                        <select class="form-select" th:field="*{condicion}">
+                                            <option value="Nuevo">Nuevo</option>
+                                            <option value="Usado">Usado</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Cantidad Inicial</label>
+                                        <input type="number" class="form-control" th:field="*{stock}" value="0">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Precio Base ($)</label>
+                                        <input type="number" class="form-control" id="formPrecioI" th:field="*{precioInicial}" value="0">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">IVA (%)</label>
+                                        <input type="number" class="form-control" id="formIva" th:field="*{iva}" value="0">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold text-primary">Precio Total ($)</label>
+                                        <input type="number" class="form-control bg-white" id="formPrecioT" th:field="*{precioTotal}" readonly>
+                                    </div>
+                                    <div class="col-12 mt-3 text-end">
+                                        <button type="submit" class="btn btn-primary px-4 fw-bold">Guardar Nuevo Producto</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <div class="modal fade" id="modalSuministro" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title fw-bold"><i class="bi bi-box-arrow-in-down me-2"></i> Ingreso de Inventario</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body p-4">
+            <input type="hidden" id="modalIdProducto">
+            
+            <div class="d-flex align-items-center gap-3 mb-4 p-3 bg-light rounded border">
+                <div class="fs-1 text-primary"><i class="bi bi-bicycle"></i></div>
+                <div>
+                    <h5 id="modalNombreProducto" class="fw-bold text-dark mb-0"></h5>
+                    <small id="modalSubProducto" class="text-muted"></small>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <label class="form-label fw-bold text-dark fs-5">Condición de la mercancía recibida</label>
+                <select id="modalCondicion" class="form-select form-select-lg border-primary shadow-sm">
+                    <option value="Nuevo">Completamente Nuevo</option>
+                    <option value="Usado">De Segunda (Usado)</option>
+                    <option value="Reacondicionado">Reacondicionado</option>
+                </select>
+                <small class="text-muted mt-2 d-block"><i class="bi bi-info-circle me-1"></i>El sistema separará automáticamente las existencias nuevas de las usadas para no mezclar precios ni desgastes.</small>
+            </div>
+
+            <div class="mb-2">
+                <label class="form-label fw-bold text-dark fs-5">Cantidad de unidades que entran</label>
+                <div class="input-group input-group-lg shadow-sm">
+                    <span class="input-group-text bg-white"><i class="bi bi-123"></i></span>
+                    <input type="number" id="modalCantidad" class="form-control" min="1" value="1">
+                </div>
+            </div>
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-secondary fw-bold" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-success fw-bold px-4" id="btnGuardarSuministro">Confirmar Ingreso</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/proveedor-suministro.js}"></script>
 </body>
 </html>

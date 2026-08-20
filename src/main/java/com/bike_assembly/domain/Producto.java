@@ -3,6 +3,7 @@ package com.bike_assembly.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "producto")
@@ -36,6 +37,9 @@ public class Producto implements Serializable {
     @Column(name = "codigo_barras")
     private String codigoBarras;
 
+    @Column(name = "fecha_ingreso")
+    private LocalDate fechaIngreso = LocalDate.now();
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_proveedor")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "productos"})
@@ -51,6 +55,9 @@ public class Producto implements Serializable {
 
     public Producto() {
     }
+
+    public LocalDate getFechaIngreso() { return fechaIngreso; }
+    public void setFechaIngreso(LocalDate fechaIngreso) { this.fechaIngreso = fechaIngreso; }
 
     public Double getPrecioInicial() { return precioInicial; }
     public void setPrecioInicial(Double precioInicial) { this.precioInicial = precioInicial; }
