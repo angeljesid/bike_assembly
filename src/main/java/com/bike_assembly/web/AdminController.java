@@ -44,6 +44,9 @@ public class AdminController {
     @Autowired
     private IVentaService ventaService;
 
+    @Autowired
+    private com.bike_assembly.repository.OrganizacionDao organizacionDao;
+
     AdminController(ProductoDao productoDao) {
         this.productoDao = productoDao;
     }
@@ -220,4 +223,37 @@ public class AdminController {
         productoService.guardar(producto);
         return "redirect:/admin/producto";
     }
+
+    @GetMapping("/configuracion")
+public String configuracionNegocio(Model model) {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
+
+    if (admin != null && admin.getOrganizacion() != null) {
+        model.addAttribute("admin", admin);
+        model.addAttribute("organizacion", admin.getOrganizacion());
+        return "admin/configuracion";
+    }
+    
+    return "redirect:/admin";
+}
+
+@PostMapping("/configuracion/guardar")
+public String guardarConfiguracion(
+        @RequestParam("direccion") String direccion,
+        @RequestParam("telefono") String telefono) {
+
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
+
+    if (admin != null && admin.getOrganizacion() != null) {
+        com.bike_assembly.domain.Organizacion org = admin.getOrganizacion();
+        org.setDireccion(direccion);
+        org.setTelefono(telefono);
+        
+        organizacionDao.save(org);
+    }
+
+    return "redirect:/admin/configuracion?exito=true";
+}
 }
