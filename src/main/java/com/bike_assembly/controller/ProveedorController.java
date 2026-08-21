@@ -1,4 +1,4 @@
-package com.bike_assembly.web;
+package com.bike_assembly.controller;
 
 import com.bike_assembly.domain.Producto;
 import com.bike_assembly.domain.Proveedor;

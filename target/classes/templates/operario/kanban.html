@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tablero de Asignación - Operario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        .kanban-col {
+            min-height: 500px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 0 10px;
+        }
+        .card-kanban {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .card-kanban:hover {
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark mb-4">
+    <div class="container-fluid">
+        <span class="navbar-brand mb-0 h1">Bike Assembly - Tablero Operario</span>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row flex-nowrap overflow-auto pb-4">
+        
+        <div class="col-md-2 kanban-col">
+            <h5 class="text-center text-secondary border-bottom pb-2">En Cola</h5>
+            <div th:each="venta : ${pendientes}" class="card mb-3 card-kanban shadow-sm border-start border-secondary border-4">
+                <div class="card-body">
+                    <h6 class="card-title">Pedido #<span th:text="${venta.id}"></span></h6>
+                    <form th:action="@{/operario/actualizar-estado}" method="post">
+                        <input type="hidden" name="ventaId" th:value="${venta.id}">
+                        <input type="hidden" name="nuevoEstado" value="EN_DIAGNOSTICO">
+                        <button type="submit" class="btn btn-sm btn-outline-primary w-100 mt-2">Tomar Pedido</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2 kanban-col">
+            <h5 class="text-center text-primary border-bottom pb-2">Diagnóstico</h5>
+            <div th:each="venta : ${enDiagnostico}" class="card mb-3 card-kanban shadow-sm border-start border-primary border-4">
+                <div class="card-body">
+                    <h6 class="card-title">Pedido #<span th:text="${venta.id}"></span></h6>
+                    <form th:action="@{/operario/actualizar-estado}" method="post" class="mt-2">
+                        <input type="hidden" name="ventaId" th:value="${venta.id}">
+                        <select name="nuevoEstado" class="form-select form-select-sm mb-2" onchange="this.form.submit()">
+                            <option value="EN_DIAGNOSTICO" selected>Diagnóstico</option>
+                            <option value="EN_REPARACION">Reparación</option>
+                            <option value="ESPERANDO_REPUESTO">Esperando Repuesto</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2 kanban-col">
+            <h5 class="text-center text-warning border-bottom pb-2">En Reparación</h5>
+            <div th:each="venta : ${enReparacion}" class="card mb-3 card-kanban shadow-sm border-start border-warning border-4">
+                <div class="card-body">
+                    <h6 class="card-title">Pedido #<span th:text="${venta.id}"></span></h6>
+                    <form th:action="@{/operario/actualizar-estado}" method="post" class="mt-2">
+                        <input type="hidden" name="ventaId" th:value="${venta.id}">
+                        <select name="nuevoEstado" class="form-select form-select-sm mb-2" onchange="this.form.submit()">
+                            <option value="EN_REPARACION" selected>Reparación</option>
+                            <option value="ESPERANDO_REPUESTO">Esperando Repuesto</option>
+                            <option value="TERMINADO">Terminado</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2 kanban-col">
+            <h5 class="text-center text-danger border-bottom pb-2">Falta Repuesto</h5>
+            <div th:each="venta : ${esperandoRepuesto}" class="card mb-3 card-kanban shadow-sm border-start border-danger border-4">
+                <div class="card-body">
+                    <h6 class="card-title">Pedido #<span th:text="${venta.id}"></span></h6>
+                    <form th:action="@{/operario/actualizar-estado}" method="post" class="mt-2">
+                        <input type="hidden" name="ventaId" th:value="${venta.id}">
+                        <select name="nuevoEstado" class="form-select form-select-sm mb-2" onchange="this.form.submit()">
+                            <option value="ESPERANDO_REPUESTO" selected>Esperando Repuesto</option>
+                            <option value="EN_REPARACION">Reparación</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2 kanban-col">
+            <h5 class="text-center text-success border-bottom pb-2">Terminado</h5>
+            <div th:each="venta : ${terminados}" class="card mb-3 card-kanban shadow-sm border-start border-success border-4">
+                <div class="card-body">
+                    <h6 class="card-title">Pedido #<span th:text="${venta.id}"></span></h6>
+                    <span class="badge bg-success w-100 mt-2">Listo para Caja</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
