@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         async function cargarProveedoresIniciales() {
             try {
-                const response = await fetch('/api/buscar/proveedores');
+                const response = await fetch('/admin/proveedor/api/listar');
                 if (!response.ok) throw new Error('Error al obtener proveedores');
                 listaProveedoresGlobal = await response.json();
                 actualizarTablaProveedores(listaProveedoresGlobal); 
@@ -205,33 +205,44 @@ document.addEventListener('DOMContentLoaded', () => {
             proveedores.forEach(prov => {
                 tbodyProveedores.insertAdjacentHTML('beforeend', generarFilaProveedorHTML(prov));
             });
+
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
         }
 
         function generarFilaProveedorHTML(prov) {
             return `
                 <tr>
-                    <td class="px-4 py-3 fw-semibold text-dark">${prov.nombre || ''}</td>
+                    <td class="px-4 py-3 fw-bold text-dark">${prov.nombre || ''}</td>
                     <td class="py-3">
-                        <span class="badge bg-info bg-opacity-10 text-info border border-info rounded-pill px-3">
-                            ${prov.tipoEstablecimiento || ''}
+                        <span class="badge bg-light text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-semibold">
+                            ${prov.tipoEstablecimiento || 'N/A'}
                         </span>
                     </td>
                     <td class="py-3">
-                        <div class="d-flex flex-column">
-                            <small class="text-dark"><i class="bi bi-telephone text-muted me-1"></i> ${prov.numero || ''}</small>
-                            <small class="text-muted"><i class="bi bi-envelope me-1"></i> ${prov.correo || ''}</small>
-                        </div>
+                        <div class="fw-medium text-dark"><i class="bi bi-telephone text-muted me-1"></i> ${prov.numero || 'N/A'}</div>
+                        <small class="text-muted"><i class="bi bi-envelope me-1"></i> ${prov.correo || 'N/A'}</small>
                     </td>
-                    <td class="py-3 text-muted">${prov.direccion || ''}</td>
+                    <td class="py-3 text-muted"><i class="bi bi-geo-alt me-1"></i> ${prov.direccion || 'N/A'}</td>
                     <td class="px-4 py-3 text-end">
-                        <div class="btn-group shadow-sm">
-                            <a href="/admin/proveedor/editar/${prov.idProveedor}" class="btn btn-light btn-sm text-primary border" title="Editar">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <a href="/admin/proveedor/eliminar/${prov.idProveedor}" class="btn btn-light btn-sm text-danger border" title="Eliminar" onclick="return confirm('¿Estás seguro de eliminar este proveedor?');">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                        </div>
+                        <a href="/admin/proveedor/editar/${prov.idProveedor}" 
+                           class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 shadow-sm d-inline-flex align-items-center gap-1 me-1 fw-bold" 
+                           data-bs-toggle="tooltip" 
+                           data-bs-placement="top" 
+                           title="Ver historial de compras, editar datos e ingresar nueva mercancía">
+                            <i class="bi bi-box-seam-fill"></i>
+                            <span>Gestionar / Suministros</span>
+                        </a>
+                        <a href="/admin/proveedor/eliminar/${prov.idProveedor}" 
+                           class="btn btn-sm btn-outline-danger rounded-circle p-2 shadow-sm d-inline-flex align-items-center justify-content-center" 
+                           style="width: 32px; height: 32px;"
+                           data-bs-toggle="tooltip" 
+                           title="Eliminar proveedor" 
+                           onclick="return confirm('¿Estás seguro de eliminar este proveedor?');">
+                            <i class="bi bi-trash"></i>
+                        </a>
                     </td>
                 </tr>
             `;

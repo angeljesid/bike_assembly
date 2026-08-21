@@ -60,10 +60,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     .map(nombre => filtrados.find(p => p.nombre === nombre));
 
                 basesUnicas.forEach(p => {
+                    const imgSrc = (p.imagen && p.imagen.trim() !== '') 
+                        ? `/recursos/${p.imagen}` 
+                        : 'https://via.placeholder.com/50x50.png?text=Sin+Foto';
+
                     html += `
                         <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3 border-0 border-bottom">
                             <div class="d-flex align-items-center gap-3">
-                                <div class="bg-light p-2 rounded border"><i class="bi bi-gear-wide-connected fs-4 text-secondary"></i></div>
+                                <img src="${imgSrc}" class="rounded border" style="width: 50px; height: 50px; object-fit: cover;" alt="Foto repuesto">
                                 <div>
                                     <h6 class="fw-bold mb-0 text-dark">${p.nombre}</h6>
                                     <small class="text-muted">Marca: ${p.marca || 'N/A'} | Código: ${p.codigoBarras || 'N/A'}</small>
