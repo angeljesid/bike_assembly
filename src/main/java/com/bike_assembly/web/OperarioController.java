@@ -32,6 +32,17 @@ public class OperarioController {
         
         Usuario operario = usuarioDao.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail).orElse(null);
         model.addAttribute("operario", operario);
+
+        return "operario/ensambles";
+    }
+
+    @GetMapping("/kanban")
+    public String tableroKanban(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String usernameOrEmail = auth.getName();
+        
+        Usuario operario = usuarioDao.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail).orElse(null);
+        model.addAttribute("operario", operario);
         
         model.addAttribute("pendientes", ventaDao.findByEstado(EstadoServicio.PENDIENTE.name()));
         model.addAttribute("enDiagnostico", ventaDao.findByEstado(EstadoServicio.EN_DIAGNOSTICO.name()));
@@ -39,7 +50,7 @@ public class OperarioController {
         model.addAttribute("esperandoRepuesto", ventaDao.findByEstado(EstadoServicio.ESPERANDO_REPUESTO.name()));
         model.addAttribute("terminados", ventaDao.findByEstado(EstadoServicio.TERMINADO.name()));
 
-        return "operario/ensambles";
+        return "operario/kanban";
     }
 
     @PostMapping("/actualizar-estado")
@@ -49,6 +60,6 @@ public class OperarioController {
             venta.setEstado(nuevoEstado);
             ventaDao.save(venta);
         }
-        return "redirect:/operario/ensambles";
+        return "redirect:/operario/kanban";
     }
 }
