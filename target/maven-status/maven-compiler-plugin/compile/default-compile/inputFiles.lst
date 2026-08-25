@@ -2,7 +2,6 @@ C:\java\bike_assembly\src\main\java\com\bike_assembly\BikeAssemblyApplication.ja
 C:\java\bike_assembly\src\main\java\com\bike_assembly\config\DataInitializer.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\config\WebConfig.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\controller\BuscadorProveedorRestController.java
-C:\java\bike_assembly\src\main\java\com\bike_assembly\controller\CajaController.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\controller\InicioController.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\controller\loginController.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\controller\ProveedorController.java
@@ -36,6 +35,7 @@ C:\java\bike_assembly\src\main\java\com\bike_assembly\services\usuario\SuperAdmi
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\venta\IVentaService.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\venta\VentaService.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\web\AdminController.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\web\CajaController.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\web\ClienteController.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\web\OperarioController.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\web\RegistroController.java

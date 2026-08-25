@@ -1,4 +1,4 @@
-package com.bike_assembly.controller;
+package com.bike_assembly.web;
 
 import com.bike_assembly.domain.Producto;
 import com.bike_assembly.domain.Rol;
@@ -15,13 +15,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/admin/caja")
+@RequestMapping("/caja")
 public class CajaController {
 
     @Autowired
@@ -33,19 +35,24 @@ public class CajaController {
     @Autowired
     private UsuarioDao usuarioDao;
 
-    @GetMapping({"", "/"})
-    public String mostrarCaja() {
-        return "admin/caja"; 
+    private Usuario obtenerUsuarioAutenticado() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
+    }
+
+    @GetMapping({"", "/", "/pos"})
+    public String vistaPos(Model model) {
+        Usuario empleado = obtenerUsuarioAutenticado();
+        model.addAttribute("empleado", empleado);
+        return "caja/pos";
     }
 
     @GetMapping("/api/productos")
     @ResponseBody
     public ResponseEntity<List<Producto>> listarProductosCaja() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
-        
-        if (admin != null && admin.getOrganizacion() != null) {
-            List<Producto> productos = productoDao.findByOrganizacion(admin.getOrganizacion());
+        Usuario empleado = obtenerUsuarioAutenticado();
+        if (empleado != null && empleado.getOrganizacion() != null) {
+            List<Producto> productos = productoDao.findByOrganizacion(empleado.getOrganizacion());
             return ResponseEntity.ok(productos);
         }
         return ResponseEntity.ok(List.of());
@@ -54,11 +61,9 @@ public class CajaController {
     @GetMapping("/api/buscar-producto")
     @ResponseBody
     public ResponseEntity<?> buscarProductoPorCodigo(@RequestParam("codigo") String codigoBarras) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
-        
-        if (admin != null && admin.getOrganizacion() != null) {
-            Optional<Producto> producto = productoDao.findByCodigoBarrasAndOrganizacion(codigoBarras, admin.getOrganizacion());
+        Usuario empleado = obtenerUsuarioAutenticado();
+        if (empleado != null && empleado.getOrganizacion() != null) {
+            Optional<Producto> producto = productoDao.findByCodigoBarrasAndOrganizacion(codigoBarras, empleado.getOrganizacion());
             if (producto.isPresent()) {
                 return ResponseEntity.ok(producto.get());
             }
@@ -92,7 +97,41 @@ public class CajaController {
     @GetMapping("/factura/{id}")
     public String verFactura(@PathVariable("id") Long id, Model model) {
         Venta venta = ventaService.encontrarPorId(id);
+        Usuario empleado = obtenerUsuarioAutenticado();
+        
         model.addAttribute("venta", venta);
-        return "admin/factura";
+        model.addAttribute("empleado", empleado);
+        return "caja/factura";
+    }
+
+    @GetMapping("/pedidos")
+    public String listarPedidosPendientes(Model model) {
+        Usuario empleado = obtenerUsuarioAutenticado();
+        List<Venta> todosLosPedidos = ventaService.listarPedidosPendientes();
+
+        if (empleado != null && empleado.getOrganizacion() != null) {
+            todosLosPedidos = todosLosPedidos.stream().filter(v -> 
+                v.getDetalles() != null && v.getDetalles().stream().anyMatch(d -> 
+                    d.getProducto() != null && d.getProducto().getOrganizacion() != null &&
+                    d.getProducto().getOrganizacion().getIdOrganizacion().equals(empleado.getOrganizacion().getIdOrganizacion())
+                )
+            ).collect(Collectors.toList());
+        } else {
+            todosLosPedidos = List.of();
+        }
+
+        List<Venta> pendientesFiltrados = todosLosPedidos.stream()
+                .filter(v -> "PENDIENTE".equalsIgnoreCase(v.getEstado()))
+                .collect(Collectors.toList());
+                
+        model.addAttribute("pedidos", pendientesFiltrados);
+        model.addAttribute("empleado", empleado);
+        return "caja/pedidos-pendientes";
+    }
+
+    @PostMapping("/pedidos/completar/{id}")
+    public String completarPedido(@PathVariable("id") Long id) {
+        ventaService.marcarPedidoCompletado(id);
+        return "redirect:/caja/pedidos";
     }
 }

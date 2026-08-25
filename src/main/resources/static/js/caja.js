@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function cargarProductosCaja() {
         try {
-            const response = await fetch('/admin/caja/api/productos');
+            const response = await fetch('/caja/api/productos');
             if (!response.ok) throw new Error('Error al cargar productos');
             listaProductosGlobal = await response.json();
         } catch (error) {
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         try {
-            const res = await fetch(`/admin/caja/api/buscar-cliente?termino=${encodeURIComponent(termino)}`);
+            const res = await fetch(`/caja/api/buscar-cliente?termino=${encodeURIComponent(termino)}`);
             if (res.ok) {
                 const clientes = await res.json();
                 if (clientes.length > 0) {
@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 inputBuscador.value = '';
                 listaSugerencias.style.display = 'none';
             } else {
-                fetch(`/admin/caja/api/buscar-producto?codigo=${encodeURIComponent(codigo)}`)
+                fetch(`/caja/api/buscar-producto?codigo=${encodeURIComponent(codigo)}`)
                     .then(res => {
                         if (!res.ok) throw new Error('No encontrado');
                         return res.json();
@@ -327,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch('/admin/caja/api/cobrar', {
+            const response = await fetch('/caja/api/cobrar', {
                 method: 'POST',
                 headers: headers,
                 body: JSON.stringify(ventaRequest)
@@ -336,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const resultado = await response.json();
             if (response.ok && resultado.success) {
                 
-                window.open(`/admin/caja/factura/${resultado.idVenta}`, '_blank');
+                window.open(`/caja/factura/${resultado.idVenta}`, '_blank');
                 
                 carrito = [];
                 renderizarCarrito();

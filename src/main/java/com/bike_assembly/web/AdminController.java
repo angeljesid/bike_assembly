@@ -98,38 +98,6 @@ public class AdminController {
         return "admin/historial-admin";
     }
 
-    @GetMapping("/pedidos")
-    public String listarPedidosPendientes(Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String usernameOrEmail = auth.getName();
-        Usuario admin = usuarioDao.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail).orElse(null);
-
-        List<Venta> todosLosPedidos = ventaService.listarPedidosPendientes();
-
-        if (admin != null && admin.getOrganizacion() != null) {
-            todosLosPedidos = todosLosPedidos.stream().filter(v -> 
-                v.getDetalles() != null && v.getDetalles().stream().anyMatch(d -> 
-                    d.getProducto() != null && d.getProducto().getOrganizacion() != null &&
-                    d.getProducto().getOrganizacion().getIdOrganizacion().equals(admin.getOrganizacion().getIdOrganizacion())
-                )
-            ).collect(Collectors.toList());
-        } else {
-            todosLosPedidos = List.of();
-        }
-
-        List<Venta> pendientesFiltrados = todosLosPedidos.stream()
-                .filter(v -> "PENDIENTE".equalsIgnoreCase(v.getEstado()))
-                .collect(Collectors.toList());
-        model.addAttribute("pedidos", pendientesFiltrados);
-        return "admin/pedidos-pendientes";
-    }
-
-    @PostMapping("/pedidos/completar/{id}")
-    public String completarPedido(@PathVariable("id") Long id) {
-        ventaService.marcarPedidoCompletado(id);
-        return "redirect:/admin/pedidos";
-    }
-
     @GetMapping("/producto")
     public String listarProductos(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -229,40 +197,39 @@ public class AdminController {
     }
 
     @GetMapping("/configuracion")
-public String configuracionNegocio(Model model) {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
+    public String configuracionNegocio(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
 
-    if (admin != null && admin.getOrganizacion() != null) {
-        model.addAttribute("admin", admin);
-        model.addAttribute("organizacion", admin.getOrganizacion());
-        return "admin/configuracion";
-    }
-    
-    return "redirect:/admin";
-}
-
-@PostMapping("/configuracion/guardar")
-public String guardarConfiguracion(
-        @RequestParam("direccion") String direccion,
-        @RequestParam("telefono") String telefono) {
-
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
-
-    if (admin != null && admin.getOrganizacion() != null) {
-        com.bike_assembly.domain.Organizacion org = admin.getOrganizacion();
-        org.setDireccion(direccion);
-        org.setTelefono(telefono);
+        if (admin != null && admin.getOrganizacion() != null) {
+            model.addAttribute("admin", admin);
+            model.addAttribute("organizacion", admin.getOrganizacion());
+            return "admin/configuracion";
+        }
         
-        organizacionDao.save(org);
+        return "redirect:/admin";
     }
 
-    return "redirect:/admin/configuracion?exito=true";
-}
+    @PostMapping("/configuracion/guardar")
+    public String guardarConfiguracion(
+            @RequestParam("direccion") String direccion,
+            @RequestParam("telefono") String telefono) {
 
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
 
-@GetMapping("/empleados")
+        if (admin != null && admin.getOrganizacion() != null) {
+            com.bike_assembly.domain.Organizacion org = admin.getOrganizacion();
+            org.setDireccion(direccion);
+            org.setTelefono(telefono);
+            
+            organizacionDao.save(org);
+        }
+
+        return "redirect:/admin/configuracion?exito=true";
+    }
+
+    @GetMapping("/empleados")
     public String listarEmpleados(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
@@ -272,7 +239,7 @@ public String guardarConfiguracion(
         } else {
             model.addAttribute("empleados", List.of());
         }
-        return "admin/empleados"; // Vista Thymeleaf para listar empleados
+        return "admin/empleados";
     }
 
     @PostMapping("/empleados/guardar")
