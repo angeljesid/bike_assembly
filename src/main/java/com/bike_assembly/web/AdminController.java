@@ -1,6 +1,7 @@
 package com.bike_assembly.web;
 
 import com.bike_assembly.domain.Producto;
+import com.bike_assembly.domain.Rol;
 import com.bike_assembly.domain.Usuario;
 import com.bike_assembly.domain.Venta;
 import com.bike_assembly.repository.ProductoDao;
@@ -46,6 +47,9 @@ public class AdminController {
 
     @Autowired
     private com.bike_assembly.repository.OrganizacionDao organizacionDao;
+
+    @Autowired
+    private com.bike_assembly.services.empleado.IEmpleadoService empleadoService;
 
     AdminController(ProductoDao productoDao) {
         this.productoDao = productoDao;
@@ -256,4 +260,41 @@ public String guardarConfiguracion(
 
     return "redirect:/admin/configuracion?exito=true";
 }
+
+
+@GetMapping("/empleados")
+    public String listarEmpleados(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
+
+        if (admin != null && admin.getOrganizacion() != null) {
+            model.addAttribute("empleados", empleadoService.listarEmpleadosPorOrganizacion(admin.getOrganizacion()));
+        } else {
+            model.addAttribute("empleados", List.of());
+        }
+        return "admin/empleados"; // Vista Thymeleaf para listar empleados
+    }
+
+    @PostMapping("/empleados/guardar")
+    public String guardarEmpleado(Usuario empleado, @RequestParam("rolStr") String rolStr) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
+
+        if (admin != null && admin.getOrganizacion() != null) {
+            Rol rol = Rol.valueOf(rolStr);
+            empleadoService.guardarEmpleado(admin, empleado, rol);
+        }
+        return "redirect:/admin/empleados?exito=true";
+    }
+
+    @GetMapping("/empleados/eliminar/{id}")
+    public String eliminarEmpleado(@PathVariable("id") Long id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
+
+        if (admin != null && admin.getOrganizacion() != null) {
+            empleadoService.eliminarEmpleado(id, admin.getOrganizacion());
+        }
+        return "redirect:/admin/empleados";
+    }
 }

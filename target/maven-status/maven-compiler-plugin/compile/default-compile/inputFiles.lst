@@ -12,6 +12,7 @@ C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\Organizacion.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\Producto.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\Proveedor.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\Rol.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\Turno.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\Usuario.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\Venta.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\VentaRequestDTO.java
@@ -24,6 +25,8 @@ C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\VentaDao.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\security\CustomAuthenticationSuccessHandler.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\security\SecurityConfig.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\security\UserDetailsServiceImpl.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\services\empleado\EmpleadoServiceImpl.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\services\empleado\IEmpleadoService.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\producto\IProductoService.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\producto\ProductoService.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\proveedor\IProveedorService.java

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bike Assembly - Gestión de Empleados</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 sidebar-custom d-flex flex-column px-0" th:insert="~{admin/sidebar :: sidebar}"></div>
+            
+            <!-- Contenido Principal -->
+            <div class="col-md-10 p-4 p-md-5">
+                <div th:if="${param.exito}" class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i> <strong>¡Éxito!</strong> Operación realizada correctamente.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                    <div>
+                        <h2 class="fw-bold text-dark m-0">Gestión de Empleados</h2>
+                        <p class="text-muted m-0 small mt-1">Control de operarios y cajeros adscritos a tu taller.</p>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-primary btn-sm px-3 py-2 d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalNuevoEmpleado">
+                            <i class="bi bi-person-plus-fill fs-5"></i> Registrar Empleado
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tabla de Empleados -->
+                <div class="card card-custom mb-4">
+                    <div class="card-header bg-white border-bottom px-4 py-3">
+                        <h5 class="fw-bold m-0 text-dark fs-6"><i class="bi bi-people-fill me-2 text-primary"></i>Personal Activo</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 px-3">
+                                <thead>
+                                    <tr>
+                                        <th class="ps-4">ID</th>
+                                        <th>Nombre</th>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Rol</th>
+                                        <th class="text-end pe-4">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="emp : ${empleados}">
+                                        <td class="ps-4 fw-bold text-muted" th:text="'#' + ${emp.idUsuario}">#1</td>
+                                        <td class="fw-semibold text-dark" th:text="${emp.nombre}">Nombre</td>
+                                        <td th:text="${emp.username}">username</td>
+                                        <td class="text-secondary" th:text="${emp.email}">correo@taller.com</td>
+                                        <td>
+                                            <span class="badge bg-info bg-opacity-10 text-info px-2 py-1 fw-medium" th:text="${emp.rol}">OPERARIO</span>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <a th:href="@{/admin/empleados/eliminar/{id}(id=${emp.idUsuario})}" class="btn btn-sm btn-outline-danger px-2 py-1" onclick="return confirm('¿Estás seguro de dar de baja a este empleado?');">
+                                                <i class="bi bi-trash-fill"></i> Eliminar
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(empleados)}">
+                                        <td colspan="6" class="text-center text-muted py-5">
+                                            <i class="bi bi-folder2-open fs-2 d-block mb-2 text-secondary"></i>
+                                            No hay empleados registrados en tu taller actualmente.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Registrar Empleado -->
+    <div class="modal fade" id="modalNuevoEmpleado" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <form th:action="@{/admin/empleados/guardar}" method="post">
+                    <div class="modal-header bg-light border-bottom px-4 py-3">
+                        <h5 class="modal-title fw-bold fs-6"><i class="bi bi-person-plus me-2 text-primary"></i>Registrar Nuevo Empleado</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body px-4 py-4">
+                        <label class="form-label fw-semibold small text-secondary">Nombre Completo:</label>
+                        <input type="text" class="form-control shadow-sm mb-3" name="nombre" required placeholder="Ej. Carlos Mecánico">
+
+                        <label class="form-label fw-semibold small text-secondary">Nombre de Usuario (Username):</label>
+                        <input type="text" class="form-control shadow-sm mb-3" name="username" required placeholder="Ej. mecanico2">
+
+                        <label class="form-label fw-semibold small text-secondary">Correo Electrónico:</label>
+                        <input type="email" class="form-control shadow-sm mb-3" name="email" required placeholder="Ej. carlos@taller.com">
+
+                        <label class="form-label fw-semibold small text-secondary">Contraseña:</label>
+                        <input type="password" class="form-control shadow-sm mb-3" name="password" required placeholder="••••••••">
+
+                        <label class="form-label fw-semibold small text-secondary">Rol / Puesto:</label>
+                        <select name="rolStr" class="form-select shadow-sm" required>
+                            <option value="OPERARIO">Operario / Mecánico</option>
+                            <option value="CAJA">Cajero / POS</option>
+                        </select>
+                        <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">Los cupos máximos están sujetos al tipo de plan contratado para tu organización.</small>
+                    </div>
+                    <div class="modal-footer bg-light px-4 py-3 border-top">
+                        <button type="button" class="btn btn-outline-secondary btn-sm px-3" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary btn-sm px-4">Guardar Empleado</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -25,4 +25,5 @@ public interface UsuarioDao extends JpaRepository<Usuario, Long> {
     boolean existsByRol(Rol rol);
     @Query("SELECT u FROM Usuario u WHERE u.rol = :rol")
     List<Usuario> findByRol(Rol rol);
+    
 }
