@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+
+    <div class="d-flex flex-column flex-shrink-0 p-3 text-white sidebar-custom bg-dark" th:fragment="sidebar" style="min-height: 100vh;">
+        
+        <a href="/caja/pos" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none px-2 py-3">
+            <div class="brand-logo bg-white text-dark rounded-circle p-2 d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
+                <i class="bi bi-bicycle fs-5 text-primary"></i>
+            </div>
+            <span class="fs-5 fw-bold">Bike POS</span>
+        </a>
+        
+        <hr class="text-white-50">
+        
+        <ul class="nav nav-pills flex-column mb-auto">
+            <li class="nav-item">
+                <a href="/caja/pos" class="nav-link text-white d-flex align-items-center gap-2">
+                    <i class="bi bi-cart-check fs-5"></i>
+                    <span>Nueva Venta</span>
+                </a>
+            </li>
+            <li>
+                <a href="/caja/pedidos" class="nav-link text-white d-flex align-items-center gap-2">
+                    <i class="bi bi-bell-fill fs-5"></i>
+                    <span>Pedidos Pendientes</span>
+                </a>
+            </li>
+        </ul>
+        
+        <hr class="text-white-50">
+        
+        <div>
+            <form th:action="@{/logout}" method="post" class="m-0">
+                <button type="submit" class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2 py-2">
+                    <i class="bi bi-box-arrow-right fs-5"></i>
+                    <span>Cerrar sesión</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

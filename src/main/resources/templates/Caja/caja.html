@@ -34,7 +34,8 @@
 
     <div class="d-flex vh-100">
         
-        <div th:replace="~{admin/barra :: sidebar}"></div>
+        <div th:if="${empleado != null and empleado.rol.name() == 'ADMIN'}" th:replace="~{admin/barra :: sidebar}"></div>
+        <div th:if="${empleado != null and empleado.rol.name() == 'CAJA'}" th:replace="~{caja/barra :: sidebar}"></div>
 
         <div class="flex-grow-1 p-4 overflow-hidden d-flex flex-column">
             
