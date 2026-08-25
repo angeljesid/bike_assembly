@@ -4,6 +4,7 @@ public enum Rol {
     SUPER_ADMIN,
     ADMIN,
     OPERARIO,
+    CAJA,
     CLIENTE
     
 }

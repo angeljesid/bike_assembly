@@ -29,6 +29,9 @@ public class Usuario implements Serializable {
     @Column(unique = true)
     private String cedula;
 
+    @Column(nullable = false)
+    private Boolean activo = true;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Rol rol;
@@ -62,6 +65,9 @@ public class Usuario implements Serializable {
     public void setPassword(String password) {
         this.password = password; 
         }
+
+    public Boolean getActivo() { return activo; }
+    public void setActivo(Boolean activo) { this.activo = activo; }
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }

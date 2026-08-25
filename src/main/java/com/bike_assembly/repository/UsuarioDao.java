@@ -1,6 +1,7 @@
 package com.bike_assembly.repository;
 
 import com.bike_assembly.domain.Usuario;
+import com.bike_assembly.domain.Organizacion;
 import com.bike_assembly.domain.Rol;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
@@ -8,6 +9,10 @@ import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 
 public interface UsuarioDao extends JpaRepository<Usuario, Long> {
+
+    long countByOrganizacionAndRolAndActivoTrue(Organizacion organizacion, Rol rol);
+
+    List<Usuario> findByOrganizacionAndActivoTrue(Organizacion organizacion);
     Optional<Usuario> findByUsername(String username);
     Optional<Usuario> findByEmail(String email);
     Optional<Usuario> findByResetPasswordToken(String token);
