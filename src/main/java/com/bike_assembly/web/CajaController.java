@@ -134,4 +134,33 @@ public class CajaController {
         ventaService.marcarPedidoCompletado(id);
         return "redirect:/caja/pedidos";
     }
+
+    @PostMapping("/api/cliente/nuevo")
+    @ResponseBody
+    public ResponseEntity<?> registrarClienteRapido(@RequestBody Usuario nuevoCliente) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            if (nuevoCliente.getEmail() == null || nuevoCliente.getEmail().isEmpty()) {
+                nuevoCliente.setEmail(nuevoCliente.getCedula() + "@consumidor.local");
+            }
+            
+            nuevoCliente.setUsername(nuevoCliente.getCedula());
+            nuevoCliente.setPassword("12345");
+            nuevoCliente.setRol(Rol.CLIENTE);
+            nuevoCliente.setActivo(true);
+            
+            Usuario guardado = usuarioDao.save(nuevoCliente);
+            
+            response.put("success", true);
+            response.put("idUsuario", guardado.getIdUsuario());
+            response.put("nombre", guardado.getNombre());
+            response.put("cedula", guardado.getCedula());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("mensaje", "La cédula ya está registrada o hubo un error de base de datos.");
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+    
 }

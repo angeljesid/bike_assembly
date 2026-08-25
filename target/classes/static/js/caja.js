@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const listaSugerenciasCliente = document.getElementById('listaSugerenciasCliente');
     const clienteSeleccionadoInfo = document.getElementById('clienteSeleccionadoInfo');
     const inputIdClienteSeleccionado = document.getElementById('idClienteSeleccionado');
+    const formNuevoCliente = document.getElementById('formNuevoCliente');
 
     let listaProductosGlobal = [];
     let carrito = [];
@@ -73,11 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     listaSugerenciasCliente.querySelectorAll('button').forEach(btn => {
                         btn.addEventListener('click', () => {
-                            inputIdClienteSeleccionado.value = btn.getAttribute('data-id');
-                            clienteSeleccionadoInfo.innerHTML = `Cliente: ${btn.getAttribute('data-nombre')} <br><small>CC: ${btn.getAttribute('data-cedula')}</small>`;
-                            clienteSeleccionadoInfo.style.display = 'block';
-                            inputBuscadorCliente.value = '';
-                            listaSugerenciasCliente.style.display = 'none';
+                            seleccionarCliente(btn.getAttribute('data-id'), btn.getAttribute('data-nombre'), btn.getAttribute('data-cedula'));
                         });
                     });
                 } else {
@@ -88,6 +85,51 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error(err);
         }
     });
+
+    function seleccionarCliente(id, nombre, cedula) {
+        inputIdClienteSeleccionado.value = id;
+        clienteSeleccionadoInfo.innerHTML = `Cliente: ${nombre} <br><small>CC: ${cedula}</small>`;
+        clienteSeleccionadoInfo.style.display = 'block';
+        inputBuscadorCliente.value = '';
+        listaSugerenciasCliente.style.display = 'none';
+        metodoPagoSelect.focus();
+    }
+
+    if(formNuevoCliente) {
+        formNuevoCliente.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                nombre: document.getElementById('nuevoNombre').value.trim(),
+                cedula: document.getElementById('nuevaCedula').value.trim(),
+                email: document.getElementById('nuevoCorreo').value.trim() || null
+            };
+
+            const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+            const headers = { 'Content-Type': 'application/json' };
+            if (csrfToken && csrfHeader) headers[csrfHeader] = csrfToken;
+
+            try {
+                const res = await fetch('/caja/api/cliente/nuevo', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    seleccionarCliente(data.idUsuario, data.nombre, data.cedula);
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalNuevoCliente'));
+                    modal.hide();
+                    formNuevoCliente.reset();
+                } else {
+                    alert('Error: ' + (data.mensaje || 'No se pudo crear el cliente'));
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Error de conexión al crear cliente.');
+            }
+        });
+    }
 
     inputBuscador.addEventListener('input', (e) => {
         const termino = e.target.value;
@@ -132,6 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     inputBuscador.value = '';
                     listaSugerencias.style.display = 'none';
+                    inputBuscador.focus();
                 });
             });
         } else {
@@ -335,15 +378,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const resultado = await response.json();
             if (response.ok && resultado.success) {
-                
                 window.open(`/caja/factura/${resultado.idVenta}`, '_blank');
-                
                 carrito = [];
                 renderizarCarrito();
                 montoRecibidoInput.value = '';
                 inputIdClienteSeleccionado.value = '';
                 clienteSeleccionadoInfo.style.display = 'none';
                 clienteSeleccionadoInfo.textContent = '';
+                inputBuscador.focus();
                 cargarProductosCaja();
             } else {
                 alert('Error al cobrar: ' + (resultado.mensaje || 'Error desconocido'));
