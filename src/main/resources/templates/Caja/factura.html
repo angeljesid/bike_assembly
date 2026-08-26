@@ -17,6 +17,7 @@
         @media print {
             body { background: white; margin: 0; padding: 0; }
             .invoice-box { box-shadow: none; border: none; padding: 0; margin: 0; width: 100%; }
+            .no-print { display: none !important; }
         }
     </style>
 </head>
@@ -72,6 +73,11 @@
         
         <div class="text-center mt-5 pt-3 border-top text-muted small">
             <p>¡Gracias por su compra!<br>El documento no representa una factura electrónica.</p>
+        </div>
+        
+        <div class="text-center mt-4 no-print">
+            <button onclick="window.print()" class="btn btn-outline-primary me-2">Imprimir de nuevo</button>
+            <a href="/caja" class="btn btn-secondary">Volver a Caja</a>
         </div>
     </div>
 
