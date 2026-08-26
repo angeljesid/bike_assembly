@@ -40,11 +40,11 @@ public class CajaController {
         return usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
     }
 
-    @GetMapping({"", "/", "/caja"})
+    @GetMapping({"", "/", "/caja", "/pos"})
     public String vistaPos(Model model) {
         Usuario empleado = obtenerUsuarioAutenticado();
         model.addAttribute("empleado", empleado);
-        return "caja/caja";
+        return "caja/pos";
     }
 
     @GetMapping("/api/productos")
@@ -162,5 +162,4 @@ public class CajaController {
             return ResponseEntity.badRequest().body(response);
         }
     }
-    
 }

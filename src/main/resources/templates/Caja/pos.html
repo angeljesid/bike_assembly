@@ -2,9 +2,145 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Bike Assembly - POS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bike Assembly - Punto de Venta</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
-<body>
-    <h1>Bienvenido al módulo de Caja (POS)</h1>
+<body class="bg-light">
+
+    <div class="d-flex" style="min-height: 100vh;">
+        
+        <div class="d-flex flex-column flex-shrink-0 p-3 text-white sidebar-custom bg-dark" th:fragment="sidebar" style="min-height: 100vh; width: 280px;">
+            <a href="/caja" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none px-2 py-3">
+                <div class="brand-logo bg-white text-dark rounded-circle p-2 d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
+                    <i class="bi bi-bicycle fs-5 text-primary"></i>
+                </div>
+                <span class="fs-5 fw-bold">Bike POS</span>
+            </a>
+            
+            <hr class="text-white-50">
+            
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li class="nav-item">
+                    <a href="/caja" class="nav-link text-white d-flex align-items-center gap-2">
+                        <i class="bi bi-cart-check fs-5"></i>
+                        <span>Nueva Venta</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/caja/pedidos" class="nav-link text-white d-flex align-items-center gap-2">
+                        <i class="bi bi-bell-fill fs-5"></i>
+                        <span>Pedidos Pendientes</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <hr class="text-white-50">
+            
+            <div>
+                <form th:action="@{/logout}" method="post" class="m-0">
+                    <button type="submit" class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2 py-2">
+                        <i class="bi bi-box-arrow-right fs-5"></i>
+                        <span>Cerrar sesión</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="flex-grow-1 p-4">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Punto de Venta</h2>
+                <div class="text-end">
+                    <span class="text-muted">Cajero activo:</span>
+                    <strong th:text="${empleado.nombre}"></strong>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body">
+                            <div class="input-group mb-3">
+                                <span class="input-group-text"><i class="bi bi-upc-scan"></i></span>
+                                <input type="text" id="codigoBarras" class="form-control form-control-lg" placeholder="Escanear código de barras o buscar producto...">
+                                <button class="btn btn-primary" type="button" onclick="buscarProducto()">Buscar</button>
+                            </div>
+
+                            <div class="table-responsive" style="height: 400px; overflow-y: auto;">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light sticky-top">
+                                        <tr>
+                                            <th>Producto</th>
+                                            <th>Precio Unit.</th>
+                                            <th style="width: 120px;">Cantidad</th>
+                                            <th>Subtotal</th>
+                                            <th>Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabla-carrito">
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted py-4">El carrito está vacío</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0"><i class="bi bi-person-badge me-2"></i>Datos del Cliente</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="input-group mb-3">
+                                <input type="text" id="buscarClienteInput" class="form-control" placeholder="Cédula o Nombre...">
+                                <button class="btn btn-outline-secondary" type="button" onclick="buscarCliente()"><i class="bi bi-search"></i></button>
+                            </div>
+                            <div id="clienteSeleccionado" class="alert alert-secondary d-none">
+                                <strong id="nombreCliente"></strong><br>
+                                <small id="cedulaCliente"></small>
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#nuevoClienteModal">
+                                + Nuevo Cliente Rápido
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm border-primary">
+                        <div class="card-body bg-primary text-white rounded">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <span id="resumenSubtotal">$0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>IVA (19%):</span>
+                                <span id="resumenIva">$0.00</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between fs-4 fw-bold mb-4">
+                                <span>Total:</span>
+                                <span id="resumenTotal">$0.00</span>
+                            </div>
+                            <button class="btn btn-success btn-lg w-100 shadow fw-bold" onclick="procesarCobro()">
+                                <i class="bi bi-cash-coin me-2"></i>COBRAR
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        function buscarProducto() {}
+        function buscarCliente() {}
+        function procesarCobro() {}
+    </script>
 </body>
 </html>
