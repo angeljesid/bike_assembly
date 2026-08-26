@@ -31,6 +31,10 @@ public class Venta {
     @JoinColumn(name = "id_usuario")
     private Usuario cliente;
 
+    @ManyToOne
+    @JoinColumn(name = "id_empleado")
+    private Usuario empleado;
+
     @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<DetalleVenta> detalles = new ArrayList<>();
@@ -83,4 +87,9 @@ public class Venta {
     public void setDetalles(List<DetalleVenta> detalles) {
     this.detalles = detalles; 
     }
+
+    public Usuario getEmpleado() {
+        return empleado; }
+    public void setEmpleado(Usuario empleado) {
+        this.empleado = empleado; }
 }

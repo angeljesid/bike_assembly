@@ -32,6 +32,8 @@
                                 <tr>
                                     <th class="py-3 ps-4">ID Venta</th>
                                     <th class="py-3">Fecha y Hora</th>
+                                    <th class="py-3">Vendedor</th>
+                                    <th class="py-3">Cliente</th>
                                     <th class="py-3">Método de Pago</th>
                                     <th class="py-3 text-end">Total</th>
                                     <th class="py-3 text-center" style="width: 120px;">Acciones</th>
@@ -39,7 +41,7 @@
                             </thead>
                             <tbody>
                                 <tr th:if="${ventas == null or ventas.empty}">
-                                    <td colspan="5" class="text-center text-muted py-5">
+                                    <td colspan="7" class="text-center text-muted py-5">
                                         <i class="bi bi-receipt fs-1 d-block mb-2"></i>
                                         No hay ventas registradas en el sistema.
                                     </td>
@@ -47,6 +49,8 @@
                                 <tr th:each="venta : ${ventas}">
                                     <td class="ps-4 fw-bold text-muted" th:text="${'#' + venta.idVenta}"></td>
                                     <td th:text="${#temporals.format(venta.fechaHora, 'dd/MM/yyyy HH:mm')}"></td>
+                                    <td th:text="${venta.empleado != null ? venta.empleado.nombre : 'Admin'}"></td>
+                                    <td th:text="${venta.cliente != null ? venta.cliente.nombre : 'Consumidor Final'}"></td>
                                     <td>
                                         <span class="badge bg-secondary" th:text="${venta.metodoPago}"></span>
                                     </td>
@@ -66,7 +70,6 @@
         </div>
     </div>
 
-    <!-- Modales de Detalle por Venta -->
     <div th:each="venta : ${ventas}">
         <div class="modal fade" th:id="${'modalDetalle' + venta.idVenta}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -80,7 +83,9 @@
                     <div class="modal-body p-4">
                         <div class="mb-3 text-muted">
                             <i class="bi bi-calendar-event me-1"></i> <strong>Fecha:</strong> <span th:text="${#temporals.format(venta.fechaHora, 'dd/MM/yyyy HH:mm')}"></span> | 
-                            <i class="bi bi-wallet2 ms-2 me-1"></i> <strong>Método de Pago:</strong> <span th:text="${venta.metodoPago}"></span>
+                            <i class="bi bi-wallet2 ms-2 me-1"></i> <strong>Método de Pago:</strong> <span th:text="${venta.metodoPago}"></span> <br>
+                            <i class="bi bi-person-badge mt-2 me-1"></i> <strong>Vendedor:</strong> <span th:text="${venta.empleado != null ? venta.empleado.nombre : 'Admin / Web'}"></span> |
+                            <i class="bi bi-person ms-2 me-1"></i> <strong>Cliente:</strong> <span th:text="${venta.cliente != null ? venta.cliente.nombre : 'Consumidor Final'}"></span>
                         </div>
                         
                         <div class="table-responsive border rounded">

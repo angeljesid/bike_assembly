@@ -30,8 +30,16 @@
 </head>
 <body class="bg-light">
     <div class="d-flex vh-100">
-        <div th:if="${empleado != null and empleado.rol.name() == 'ADMIN'}" th:replace="~{admin/barra :: sidebar}"></div>
-        <div th:if="${empleado != null and empleado.rol.name() == 'CAJA'}" th:replace="~{caja/barra :: sidebar}"></div>
+        
+        <th:block th:if="${empleado != null}">
+    <th:block th:if="${empleado.rol.name() == 'ADMIN'}">
+        <div th:replace="~{admin/barra :: sidebar}"></div>
+    </th:block>
+    
+    <th:block th:if="${empleado.rol.name() == 'CAJA'}">
+        <div th:replace="~{caja/barra :: sidebar}"></div>
+    </th:block>
+</th:block>
 
         <div class="flex-grow-1 p-4 overflow-hidden d-flex flex-column">
             <div class="d-flex justify-content-between align-items-center mb-3">
