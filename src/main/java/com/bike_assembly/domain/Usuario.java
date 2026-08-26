@@ -43,6 +43,9 @@ public class Usuario implements Serializable {
     @JoinColumn(name = "id_organizacion")
     private Organizacion organizacion;
 
+    @Transient
+    private Turno turnoActual;
+
     public Usuario() {}
 
     public Long getIdUsuario() {
@@ -89,4 +92,9 @@ public class Usuario implements Serializable {
 
     public Organizacion getOrganizacion() { return organizacion; }
     public void setOrganizacion(Organizacion organizacion) { this.organizacion = organizacion; }
+
+    public Turno getTurnoActual() { return turnoActual; }
+    public void setTurnoActual(Turno turnoActual) { this.turnoActual = turnoActual; 
+
+}
 }
