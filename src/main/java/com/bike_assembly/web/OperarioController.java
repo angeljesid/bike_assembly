@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Controller
 @RequestMapping("/operario")
 public class OperarioController {
@@ -25,12 +28,37 @@ public class OperarioController {
     @Autowired
     private VentaDao ventaDao;
 
+    private Usuario obtenerUsuarioAutenticado() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
+    }
+
+    private List<Venta> filtrarPorOrganizacion(List<Venta> ventas, Usuario operario) {
+        if (operario == null || operario.getOrganizacion() == null) {
+            return List.of();
+        }
+        Long orgId = operario.getOrganizacion().getIdOrganizacion();
+        
+        return ventas.stream().filter(v -> {
+            if (v.getEmpleado() != null && v.getEmpleado().getOrganizacion() != null) {
+                if (v.getEmpleado().getOrganizacion().getIdOrganizacion().equals(orgId)) {
+                    return true;
+                }
+            }
+            if (v.getDetalles() != null) {
+                return v.getDetalles().stream().anyMatch(d -> 
+                    d.getProducto() != null && 
+                    d.getProducto().getOrganizacion() != null &&
+                    d.getProducto().getOrganizacion().getIdOrganizacion().equals(orgId)
+                );
+            }
+            return false;
+        }).collect(Collectors.toList());
+    }
+
     @GetMapping({"", "/", "/ensambles"})
     public String inicioOperario(Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String usernameOrEmail = auth.getName();
-        
-        Usuario operario = usuarioDao.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail).orElse(null);
+        Usuario operario = obtenerUsuarioAutenticado();
         model.addAttribute("operario", operario);
 
         return "operario/ensambles";
@@ -38,27 +66,42 @@ public class OperarioController {
 
     @GetMapping("/kanban")
     public String tableroKanban(Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String usernameOrEmail = auth.getName();
-        
-        Usuario operario = usuarioDao.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail).orElse(null);
+        Usuario operario = obtenerUsuarioAutenticado();
         model.addAttribute("operario", operario);
         
-        model.addAttribute("pendientes", ventaDao.findByEstado(EstadoServicio.PENDIENTE.name()));
-        model.addAttribute("enDiagnostico", ventaDao.findByEstado(EstadoServicio.EN_DIAGNOSTICO.name()));
-        model.addAttribute("enReparacion", ventaDao.findByEstado(EstadoServicio.EN_REPARACION.name()));
-        model.addAttribute("esperandoRepuesto", ventaDao.findByEstado(EstadoServicio.ESPERANDO_REPUESTO.name()));
-        model.addAttribute("terminados", ventaDao.findByEstado(EstadoServicio.TERMINADO.name()));
+        model.addAttribute("pendientes", filtrarPorOrganizacion(ventaDao.findByEstado(EstadoServicio.PENDIENTE.name()), operario));
+        model.addAttribute("enDiagnostico", filtrarPorOrganizacion(ventaDao.findByEstado(EstadoServicio.EN_DIAGNOSTICO.name()), operario));
+        model.addAttribute("enReparacion", filtrarPorOrganizacion(ventaDao.findByEstado(EstadoServicio.EN_REPARACION.name()), operario));
+        model.addAttribute("esperandoRepuesto", filtrarPorOrganizacion(ventaDao.findByEstado(EstadoServicio.ESPERANDO_REPUESTO.name()), operario));
+        model.addAttribute("terminados", filtrarPorOrganizacion(ventaDao.findByEstado(EstadoServicio.TERMINADO.name()), operario));
 
         return "operario/kanban";
     }
 
     @PostMapping("/actualizar-estado")
     public String actualizarEstado(@RequestParam Long ventaId, @RequestParam String nuevoEstado) {
+        Usuario operario = obtenerUsuarioAutenticado();
         Venta venta = ventaDao.findById(ventaId).orElse(null);
-        if (venta != null) {
-            venta.setEstado(nuevoEstado);
-            ventaDao.save(venta);
+        
+        if (venta != null && operario != null && operario.getOrganizacion() != null) {
+            Long orgId = operario.getOrganizacion().getIdOrganizacion();
+            boolean pertenece = false;
+            
+            if (venta.getEmpleado() != null && venta.getEmpleado().getOrganizacion() != null) {
+                pertenece = venta.getEmpleado().getOrganizacion().getIdOrganizacion().equals(orgId);
+            }
+            if (!pertenece && venta.getDetalles() != null) {
+                pertenece = venta.getDetalles().stream().anyMatch(d -> 
+                    d.getProducto() != null && 
+                    d.getProducto().getOrganizacion() != null &&
+                    d.getProducto().getOrganizacion().getIdOrganizacion().equals(orgId)
+                );
+            }
+            
+            if (pertenece) {
+                venta.setEstado(nuevoEstado);
+                ventaDao.save(venta);
+            }
         }
         return "redirect:/operario/kanban";
     }
