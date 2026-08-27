@@ -25,6 +25,9 @@ public class Organizacion implements Serializable {
 
     private String tipo;
 
+    @Column(nullable = false)
+    private Boolean activo = true;
+
     public Organizacion() {
     }
 
@@ -73,4 +76,7 @@ public class Organizacion implements Serializable {
     public void setTipo(String tipo) {
         this.tipo = tipo;
     }
+
+    public Boolean getActivo() { return activo; }
+    public void setActivo(Boolean activo) { this.activo = activo; }
 }
