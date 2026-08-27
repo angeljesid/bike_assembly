@@ -99,6 +99,25 @@ public class CajaController {
         Venta venta = ventaService.encontrarPorId(id);
         Usuario empleado = obtenerUsuarioAutenticado();
         
+        if (venta != null && empleado != null && empleado.getOrganizacion() != null) {
+            Long orgId = empleado.getOrganizacion().getIdOrganizacion();
+            boolean pertenece = false;
+            
+            if (venta.getEmpleado() != null && venta.getEmpleado().getOrganizacion() != null) {
+                pertenece = venta.getEmpleado().getOrganizacion().getIdOrganizacion().equals(orgId);
+            }
+            if (!pertenece && venta.getDetalles() != null) {
+                pertenece = venta.getDetalles().stream().anyMatch(d -> 
+                    d.getProducto() != null && 
+                    d.getProducto().getOrganizacion() != null &&
+                    d.getProducto().getOrganizacion().getIdOrganizacion().equals(orgId)
+                );
+            }
+            if (!pertenece) {
+                return "redirect:/caja";
+            }
+        }
+        
         model.addAttribute("venta", venta);
         model.addAttribute("empleado", empleado);
         return "caja/factura";
@@ -110,12 +129,22 @@ public class CajaController {
         List<Venta> todosLosPedidos = ventaService.listarPedidosPendientes();
 
         if (empleado != null && empleado.getOrganizacion() != null) {
-            todosLosPedidos = todosLosPedidos.stream().filter(v -> 
-                v.getDetalles() != null && v.getDetalles().stream().anyMatch(d -> 
-                    d.getProducto() != null && d.getProducto().getOrganizacion() != null &&
-                    d.getProducto().getOrganizacion().getIdOrganizacion().equals(empleado.getOrganizacion().getIdOrganizacion())
-                )
-            ).collect(Collectors.toList());
+            Long orgId = empleado.getOrganizacion().getIdOrganizacion();
+            todosLosPedidos = todosLosPedidos.stream().filter(v -> {
+                if (v.getEmpleado() != null && v.getEmpleado().getOrganizacion() != null) {
+                    if (v.getEmpleado().getOrganizacion().getIdOrganizacion().equals(orgId)) {
+                        return true;
+                    }
+                }
+                if (v.getDetalles() != null) {
+                    return v.getDetalles().stream().anyMatch(d -> 
+                        d.getProducto() != null && 
+                        d.getProducto().getOrganizacion() != null &&
+                        d.getProducto().getOrganizacion().getIdOrganizacion().equals(orgId)
+                    );
+                }
+                return false;
+            }).collect(Collectors.toList());
         } else {
             todosLosPedidos = List.of();
         }

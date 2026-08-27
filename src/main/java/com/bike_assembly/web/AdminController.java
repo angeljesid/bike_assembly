@@ -81,12 +81,22 @@ public class AdminController {
         List<Venta> todasLasVentas = ventaService.listarHistorialVentasAdmin();
         
         if (admin != null && admin.getOrganizacion() != null) {
-            todasLasVentas = todasLasVentas.stream().filter(v -> 
-                v.getDetalles() != null && v.getDetalles().stream().anyMatch(d -> 
-                    d.getProducto() != null && d.getProducto().getOrganizacion() != null &&
-                    d.getProducto().getOrganizacion().getIdOrganizacion().equals(admin.getOrganizacion().getIdOrganizacion())
-                )
-            ).collect(Collectors.toList());
+            Long orgId = admin.getOrganizacion().getIdOrganizacion();
+            todasLasVentas = todasLasVentas.stream().filter(v -> {
+                if (v.getEmpleado() != null && v.getEmpleado().getOrganizacion() != null) {
+                    if (v.getEmpleado().getOrganizacion().getIdOrganizacion().equals(orgId)) {
+                        return true;
+                    }
+                }
+                if (v.getDetalles() != null) {
+                    return v.getDetalles().stream().anyMatch(d -> 
+                        d.getProducto() != null && 
+                        d.getProducto().getOrganizacion() != null &&
+                        d.getProducto().getOrganizacion().getIdOrganizacion().equals(orgId)
+                    );
+                }
+                return false;
+            }).collect(Collectors.toList());
         } else {
             todasLasVentas = List.of();
         }
