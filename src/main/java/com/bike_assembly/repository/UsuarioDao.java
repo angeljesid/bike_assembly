@@ -12,6 +12,7 @@ public interface UsuarioDao extends JpaRepository<Usuario, Long> {
 
     long countByOrganizacionAndRolAndActivoTrue(Organizacion organizacion, Rol rol);
 
+    List<Usuario> findByOrganizacion(Organizacion organizacion);
     List<Usuario> findByOrganizacionAndActivoTrue(Organizacion organizacion);
     Optional<Usuario> findByUsername(String username);
     Optional<Usuario> findByEmail(String email);
