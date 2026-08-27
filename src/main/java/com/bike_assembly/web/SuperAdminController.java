@@ -58,9 +58,6 @@ public class SuperAdminController {
         List<Usuario> listaEmpleados = superAdminService.listarEmpleados(); 
 
         model.addAttribute("nombreUsuario", username);
-        model.addAttribute("listaAdmins", listaAdmins);
-        model.addAttribute("listaClientes", listaClientes);
-        model.addAttribute("listaEmpleados", listaEmpleados);
         model.addAttribute("totalOrganizaciones", organizaciones.size());
         model.addAttribute("totalAdmins", listaAdmins.size());
         model.addAttribute("totalClientes", listaClientes.size());
@@ -69,13 +66,30 @@ public class SuperAdminController {
         return "superadmin/dashboard";
     }
 
+    @GetMapping("/usuarios")
+    public String gestionarUsuarios(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+
+        List<Usuario> listaAdmins = superAdminService.listarAdministradores();
+        List<Usuario> listaClientes = superAdminService.listarClientes();
+        List<Usuario> listaEmpleados = superAdminService.listarEmpleados();
+
+        model.addAttribute("nombreUsuario", username);
+        model.addAttribute("listaAdmins", listaAdmins);
+        model.addAttribute("listaClientes", listaClientes);
+        model.addAttribute("listaEmpleados", listaEmpleados);
+
+        return "superadmin/usuarios";
+    }
+
     @PostMapping("/promover-admin")
     public String promoverAdmin(@RequestParam("idUsuario") Long idUsuario, 
                                 @RequestParam("nombreTaller") String nombreTaller,
                                 @RequestParam("direccion") String direccionTaller,
                                 @RequestParam("telefono") String telefonoTaller) {
         superAdminService.promoverAAdmin(idUsuario, nombreTaller, direccionTaller, telefonoTaller);
-        return "redirect:/superadmin/dashboard?promovido=true";
+        return "redirect:/superadmin/usuarios?promovido=true";
     }
 
     @PostMapping("/actualizar-admin")
@@ -86,7 +100,7 @@ public class SuperAdminController {
                                   @RequestParam("tipo") String tipo,
                                   @RequestParam(value = "fechaVencimiento", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fechaVencimiento) {
         superAdminService.actualizarAdminYOrganizacion(idUsuario, nombreTaller, direccion, telefono, tipo, fechaVencimiento);
-        return "redirect:/superadmin/dashboard?actualizado=true";
+        return "redirect:/superadmin/usuarios?actualizado=true";
     }
 
     @PostMapping("/estado-taller")
@@ -104,7 +118,7 @@ public class SuperAdminController {
             }
             usuarioDao.saveAll(vinculados);
         }
-        return "redirect:/superadmin/dashboard?estadoCambiado=true";
+        return "redirect:/superadmin/usuarios?estadoCambiado=true";
     }
 
     @PostMapping("/actualizar-cliente")
@@ -119,6 +133,18 @@ public class SuperAdminController {
             cliente.setCedula(cedula);
             usuarioDao.save(cliente);
         }
-        return "redirect:/superadmin/dashboard?clienteActualizado=true";
+        return "redirect:/superadmin/usuarios?clienteActualizado=true";
+    }
+
+    @PostMapping("/estado-usuario")
+    public String cambiarEstadoUsuario(@RequestParam("idUsuario") Long idUsuario, 
+                                       @RequestParam("activo") Boolean activo) {
+        Usuario usuario = usuarioDao.findById(idUsuario).orElse(null);
+        
+        if (usuario != null) {
+            usuario.setActivo(activo);
+            usuarioDao.save(usuario);
+        }
+        return "redirect:/superadmin/usuarios?estadoCambiado=true";
     }
 }

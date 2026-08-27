@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Barra Lateral SuperAdmin</title>
+</head>
+<body>
+
+    <div class="d-flex flex-column flex-shrink-0 p-3 text-white sidebar-custom bg-dark min-vh-100" th:fragment="sidebar">
+        
+        <a href="/superadmin/dashboard" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none px-2 py-3">
+            <div class="brand-logo bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
+                <i class="bi bi-shield-lock-fill fs-5"></i>
+            </div>
+            <span class="fs-5 fw-bold">SuperAdmin</span>
+        </a>
+        
+        <hr class="text-white-50">
+        
+        <ul class="nav nav-pills flex-column mb-auto">
+            <li class="nav-item">
+                <a href="/superadmin/dashboard" class="nav-link text-white d-flex align-items-center gap-2 mb-1" th:classappend="${#request.requestURI == '/superadmin/dashboard' ? 'active bg-primary' : ''}">
+                    <i class="bi bi-speedometer2 fs-5"></i>
+                    <span>Dashboard Central</span>
+                </a>
+            </li>
+            <li>
+                <a href="/superadmin/usuarios" class="nav-link text-white d-flex align-items-center gap-2 mb-1" th:classappend="${#request.requestURI == '/superadmin/usuarios' ? 'active bg-primary' : ''}">
+                    <i class="bi bi-people-fill fs-5"></i>
+                    <span>Gestión de Usuarios</span>
+                </a>
+            </li>
+        </ul>
+        
+        <hr class="text-white-50">
+        
+        <div>
+            <form th:action="@{/logout}" method="post" class="m-0">
+                <button type="submit" class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2 py-2">
+                    <i class="bi bi-box-arrow-left fs-5"></i>
+                    <span>Cerrar Sesión</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>
