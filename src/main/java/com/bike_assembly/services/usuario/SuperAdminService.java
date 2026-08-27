@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +59,7 @@ public class SuperAdminService implements ISuperAdminService {
 
     @Override
     @Transactional
-    public void actualizarAdminYOrganizacion(Long idUsuario, String nombreTaller, String direccion, String telefono, String tipo) {
+    public void actualizarAdminYOrganizacion(Long idUsuario, String nombreTaller, String direccion, String telefono, String tipo, LocalDate fechaVencimiento) {
         Usuario usuario = usuarioDao.findById(idUsuario)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -68,6 +69,17 @@ public class SuperAdminService implements ISuperAdminService {
             org.setDireccion(direccion);
             org.setTelefono(telefono);
             org.setTipo(tipo);
+            org.setFechaVencimiento(fechaVencimiento);
+            
+            if (fechaVencimiento != null && fechaVencimiento.isAfter(LocalDate.now())) {
+                org.setActivo(true);
+                List<Usuario> vinculados = usuarioDao.findByOrganizacion(org);
+                for(Usuario u : vinculados) {
+                    u.setActivo(true);
+                }
+                usuarioDao.saveAll(vinculados);
+            }
+            
             organizacionDao.save(org);
         }
     }

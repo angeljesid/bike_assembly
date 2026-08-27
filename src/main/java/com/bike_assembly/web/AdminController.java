@@ -271,8 +271,6 @@ public class AdminController {
                     case "Taller Pequeño": limite = 4; break;
                     case "Taller Mediano": limite = 6; break;
                     case "Taller Grande": limite = 12; break;
-                    case "Bodega": limite = 15; break;
-                    case "Bodega Grande": limite = 30; break;
                     default: limite = 2; break;
                 }
             }
