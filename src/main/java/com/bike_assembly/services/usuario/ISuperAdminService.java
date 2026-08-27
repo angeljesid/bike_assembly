@@ -6,6 +6,7 @@ import java.util.List;
 public interface ISuperAdminService {
     List<Usuario> listarAdministradores();
     List<Usuario> listarClientes();
+    List<Usuario> listarEmpleados(); // <-- Añadido
     void promoverAAdmin(Long idUsuario, String nombreTaller, String direccionTaller, String telefonoTaller);
     void actualizarAdminYOrganizacion(Long idUsuario, String nombreTaller, String direccion, String telefono, String tipo);
 }

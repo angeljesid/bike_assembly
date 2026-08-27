@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -28,6 +29,14 @@ public class SuperAdminService implements ISuperAdminService {
     @Override
     public List<Usuario> listarClientes() {
         return usuarioDao.findByRol(Rol.CLIENTE);
+    }
+
+    @Override
+    public List<Usuario> listarEmpleados() {
+        List<Usuario> empleados = new ArrayList<>();
+        empleados.addAll(usuarioDao.findByRol(Rol.OPERARIO));
+        empleados.addAll(usuarioDao.findByRol(Rol.CAJA));
+        return empleados;
     }
 
     @Override

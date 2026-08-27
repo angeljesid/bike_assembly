@@ -33,27 +33,28 @@ public class SuperAdminController {
     private UsuarioDao usuarioDao;
 
     @GetMapping("/dashboard")
-    public String verDashboardGlobal(Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
-        
-        List<Usuario> listaAdmins = superAdminService.listarAdministradores();
-        List<Usuario> listaClientes = superAdminService.listarClientes();
-        long totalOrganizaciones = organizacionDao.count();
+public String verDashboardGlobal(Model model) {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    String username = auth.getName();
+    
+    List<Usuario> listaAdmins = superAdminService.listarAdministradores();
+    List<Usuario> listaClientes = superAdminService.listarClientes();
+    
+    // NUEVO: Consultar los empleados (Cajeros, Operarios, etc.)
+    // Dependiendo de tu implementación, puedes usar superAdminService o usuarioDao directamente:
+    List<Usuario> listaEmpleados = superAdminService.listarEmpleados(); // o usuarioDao.findByRolIn(List.of(Rol.CAJA, Rol.OPERARIO));
+    
+    long totalOrganizaciones = organizacionDao.count();
 
-        Map<Long, List<Usuario>> clientesPorOrganizacion = listaClientes.stream()
-            .filter(c -> c.getOrganizacion() != null)
-            .collect(Collectors.groupingBy(c -> c.getOrganizacion().getIdOrganizacion()));
-
-        model.addAttribute("nombreUsuario", username);
-        model.addAttribute("listaAdmins", listaAdmins);
-        model.addAttribute("listaClientes", listaClientes);
-        model.addAttribute("clientesPorOrg", clientesPorOrganizacion);
-        model.addAttribute("totalOrganizaciones", totalOrganizaciones);
-        model.addAttribute("totalAdmins", listaAdmins.size());
-        
-        return "superadmin/dashboard";
-    }
+    model.addAttribute("nombreUsuario", username);
+    model.addAttribute("listaAdmins", listaAdmins);
+    model.addAttribute("listaClientes", listaClientes);
+    model.addAttribute("listaEmpleados", listaEmpleados); // <-- Pasamos la lista al HTML
+    model.addAttribute("totalOrganizaciones", totalOrganizaciones);
+    model.addAttribute("totalAdmins", listaAdmins.size());
+    
+    return "superadmin/dashboard";
+}
 
     @PostMapping("/promover-admin")
     public String promoverAdmin(@RequestParam("idUsuario") Long idUsuario, 
