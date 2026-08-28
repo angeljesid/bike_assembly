@@ -1,5 +1,6 @@
 package com.bike_assembly.services.usuario;
 
+import com.bike_assembly.domain.Organizacion;
 import com.bike_assembly.domain.Usuario;
 import java.time.LocalDate;
 import java.util.List;
@@ -9,8 +10,11 @@ public interface ISuperAdminService {
     List<Usuario> listarClientes();
     List<Usuario> listarEmpleados();
     
-    void promoverAAdmin(Long idUsuario, String nombreTaller, String direccionTaller, String telefonoTaller);
+    void promoverAAdmin(Long idUsuario, String nombreTaller, String direccionTaller, String telefonoTaller, String tipo, LocalDate fechaVencimiento);
     void actualizarAdminYOrganizacion(Long idUsuario, String nombreTaller, String direccion, String telefono, String tipo, LocalDate fechaVencimiento);
+    void actualizarEmpleado(Long idUsuario, String nombre, String cedula, String email);
+    List<Organizacion> listarOrganizacionesPorVencer(int dias);
+    List<Organizacion> listarOrganizacionesSuspendidas();
     
     void cambiarEstadoTaller(Long idOrganizacion, boolean activo);
     void cambiarEstadoUsuario(Long idUsuario, boolean activo);
