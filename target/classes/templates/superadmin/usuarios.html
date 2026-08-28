@@ -135,9 +135,10 @@
                                                     <button type="button" class="btn btn-sm btn-outline-secondary btn-ion btn-accion" data-bs-toggle="modal" th:data-bs-target="'#modalEditarAdmin' + ${admin.idUsuario}" title="Editar Taller">
                                                         <i class="bi bi-pencil-square"></i>
                                                     </button>
-                                                    <form th:if="${admin.organizacion != null}" th:action="@{/superadmin/estado-taller}" method="post" class="m-0" th:onsubmit="${admin.organizacion.activo == false} ? 'return true;' : 'return confirm(&#39;¿Seguro que deseas suspender este taller?&#39;);'">
+                                                    <form th:if="${admin.organizacion != null}" th:action="@{/superadmin/estado-taller}" method="post" class="m-0 d-flex align-items-center gap-1" th:onsubmit="${admin.organizacion.activo == false} ? 'return true;' : 'return confirm(&#39;¿Seguro que deseas suspender este taller?&#39;);'">
                                                         <input type="hidden" name="idOrganizacion" th:value="${admin.organizacion.idOrganizacion}">
                                                         <input type="hidden" name="activo" th:value="${admin.organizacion.activo == false ? 'true' : 'false'}">
+                                                        <input th:if="${admin.organizacion.activo != false}" type="text" name="motivo" class="form-control form-control-sm" style="width:110px" placeholder="Motivo (opc.)">
                                                         <button type="submit" th:class="${admin.organizacion.activo == false} ? 'btn btn-sm btn-accion-success' : 'btn btn-sm btn-accion-danger'" title="Suspender/Activar Taller">
                                                             <i th:class="${admin.organizacion.activo == false} ? 'bi bi-play-circle' : 'bi bi-pause-circle'"></i>
                                                         </button>

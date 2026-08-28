@@ -1,0 +1,5 @@
+com\bike_assembly\security\SessionUtilsTest.class
+com\bike_assembly\BikeAssemblyApplicationTests.class
+com\bike_assembly\services\producto\ProductoServiceTest.class
+com\bike_assembly\services\proveedor\ProveedorServiceTest.class
+com\bike_assembly\services\venta\VentaServiceTest.class

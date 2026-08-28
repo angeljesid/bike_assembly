@@ -30,7 +30,9 @@ public interface UsuarioDao extends JpaRepository<Usuario, Long> {
     List<Usuario> findByRol(Rol rol);
     
     // Paginación (SSR/server-side)
+    @Query("SELECT u FROM Usuario u WHERE u.rol = :rol")
     Page<Usuario> paginarPorRol(Rol rol, Pageable pageable);
+    @Query("SELECT u FROM Usuario u WHERE u.rol IN :roles")
     Page<Usuario> paginarPorRolesIn(List<Rol> roles, Pageable pageable);
     
     // Cuentas huérfanas (registrados sin taller)
