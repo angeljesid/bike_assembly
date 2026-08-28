@@ -16,6 +16,9 @@ public class SecurityConfig {
     @Autowired
     private CustomAuthenticationSuccessHandler successHandler;
 
+    @Autowired
+    private CustomAuthenticationFailureHandler failureHandler;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -25,7 +28,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/login", "/recuperar-password/**", "/css/**", "/js/**", "/images/**", "/recursos/**", "/registro").permitAll()
+                .requestMatchers("/", "/login", "/bloqueado/**", "/recuperar-password/**", "/css/**", "/js/**", "/images/**", "/recursos/**", "/registro").permitAll()
                 .requestMatchers("/superadmin/**").hasRole("SUPER_ADMIN")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/caja/**").hasAnyRole("ADMIN", "CAJA")
@@ -37,6 +40,7 @@ public class SecurityConfig {
                 .loginPage("/login")
                 .usernameParameter("username")
                 .successHandler(successHandler)
+                .failureHandler(failureHandler)
                 .permitAll()
             )
             .logout(logout -> logout

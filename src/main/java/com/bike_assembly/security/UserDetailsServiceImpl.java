@@ -24,10 +24,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario o correo no encontrado: " + usernameOrEmail));
 
         SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + usuario.getRol().name());
+        boolean enabled = usuario.getActivo() == null || usuario.getActivo();
 
         return new User(
                 usuario.getUsername(),
                 usuario.getPassword(),
+                enabled,
+                true,
+                true,
+                true,
                 Collections.singletonList(authority)
         );
     }
