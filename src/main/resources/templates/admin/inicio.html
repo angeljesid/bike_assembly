@@ -42,7 +42,7 @@
                         </div>
                         <div>
                             <h6 class="text-muted text-uppercase mb-1 fw-semibold" style="font-size: 0.75rem;">Componentes en Stock</h6>
-                            <h3 class="fw-bold mb-0 text-dark">0</h3>
+                            <h3 class="fw-bold mb-0 text-dark" th:text="${totalComponentes}">0</h3>
                             <small class="text-muted" style="font-size: 0.75rem;">Catálogo de repuestos</small>
                         </div>
                     </div>
@@ -54,22 +54,45 @@
                         </div>
                         <div>
                             <h6 class="text-muted text-uppercase mb-1 fw-semibold" style="font-size: 0.75rem;">Operarios Activos</h6>
-                            <h3 class="fw-bold mb-0 text-dark">0</h3>
+                            <h3 class="fw-bold mb-0 text-dark" th:text="${operariosActivos}">0</h3>
                             <small class="text-muted" style="font-size: 0.75rem;">Mecánicos en taller</small>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card card-custom border-0 p-4 d-flex flex-row align-items-center h-100">
-                        <div class="bg-success bg-opacity-10 text-success p-3 rounded-3 me-3 fs-3">
-                            <i class="bi bi-bicycle"></i>
+                    <div class="card card-custom border-0 p-4 h-100">
+                        <div class="d-flex flex-row align-items-center mb-2">
+                            <div class="bg-danger bg-opacity-10 text-danger p-3 rounded-3 me-3 fs-3">
+                                <i class="bi bi-exclamation-octagon"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-muted text-uppercase mb-1 fw-semibold" style="font-size: 0.75rem;">Productos con Stock Bajo</h6>
+                                <h3 class="fw-bold mb-0 text-danger" th:text="${productosStockBajo.size()}">0</h3>
+                            </div>
                         </div>
-                        <div>
-                            <h6 class="text-muted text-uppercase mb-1 fw-semibold" style="font-size: 0.75rem;">Bicicletas en Ensamble</h6>
-                            <h3 class="fw-bold mb-0 text-dark">0</h3>
-                            <small class="text-success fw-medium" style="font-size: 0.75rem;">En proceso actual</small>
+                        <div th:if="${!productosStockBajo.isEmpty()}" class="mt-2 pt-2 border-top small" style="max-height: 150px; overflow-y: auto;">
+                            <ul class="list-unstyled mb-0">
+                                <li th:each="p : ${productosStockBajo}" class="d-flex justify-content-between align-items-center py-1 border-bottom" style="font-size: 0.8rem;">
+                                    <span class="text-truncate me-2" th:text="${p.nombre}">Producto</span>
+                                    <span th:class="${p.stock != null and p.stock <= 0 ? 'badge bg-danger' : 'badge bg-warning text-dark'}" th:text="${p.stock} + ' und'"></span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div th:if="${productosStockBajo.isEmpty()}" class="mt-2 pt-2 border-top small text-muted">
+                            No hay productos con stock bajo.
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <div th:if="${!productosAgotados.isEmpty()}" class="alert alert-danger border-0 d-flex align-items-start gap-3 mb-4">
+                <i class="bi bi-exclamation-triangle-fill fs-3"></i>
+                <div>
+                    <h6 class="fw-bold mb-1" th:text="'¡Productos agotados (' + ${productosAgotados.size()} + ')!'">¡Productos agotados!</h6>
+                    <span class="small">Los siguientes productos tienen stock en 0 y aparecen en gris en tu inventario:</span>
+                    <ul class="mb-0 mt-1 small">
+                        <li th:each="p : ${productosAgotados}" th:text="${p.nombre} + ' (' + ${p.codigoBarras} + ')'"></li>
+                    </ul>
                 </div>
             </div>
 

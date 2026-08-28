@@ -77,7 +77,8 @@
                             </tr>
                         </thead>
                         <tbody th:id="'tbody-' + ${catKey}">
-                            <tr th:each="producto : ${productos}" th:if="${producto.categoria != null and #strings.toLowerCase(producto.categoria) == catKey}">
+                            <tr th:each="producto : ${productos}" th:if="${producto.categoria != null and #strings.toLowerCase(producto.categoria) == catKey}"
+                                th:classappend="${producto.stock != null and producto.stock <= 0 ? 'table-secondary table-secondary-gris' : ''}">
                                 <td class="ps-4">
                                     <img th:if="${producto.imagen != null and !producto.imagen.isEmpty()}" th:src="@{'/recursos/' + ${producto.imagen}}" class="catalogo-img rounded" alt="Foto">
                                     <img th:if="${producto.imagen == null or producto.imagen.isEmpty()}" src="https://via.placeholder.com/80x80.png?text=Sin+Foto" class="catalogo-img rounded" alt="Default">
@@ -104,7 +105,11 @@
                                 <td class="text-center">
                                     <div class="btn-group">
                                         <a th:href="@{/admin/producto/editar/{id}(id=${producto.idProducto})}" class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil-square"></i></a>
-                                        <a th:href="@{/admin/producto/eliminar/{id}(id=${producto.idProducto})}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar este producto?');" title="Eliminar"><i class="bi bi-trash"></i></a>
+                                        <a th:href="@{/admin/producto/eliminar/{id}(id=${producto.idProducto})}" class="btn btn-sm btn-outline-danger" title="Eliminar"
+                                            th:attr="data-stock=${producto.stock != null ? producto.stock : 0}"
+                                            onclick="return confirm('¿Estás seguro de querer eliminar este producto con ' + this.getAttribute('data-stock') + ' unidades de stock?');" >
+                                            <i class="bi bi-trash"></i>
+                                        </a>
                                     </div>
                                 </td>
                             </tr>

@@ -69,8 +69,22 @@ public class AdminController {
         
         if (admin != null && admin.getOrganizacion() != null) {
             model.addAttribute("nombreTienda", admin.getOrganizacion().getNombre());
+
+            List<Producto> todos = productoDao.findByOrganizacion(admin.getOrganizacion());
+            List<Producto> productosAgotados = productoDao.findByOrganizacionAndStockLessThanEqual(admin.getOrganizacion(), 0);
+            List<Producto> productosStockBajo = productoDao.findByOrganizacionAndStockLessThanEqual(admin.getOrganizacion(), 5);
+            long operariosActivos = usuarioDao.countByOrganizacionAndRolAndActivoTrue(admin.getOrganizacion(), Rol.OPERARIO);
+
+            model.addAttribute("totalComponentes", todos.size());
+            model.addAttribute("productosAgotados", productosAgotados);
+            model.addAttribute("productosStockBajo", productosStockBajo);
+            model.addAttribute("operariosActivos", operariosActivos);
         } else {
             model.addAttribute("nombreTienda", "Mi Taller");
+            model.addAttribute("totalComponentes", 0);
+            model.addAttribute("productosAgotados", List.of());
+            model.addAttribute("productosStockBajo", List.of());
+            model.addAttribute("operariosActivos", 0L);
         }
 
         return "admin/inicio";

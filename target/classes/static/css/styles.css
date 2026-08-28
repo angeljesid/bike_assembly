@@ -2,6 +2,7 @@
     --brand-blue: #0d4761; 
     --brand-gold: #DAA520;
     --accent-orange: #ff9800;
+    --brand-red: #dc3545;
     --bg-light: #f4f7f9;
     --card-radius: 20px;
 }
@@ -279,6 +280,16 @@ footer {
     max-width: 80px; 
     max-height: 80px; 
     object-fit: contain;
+}
+
+.table-secondary-gris {
+    opacity: 0.7;
+    filter: grayscale(0.35);
+    background-color: #fff3f3 !important;
+    box-shadow: inset 3px 0 0 var(--brand-red);
+}
+.table-secondary-gris .catalogo-img {
+    opacity: 0.75;
 }
 
 .card-scroll-body {

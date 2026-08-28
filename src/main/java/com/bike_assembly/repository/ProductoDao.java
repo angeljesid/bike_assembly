@@ -15,6 +15,8 @@ public interface ProductoDao extends JpaRepository<Producto, Long> {
     
     List<Producto> findByOrganizacion(Organizacion organizacion);
 
+    List<Producto> findByOrganizacionAndStockLessThanEqual(Organizacion organizacion, int stock);
+
     @Query("SELECT p FROM Producto p WHERE LOWER(p.nombre) LIKE LOWER(CONCAT('%', :termino, '%')) OR LOWER(p.marca) LIKE LOWER(CONCAT('%', :termino, '%'))")
     List<Producto> buscarPorNombreOMarca(@Param("termino") String termino);
 
