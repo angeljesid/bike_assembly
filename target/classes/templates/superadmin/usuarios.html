@@ -135,12 +135,18 @@
                                                     <button type="button" class="btn btn-sm btn-outline-secondary btn-ion btn-accion" data-bs-toggle="modal" th:data-bs-target="'#modalEditarAdmin' + ${admin.idUsuario}" title="Editar Taller">
                                                         <i class="bi bi-pencil-square"></i>
                                                     </button>
-                                                    <form th:if="${admin.organizacion != null}" th:action="@{/superadmin/estado-taller}" method="post" class="m-0 d-flex align-items-center gap-1" th:onsubmit="${admin.organizacion.activo == false} ? 'return true;' : 'return confirm(&#39;¿Seguro que deseas suspender este taller?&#39;);'">
+                                                    <form th:if="${admin.organizacion != null and (admin.organizacion.activo == null or admin.organizacion.activo == true)}" th:action="@{/superadmin/estado-taller}" method="post" class="m-0">
                                                         <input type="hidden" name="idOrganizacion" th:value="${admin.organizacion.idOrganizacion}">
-                                                        <input type="hidden" name="activo" th:value="${admin.organizacion.activo == false ? 'true' : 'false'}">
-                                                        <input th:if="${admin.organizacion.activo != false}" type="text" name="motivo" class="form-control form-control-sm" style="width:110px" placeholder="Motivo (opc.)">
-                                                        <button type="submit" th:class="${admin.organizacion.activo == false} ? 'btn btn-sm btn-accion-success' : 'btn btn-sm btn-accion-danger'" title="Suspender/Activar Taller">
-                                                            <i th:class="${admin.organizacion.activo == false} ? 'bi bi-play-circle' : 'bi bi-pause-circle'"></i>
+                                                        <input type="hidden" name="activo" value="false">
+                                                        <button type="button" class="btn btn-sm btn-accion-danger" data-bs-toggle="modal" th:data-bs-target="'#modalMotivo' + ${admin.idUsuario}" title="Inhabilitar Taller">
+                                                            <i class="bi bi-pause-circle"></i>
+                                                        </button>
+                                                    </form>
+                                                    <form th:if="${admin.organizacion != null and admin.organizacion.activo == false}" th:action="@{/superadmin/estado-taller}" method="post" class="m-0">
+                                                        <input type="hidden" name="idOrganizacion" th:value="${admin.organizacion.idOrganizacion}">
+                                                        <input type="hidden" name="activo" value="true">
+                                                        <button type="submit" class="btn btn-sm btn-accion-success" title="Activar Taller">
+                                                            <i class="bi bi-play-circle"></i>
                                                         </button>
                                                     </form>
                                                     <form th:if="${admin.organizacion == null}" th:action="@{/superadmin/estado-usuario}" method="post" class="m-0" th:onsubmit="${admin.activo == false} ? 'return true;' : 'return confirm(&#39;¿Seguro que deseas suspender a este administrador?&#39;);'">
@@ -548,6 +554,31 @@
                         </div>
                         <div class="modal-footer bg-light px-4">
                             <button type="submit" class="btn-admin btn-sm px-4">Asignar Taller</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </th:block>
+
+    <th:block th:each="admin : ${admins.content}" th:if="${admin.organizacion != null and (admin.organizacion.activo == null or admin.organizacion.activo == true)}">
+        <div class="modal fade" th:id="'modalMotivo' + ${admin.idUsuario}" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered modal-sm">
+                <div class="modal-content border-0 shadow">
+                    <form th:action="@{/superadmin/estado-taller}" method="post">
+                        <input type="hidden" name="idOrganizacion" th:value="${admin.organizacion.idOrganizacion}">
+                        <input type="hidden" name="activo" value="false">
+                        <div class="modal-header bg-light border-bottom px-4">
+                            <h5 class="modal-title fw-semibold fs-6 mb-0">Inhabilitar taller</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body px-4">
+                            <p class="small text-muted mb-2">Motivo de la inhabilitación</p>
+                            <input type="text" name="motivo" maxlength="20" pattern="[A-Za-z0-9 ]+" title="Solo letras y números (máx. 20)" class="form-control form-control-sm" placeholder="Escribe el motivo..." required>
+                        </div>
+                        <div class="modal-footer border-0 px-4 pb-4 pt-0">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-sm btn-accion-danger">Inhabilitar</button>
                         </div>
                     </form>
                 </div>
