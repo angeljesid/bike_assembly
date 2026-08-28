@@ -7,6 +7,7 @@ com\bike_assembly\services\proveedor\IProveedorService.class
 com\bike_assembly\web\AdminController.class
 com\bike_assembly\services\usuario\ISuperAdminService.class
 com\bike_assembly\services\producto\IProductoService.class
+com\bike_assembly\controller\BloqueadoController.class
 com\bike_assembly\security\UserDetailsServiceImpl.class
 com\bike_assembly\services\venta\IVentaService.class
 com\bike_assembly\services\venta\VentaService.class
@@ -18,6 +19,7 @@ com\bike_assembly\controller\ProveedorController.class
 com\bike_assembly\domain\Usuario.class
 com\bike_assembly\repository\ProveedorDao.class
 com\bike_assembly\web\SuperAdminController.class
+com\bike_assembly\security\CustomAuthenticationFailureHandler.class
 com\bike_assembly\domain\Proveedor.class
 com\bike_assembly\services\empleado\EmpleadoServiceImpl.class
 com\bike_assembly\BikeAssemblyApplication.class

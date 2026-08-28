@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bike Assembly - Cuenta Suspendida</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+
+    <div class="login-wrapper">
+
+        <div class="login-card text-center">
+
+            <div class="bloqueo-icono">
+                <i class="bi bi-pause-circle"></i>
+            </div>
+            <h3 class="fw-bold text-dark mb-2">Acceso Restringido</h3>
+            <p class="text-muted small mb-3">Tu cuenta de cajero ha sido suspendida.</p>
+
+            <div class="alert alert-secondary border-0 rounded-3 py-3 px-3 text-start" role="alert">
+                <div class="d-flex align-items-start gap-2">
+                    <i class="bi bi-person-x-fill fs-5 mt-1"></i>
+                    <div>
+                        <span class="d-block fw-bold small text-dark">Cuenta suspendida temporalmente</span>
+                        <span class="small">Tu cuenta está suspendida por ahora. Comunícate con el administrador del taller para más información.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-light border rounded-3 py-2 px-3 text-center small text-muted mb-4" role="alert">
+                <i class="bi bi-info-circle me-1"></i> Mientras tu acceso esté suspendido no podrás operar el sistema.
+            </div>
+
+            <a th:href="@{/login}" class="btn btn-outline-secondary w-100 fw-semibold d-flex align-items-center justify-content-center gap-2">
+                <i class="bi bi-arrow-left-short fs-5"></i> Volver al inicio de sesión
+            </a>
+
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

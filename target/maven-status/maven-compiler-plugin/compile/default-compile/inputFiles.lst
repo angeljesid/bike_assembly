@@ -1,6 +1,7 @@
 C:\java\bike_assembly\src\main\java\com\bike_assembly\BikeAssemblyApplication.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\config\DataInitializer.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\config\WebConfig.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\controller\BloqueadoController.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\controller\BuscadorProveedorRestController.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\controller\InicioController.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\controller\loginController.java
@@ -21,6 +22,7 @@ C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\ProductoDao.jav
 C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\ProveedorDao.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\UsuarioDao.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\VentaDao.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\security\CustomAuthenticationFailureHandler.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\security\CustomAuthenticationSuccessHandler.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\security\SecurityConfig.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\security\SessionUtils.java
