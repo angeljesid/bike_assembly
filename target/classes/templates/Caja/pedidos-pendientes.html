@@ -12,11 +12,11 @@
     <div class="d-flex vh-100">
         <th:block th:if="${empleado != null}">
             <th:block th:if="${empleado.rol.name() == 'ADMIN'}">
-                <div th:replace="~{admin/barra :: sidebar}"></div>
+                <div th:replace="~{admin/barra :: sidebar('pedidos')}"></div>
             </th:block>
             
             <th:block th:if="${empleado.rol.name() == 'CAJA'}">
-                <div th:replace="~{caja/barra :: sidebar}"></div>
+                <div th:replace="~{caja/barra :: sidebar('pedidos')}"></div>
             </th:block>
         </th:block>
 
