@@ -63,6 +63,73 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<Usuario> listarEmpleadosSuspendidosPorOrganizacion(Organizacion organizacion) {
+        return usuarioDao.findByOrganizacion(organizacion).stream()
+                .filter(u -> u.getRol() == Rol.OPERARIO || u.getRol() == Rol.CAJA)
+                .filter(u -> !Boolean.TRUE.equals(u.getActivo()))
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public void suspenderEmpleado(Long idUsuario, Organizacion orgAdmin) {
+        Usuario empleado = usuarioDao.findById(idUsuario)
+                .orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
+
+        if (empleado.getOrganizacion() == null || !empleado.getOrganizacion().getIdOrganizacion().equals(orgAdmin.getIdOrganizacion())) {
+            throw new RuntimeException("Acceso denegado a esta organización");
+        }
+
+        if (empleado.getRol() == null || (empleado.getRol() != Rol.OPERARIO && empleado.getRol() != Rol.CAJA)) {
+            throw new RuntimeException("No puedes suspender esta cuenta");
+        }
+
+        empleado.setActivo(false);
+        usuarioDao.save(empleado);
+    }
+
+    @Override
+    @Transactional
+    public boolean activarEmpleado(Long idUsuario, Organizacion orgAdmin) {
+        Usuario empleado = usuarioDao.findById(idUsuario)
+                .orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
+
+        if (empleado.getOrganizacion() == null || !empleado.getOrganizacion().getIdOrganizacion().equals(orgAdmin.getIdOrganizacion())) {
+            throw new RuntimeException("Acceso denegado a esta organización");
+        }
+
+        if (empleado.getRol() == null || (empleado.getRol() != Rol.OPERARIO && empleado.getRol() != Rol.CAJA)) {
+            throw new RuntimeException("No puedes activar esta cuenta");
+        }
+
+        long operariosActivos = usuarioDao.countByOrganizacionAndRolAndActivoTrue(orgAdmin, Rol.OPERARIO);
+        long cajerosActivos = usuarioDao.countByOrganizacionAndRolAndActivoTrue(orgAdmin, Rol.CAJA);
+        long totalActivos = operariosActivos + cajerosActivos;
+
+        int limite = obtenerLimiteTotal(orgAdmin.getTipo());
+
+        if (totalActivos >= limite) {
+            return false;
+        }
+
+        empleado.setActivo(true);
+        usuarioDao.save(empleado);
+        return true;
+    }
+
+    private int obtenerLimiteTotal(String tipo) {
+        if ("Taller Pequeño".equalsIgnoreCase(tipo)) {
+            return 4;
+        } else if ("Taller Mediano".equalsIgnoreCase(tipo)) {
+            return 6;
+        } else if ("Taller Grande".equalsIgnoreCase(tipo)) {
+            return 12;
+        }
+        return 4;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Usuario encontrarEmpleado(Long id) {
         return usuarioDao.findById(id).orElse(null);
     }

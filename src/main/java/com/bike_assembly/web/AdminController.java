@@ -214,9 +214,12 @@ public class AdminController {
         Usuario admin = obtenerAdminAutenticado();
 
         if (admin != null && admin.getOrganizacion() != null) {
+            model.addAttribute("admin", admin);
             model.addAttribute("empleados", empleadoService.listarEmpleadosPorOrganizacion(admin.getOrganizacion()));
+            model.addAttribute("empleadosSuspendidos", empleadoService.listarEmpleadosSuspendidosPorOrganizacion(admin.getOrganizacion()));
         } else {
             model.addAttribute("empleados", List.of());
+            model.addAttribute("empleadosSuspendidos", List.of());
         }
         return "admin/empleados";
     }
@@ -259,13 +262,38 @@ public class AdminController {
         return "redirect:/admin/empleados?exito=true";
     }
 
-    @GetMapping("/empleados/eliminar/{id}")
-    public String eliminarEmpleado(@PathVariable("id") Long id) {
+    @GetMapping("/empleados/suspender/{id}")
+    public String suspenderEmpleado(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
         Usuario admin = obtenerAdminAutenticado();
 
         if (admin != null && admin.getOrganizacion() != null) {
-            empleadoService.eliminarEmpleado(id, admin.getOrganizacion());
+            try {
+                empleadoService.suspenderEmpleado(id, admin.getOrganizacion());
+            } catch (RuntimeException e) {
+                redirectAttributes.addFlashAttribute("alertaPlan", e.getMessage());
+                return "redirect:/admin/empleados";
+            }
         }
-        return "redirect:/admin/empleados";
+        return "redirect:/admin/empleados?exito=true";
+    }
+
+    @GetMapping("/empleados/activar/{id}")
+    public String activarEmpleado(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        Usuario admin = obtenerAdminAutenticado();
+
+        if (admin != null && admin.getOrganizacion() != null) {
+            try {
+                boolean activado = empleadoService.activarEmpleado(id, admin.getOrganizacion());
+                if (!activado) {
+                    redirectAttributes.addFlashAttribute("alertaPlan",
+                            "No puedes activar más cuentas de lo permitido por tu plan actual. Aumenta el plan del taller para agregar más empleados.");
+                    return "redirect:/admin/empleados";
+                }
+            } catch (RuntimeException e) {
+                redirectAttributes.addFlashAttribute("alertaPlan", e.getMessage());
+                return "redirect:/admin/empleados";
+            }
+        }
+        return "redirect:/admin/empleados?exito=true";
     }
 }
