@@ -5,9 +5,9 @@ import com.bike_assembly.domain.Venta;
 import com.bike_assembly.domain.EstadoServicio;
 import com.bike_assembly.repository.UsuarioDao;
 import com.bike_assembly.repository.VentaDao;
+import com.bike_assembly.security.SessionUtils;
+import com.bike_assembly.services.venta.IVentaService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,9 +28,14 @@ public class OperarioController {
     @Autowired
     private VentaDao ventaDao;
 
+    @Autowired
+    private IVentaService ventaService;
+
+    @Autowired
+    private SessionUtils sessionUtils;
+
     private Usuario obtenerUsuarioAutenticado() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
+        return sessionUtils.usuarioActual();
     }
 
     private List<Venta> filtrarPorOrganizacion(List<Venta> ventas, Usuario operario) {
@@ -38,22 +43,9 @@ public class OperarioController {
             return List.of();
         }
         Long orgId = operario.getOrganizacion().getIdOrganizacion();
-        
-        return ventas.stream().filter(v -> {
-            if (v.getEmpleado() != null && v.getEmpleado().getOrganizacion() != null) {
-                if (v.getEmpleado().getOrganizacion().getIdOrganizacion().equals(orgId)) {
-                    return true;
-                }
-            }
-            if (v.getDetalles() != null) {
-                return v.getDetalles().stream().anyMatch(d -> 
-                    d.getProducto() != null && 
-                    d.getProducto().getOrganizacion() != null &&
-                    d.getProducto().getOrganizacion().getIdOrganizacion().equals(orgId)
-                );
-            }
-            return false;
-        }).collect(Collectors.toList());
+        return ventas.stream()
+                .filter(v -> ventaService.ventaPerteneceAOrganizacion(v, orgId))
+                .collect(Collectors.toList());
     }
 
     @GetMapping({"", "/", "/ensambles"})
@@ -85,20 +77,7 @@ public class OperarioController {
         
         if (venta != null && operario != null && operario.getOrganizacion() != null) {
             Long orgId = operario.getOrganizacion().getIdOrganizacion();
-            boolean pertenece = false;
-            
-            if (venta.getEmpleado() != null && venta.getEmpleado().getOrganizacion() != null) {
-                pertenece = venta.getEmpleado().getOrganizacion().getIdOrganizacion().equals(orgId);
-            }
-            if (!pertenece && venta.getDetalles() != null) {
-                pertenece = venta.getDetalles().stream().anyMatch(d -> 
-                    d.getProducto() != null && 
-                    d.getProducto().getOrganizacion() != null &&
-                    d.getProducto().getOrganizacion().getIdOrganizacion().equals(orgId)
-                );
-            }
-            
-            if (pertenece) {
+            if (ventaService.ventaPerteneceAOrganizacion(venta, orgId)) {
                 venta.setEstado(nuevoEstado);
                 ventaDao.save(venta);
             }

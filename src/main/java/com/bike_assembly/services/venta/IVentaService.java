@@ -6,7 +6,7 @@ import com.bike_assembly.domain.Usuario;
 import java.util.List;
 
 public interface IVentaService {
-    Venta procesarCobro(VentaRequestDTO request);
+    Venta procesarCobro(VentaRequestDTO request, Usuario empleado);
     Venta encontrarPorId(Long id);
     Venta procesarPedidoCliente(VentaRequestDTO request, Usuario cliente);
     List<Venta> listarVentas();
@@ -14,4 +14,6 @@ public interface IVentaService {
     List<Venta> listarHistorialVentasAdmin();
     List<Venta> listarPedidosCliente(Usuario cliente);
     Venta marcarPedidoCompletado(Long idVenta);
+    boolean ventaPerteneceAOrganizacion(Venta venta, Long idOrganizacion);
+    List<Venta> listarVentasPorOrganizacion(Long idOrganizacion, String estado);
 }

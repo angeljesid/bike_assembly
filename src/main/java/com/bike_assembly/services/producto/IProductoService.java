@@ -9,4 +9,5 @@ public interface IProductoService {
     void guardar(Producto producto);
     void eliminar(Producto producto);
     Producto encontrarProducto(Producto producto);
+    boolean productoPerteneceAOrganizacion(Producto producto, Long idOrganizacion);
 }

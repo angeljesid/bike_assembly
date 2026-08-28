@@ -7,11 +7,10 @@ import com.bike_assembly.domain.Venta;
 import com.bike_assembly.domain.VentaRequestDTO;
 import com.bike_assembly.repository.ProductoDao;
 import com.bike_assembly.repository.UsuarioDao;
+import com.bike_assembly.security.SessionUtils;
 import com.bike_assembly.services.venta.IVentaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -35,9 +34,11 @@ public class CajaController {
     @Autowired
     private UsuarioDao usuarioDao;
 
+    @Autowired
+    private SessionUtils sessionUtils;
+
     private Usuario obtenerUsuarioAutenticado() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
+        return sessionUtils.usuarioActual();
     }
 
     @GetMapping({"", "/", "/caja", "/pos"})
@@ -83,7 +84,7 @@ public class CajaController {
     public ResponseEntity<?> cobrarVenta(@RequestBody VentaRequestDTO request) {
         Map<String, Object> response = new HashMap<>();
         try {
-            Venta ventaGuardada = ventaService.procesarCobro(request);
+            Venta ventaGuardada = ventaService.procesarCobro(request, obtenerUsuarioAutenticado());
             response.put("success", true);
             response.put("idVenta", ventaGuardada.getIdVenta());
             return ResponseEntity.ok(response);
@@ -101,19 +102,7 @@ public class CajaController {
         
         if (venta != null && empleado != null && empleado.getOrganizacion() != null) {
             Long orgId = empleado.getOrganizacion().getIdOrganizacion();
-            boolean pertenece = false;
-            
-            if (venta.getEmpleado() != null && venta.getEmpleado().getOrganizacion() != null) {
-                pertenece = venta.getEmpleado().getOrganizacion().getIdOrganizacion().equals(orgId);
-            }
-            if (!pertenece && venta.getDetalles() != null) {
-                pertenece = venta.getDetalles().stream().anyMatch(d -> 
-                    d.getProducto() != null && 
-                    d.getProducto().getOrganizacion() != null &&
-                    d.getProducto().getOrganizacion().getIdOrganizacion().equals(orgId)
-                );
-            }
-            if (!pertenece) {
+            if (!ventaService.ventaPerteneceAOrganizacion(venta, orgId)) {
                 return "redirect:/caja";
             }
         }
@@ -126,32 +115,9 @@ public class CajaController {
     @GetMapping("/pedidos")
     public String listarPedidosPendientes(Model model) {
         Usuario empleado = obtenerUsuarioAutenticado();
-        List<Venta> todosLosPedidos = ventaService.listarPedidosPendientes();
-
-        if (empleado != null && empleado.getOrganizacion() != null) {
-            Long orgId = empleado.getOrganizacion().getIdOrganizacion();
-            todosLosPedidos = todosLosPedidos.stream().filter(v -> {
-                if (v.getEmpleado() != null && v.getEmpleado().getOrganizacion() != null) {
-                    if (v.getEmpleado().getOrganizacion().getIdOrganizacion().equals(orgId)) {
-                        return true;
-                    }
-                }
-                if (v.getDetalles() != null) {
-                    return v.getDetalles().stream().anyMatch(d -> 
-                        d.getProducto() != null && 
-                        d.getProducto().getOrganizacion() != null &&
-                        d.getProducto().getOrganizacion().getIdOrganizacion().equals(orgId)
-                    );
-                }
-                return false;
-            }).collect(Collectors.toList());
-        } else {
-            todosLosPedidos = List.of();
-        }
-
-        List<Venta> pendientesFiltrados = todosLosPedidos.stream()
-                .filter(v -> "PENDIENTE".equalsIgnoreCase(v.getEstado()))
-                .collect(Collectors.toList());
+        List<Venta> pendientesFiltrados = empleado != null && empleado.getOrganizacion() != null
+                ? ventaService.listarVentasPorOrganizacion(empleado.getOrganizacion().getIdOrganizacion(), "PENDIENTE")
+                : List.of();
                 
         model.addAttribute("pedidos", pendientesFiltrados);
         model.addAttribute("empleado", empleado);

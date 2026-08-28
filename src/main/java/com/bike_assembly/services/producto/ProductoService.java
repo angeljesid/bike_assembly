@@ -42,4 +42,12 @@ public class ProductoService implements IProductoService {
     public Producto encontrarProducto(Producto producto) {
         return productoDao.findById(producto.getIdProducto()).orElse(null);
     }
+
+    @Override
+    public boolean productoPerteneceAOrganizacion(Producto producto, Long idOrganizacion) {
+        return producto != null
+                && idOrganizacion != null
+                && producto.getOrganizacion() != null
+                && producto.getOrganizacion().getIdOrganizacion().equals(idOrganizacion);
+    }
 }

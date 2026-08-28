@@ -43,4 +43,12 @@ public class ProveedorService implements IProveedorService {
     public Proveedor encontrarProveedor(Proveedor proveedor) {
         return proveedorDao.findById(proveedor.getIdProveedor()).orElse(null);
     }
+
+    @Override
+    public boolean proveedorPerteneceAOrganizacion(Proveedor proveedor, Long idOrganizacion) {
+        return proveedor != null
+                && idOrganizacion != null
+                && proveedor.getOrganizacion() != null
+                && proveedor.getOrganizacion().getIdOrganizacion().equals(idOrganizacion);
+    }
 }

@@ -28,12 +28,13 @@ public class VentaService implements IVentaService {
     
     @Override
     @Transactional
-    public Venta procesarCobro(VentaRequestDTO request) {
+    public Venta procesarCobro(VentaRequestDTO request, Usuario empleado) {
         Venta venta = new Venta();
         venta.setFechaHora(LocalDateTime.now());
         venta.setMetodoPago(request.getMetodoPago());
         venta.setTotal(request.getTotal());
         venta.setEstado("COMPLETADA");
+        venta.setEmpleado(empleado);
 
         if (request.getIdCliente() != null) {
             venta.setCliente(usuarioDao.findById(request.getIdCliente()).orElse(null));
@@ -145,5 +146,34 @@ public class VentaService implements IVentaService {
             return ventaDao.save(venta);
         }
         throw new RuntimeException("Pedido no encontrado con ID: " + idVenta);
+    }
+
+    @Override
+    public boolean ventaPerteneceAOrganizacion(Venta venta, Long idOrganizacion) {
+        if (venta == null || idOrganizacion == null) {
+            return false;
+        }
+        if (venta.getEmpleado() != null && venta.getEmpleado().getOrganizacion() != null) {
+            if (venta.getEmpleado().getOrganizacion().getIdOrganizacion().equals(idOrganizacion)) {
+                return true;
+            }
+        }
+        if (venta.getDetalles() != null) {
+            return venta.getDetalles().stream().anyMatch(d ->
+                d.getProducto() != null &&
+                d.getProducto().getOrganizacion() != null &&
+                d.getProducto().getOrganizacion().getIdOrganizacion().equals(idOrganizacion)
+            );
+        }
+        return false;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Venta> listarVentasPorOrganizacion(Long idOrganizacion, String estado) {
+        return ventaDao.findAll().stream()
+                .filter(v -> ventaPerteneceAOrganizacion(v, idOrganizacion))
+                .filter(v -> estado == null || estado.equalsIgnoreCase(v.getEstado()))
+                .toList();
     }
 }

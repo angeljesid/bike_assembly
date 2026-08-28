@@ -4,11 +4,10 @@ import com.bike_assembly.domain.Usuario;
 import com.bike_assembly.domain.Venta;
 import com.bike_assembly.domain.VentaRequestDTO;
 import com.bike_assembly.repository.UsuarioDao;
+import com.bike_assembly.security.SessionUtils;
 import com.bike_assembly.services.venta.IVentaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,14 +30,18 @@ public class ClienteController {
     private UsuarioDao usuarioDao;
 
     @Autowired
+    private SessionUtils sessionUtils;
+
+    @Autowired
     private IVentaService ventaService;
+
+    private Usuario obtenerClienteAutenticado() {
+        return sessionUtils.usuarioActual();
+    }
 
     @GetMapping({"", "/", "/catalogo"})
     public String catalogoCliente(Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String usernameOrEmail = auth.getName();
-        
-        Usuario cliente = usuarioDao.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail).orElse(null);
+        Usuario cliente = obtenerClienteAutenticado();
         model.addAttribute("cliente", cliente);
 
         return "cliente/catalogo"; 
@@ -46,9 +49,7 @@ public class ClienteController {
 
     @GetMapping("/producto/{id}")
     public String detalleProducto(@PathVariable("id") Long id, Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String usernameOrEmail = auth.getName();
-        Usuario cliente = usuarioDao.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail).orElse(null);
+        Usuario cliente = obtenerClienteAutenticado();
         
         model.addAttribute("cliente", cliente);
         model.addAttribute("idProducto", id);
@@ -57,10 +58,7 @@ public class ClienteController {
 
     @GetMapping("/carrito")
     public String verCarrito(Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String usernameOrEmail = auth.getName();
-        
-        Usuario cliente = usuarioDao.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail).orElse(null);
+        Usuario cliente = obtenerClienteAutenticado();
         model.addAttribute("cliente", cliente);
 
         return "cliente/carrito"; 
@@ -68,10 +66,7 @@ public class ClienteController {
 
     @GetMapping("/pedidos")
     public String misPedidos(Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String usernameOrEmail = auth.getName();
-        
-        Usuario cliente = usuarioDao.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail).orElse(null);
+        Usuario cliente = obtenerClienteAutenticado();
         
         if (cliente != null) {
             List<Venta> todasLasVentas = ventaService.listarPedidosCliente(cliente);
@@ -97,10 +92,10 @@ public class ClienteController {
     public ResponseEntity<?> procesarCheckout(@RequestBody VentaRequestDTO request) {
         Map<String, Object> response = new HashMap<>();
         try {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            String usernameOrEmail = auth.getName();
-            Usuario cliente = usuarioDao.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
-                    .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+            Usuario cliente = obtenerClienteAutenticado();
+            if (cliente == null) {
+                throw new RuntimeException("Cliente no encontrado");
+            }
 
             ventaService.procesarPedidoCliente(request, cliente);
             response.put("success", true);

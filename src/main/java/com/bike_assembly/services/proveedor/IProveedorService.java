@@ -10,4 +10,5 @@ public interface IProveedorService {
     void guardar(Proveedor proveedor);
     void eliminar(Proveedor proveedor);
     Proveedor encontrarProveedor(Proveedor proveedor);
+    boolean proveedorPerteneceAOrganizacion(Proveedor proveedor, Long idOrganizacion);
 }

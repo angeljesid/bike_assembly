@@ -1,5 +1,6 @@
 package com.bike_assembly.services.producto;
 
+import com.bike_assembly.domain.Organizacion;
 import com.bike_assembly.domain.Producto;
 import com.bike_assembly.repository.ProductoDao;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -79,5 +82,33 @@ class ProductoServiceTest {
         assertNotNull(resultado);
         assertEquals(1L, resultado.getIdProducto());
         verify(productoDao).findById(1L);
+    }
+
+    @Test
+    void productoDeLaOrgPertenece() {
+        Organizacion org = new Organizacion("Taller", "111", "Dir");
+        org.setIdOrganizacion(3L);
+
+        Producto producto = new Producto();
+        producto.setOrganizacion(org);
+
+        assertTrue(productoService.productoPerteneceAOrganizacion(producto, 3L));
+    }
+
+    @Test
+    void productoDeOtraOrgNoPertenece() {
+        Organizacion org = new Organizacion("Taller", "111", "Dir");
+        org.setIdOrganizacion(3L);
+
+        Producto producto = new Producto();
+        producto.setOrganizacion(org);
+
+        assertFalse(productoService.productoPerteneceAOrganizacion(producto, 4L));
+    }
+
+    @Test
+    void productoSinOrganizacionNoPertenece() {
+        Producto producto = new Producto();
+        assertFalse(productoService.productoPerteneceAOrganizacion(producto, 3L));
     }
 }

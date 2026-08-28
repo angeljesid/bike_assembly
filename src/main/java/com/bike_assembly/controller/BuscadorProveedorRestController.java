@@ -5,11 +5,10 @@ import com.bike_assembly.domain.Proveedor;
 import com.bike_assembly.domain.Usuario;
 import com.bike_assembly.repository.ProductoDao;
 import com.bike_assembly.repository.UsuarioDao;
+import com.bike_assembly.security.SessionUtils;
 import com.bike_assembly.services.proveedor.IProveedorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
@@ -26,10 +25,16 @@ public class BuscadorProveedorRestController {
     @Autowired
     private ProductoDao productoDao;
 
+    @Autowired
+    private SessionUtils sessionUtils;
+
+    private Usuario obtenerAdminAutenticado() {
+        return sessionUtils.usuarioActual();
+    }
+
     @GetMapping("/api/buscar/proveedores")
     public ResponseEntity<List<Proveedor>> listarProveedoresAPI() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
+        Usuario admin = obtenerAdminAutenticado();
 
         if (admin != null && admin.getOrganizacion() != null) {
             List<Proveedor> proveedores = proveedorService.listarProveedoresPorOrganizacion(admin.getOrganizacion());
@@ -40,8 +45,7 @@ public class BuscadorProveedorRestController {
 
     @GetMapping("/api/buscar/productos")
     public ResponseEntity<List<Producto>> buscarProductosAdmin() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
+        Usuario admin = obtenerAdminAutenticado();
 
         if (admin != null && admin.getOrganizacion() != null) {
             return ResponseEntity.ok(productoDao.findByOrganizacion(admin.getOrganizacion()));

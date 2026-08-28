@@ -5,11 +5,10 @@ import com.bike_assembly.domain.Proveedor;
 import com.bike_assembly.domain.Usuario;
 import com.bike_assembly.repository.ProductoDao;
 import com.bike_assembly.repository.UsuarioDao;
+import com.bike_assembly.security.SessionUtils;
 import com.bike_assembly.services.proveedor.IProveedorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -34,10 +33,16 @@ public class ProveedorController {
     @Autowired
     private ProductoDao productoDao;
 
+    @Autowired
+    private SessionUtils sessionUtils;
+
+    private Usuario obtenerAdminAutenticado() {
+        return sessionUtils.usuarioActual();
+    }
+
     @GetMapping({"", "/"})
     public String listarProveedores(Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
+        Usuario admin = obtenerAdminAutenticado();
 
         if (admin != null && admin.getOrganizacion() != null) {
             List<Proveedor> proveedores = proveedorService.listarProveedoresPorOrganizacion(admin.getOrganizacion());
@@ -56,14 +61,14 @@ public class ProveedorController {
 
     @GetMapping("/editar/{id}")
     public String editarProveedor(@PathVariable("id") Long id, Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
+        Usuario admin = obtenerAdminAutenticado();
 
         Proveedor proveedor = new Proveedor();
         proveedor.setIdProveedor(id);
         Proveedor proveedorExistente = proveedorService.encontrarProveedor(proveedor);
 
-        if (admin == null || admin.getOrganizacion() == null || proveedorExistente == null || proveedorExistente.getOrganizacion() == null || !proveedorExistente.getOrganizacion().getIdOrganizacion().equals(admin.getOrganizacion().getIdOrganizacion())) {
+        if (admin == null || admin.getOrganizacion() == null || proveedorExistente == null
+                || !proveedorService.proveedorPerteneceAOrganizacion(proveedorExistente, admin.getOrganizacion().getIdOrganizacion())) {
             return "redirect:/admin/proveedor";
         }
 
@@ -90,14 +95,14 @@ public class ProveedorController {
 
     @GetMapping("/eliminar/{id}")
     public String eliminarProveedor(@PathVariable("id") Long id) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
+        Usuario admin = obtenerAdminAutenticado();
 
         Proveedor proveedor = new Proveedor();
         proveedor.setIdProveedor(id);
         Proveedor proveedorExistente = proveedorService.encontrarProveedor(proveedor);
 
-        if (admin != null && admin.getOrganizacion() != null && proveedorExistente != null && proveedorExistente.getOrganizacion() != null && proveedorExistente.getOrganizacion().getIdOrganizacion().equals(admin.getOrganizacion().getIdOrganizacion())) {
+        if (admin != null && admin.getOrganizacion() != null && proveedorExistente != null
+                && proveedorService.proveedorPerteneceAOrganizacion(proveedorExistente, admin.getOrganizacion().getIdOrganizacion())) {
             proveedorService.eliminar(proveedorExistente);
         }
 
@@ -106,8 +111,7 @@ public class ProveedorController {
 
     @PostMapping("/guardar")
     public String guardarProveedor(Proveedor proveedor) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
+        Usuario admin = obtenerAdminAutenticado();
 
         if (admin == null || admin.getOrganizacion() == null) {
             return "redirect:/admin/proveedor";
@@ -115,8 +119,7 @@ public class ProveedorController {
 
         if (proveedor.getIdProveedor() != null) {
             Proveedor proveedorExistente = proveedorService.encontrarProveedor(proveedor);
-            if (proveedorExistente != null && proveedorExistente.getOrganizacion() != null &&
-                proveedorExistente.getOrganizacion().getIdOrganizacion().equals(admin.getOrganizacion().getIdOrganizacion())) {
+            if (proveedorExistente != null && proveedorService.proveedorPerteneceAOrganizacion(proveedorExistente, admin.getOrganizacion().getIdOrganizacion())) {
                 
                 proveedorExistente.setNombre(proveedor.getNombre());
                 proveedorExistente.setTipoEstablecimiento(proveedor.getTipoEstablecimiento());
@@ -138,8 +141,7 @@ public class ProveedorController {
     @PostMapping("/api/suministro")
     @ResponseBody
     public ResponseEntity<?> registrarSuministroStock(@RequestBody SuministroRequest request) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
+        Usuario admin = obtenerAdminAutenticado();
         
         if (admin == null || admin.getOrganizacion() == null) {
             return ResponseEntity.badRequest().body(Map.of("success", false, "msg", "Sin autorización"));

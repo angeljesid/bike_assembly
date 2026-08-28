@@ -23,6 +23,7 @@ C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\UsuarioDao.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\VentaDao.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\security\CustomAuthenticationSuccessHandler.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\security\SecurityConfig.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\security\SessionUtils.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\security\UserDetailsServiceImpl.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\empleado\EmpleadoServiceImpl.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\empleado\IEmpleadoService.java
