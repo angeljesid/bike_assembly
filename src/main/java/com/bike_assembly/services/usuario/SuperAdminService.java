@@ -48,8 +48,10 @@ public class SuperAdminService implements ISuperAdminService {
 
         Organizacion nuevaOrg = new Organizacion();
         nuevaOrg.setNombre(nombreTaller);
-        nuevaOrg.setDireccion("Pendiente de actualizar");
-        nuevaOrg.setTelefono("0000000000");
+        // Se asocian los valores reales enviados desde el modal HTML
+        nuevaOrg.setDireccion(direccionTaller);
+        nuevaOrg.setTelefono(telefonoTaller);
+        nuevaOrg.setActivo(true);
         Organizacion orgGuardada = organizacionDao.save(nuevaOrg);
 
         usuario.setRol(Rol.ADMIN);
@@ -82,5 +84,44 @@ public class SuperAdminService implements ISuperAdminService {
             
             organizacionDao.save(org);
         }
+    }
+
+    @Override
+    @Transactional
+    public void cambiarEstadoTaller(Long idOrganizacion, boolean activo) {
+        Organizacion org = organizacionDao.findById(idOrganizacion)
+                .orElseThrow(() -> new RuntimeException("Organización no encontrada"));
+        
+        org.setActivo(activo);
+        organizacionDao.save(org);
+        
+
+        List<Usuario> usuariosVinculados = usuarioDao.findByOrganizacion(org);
+        for(Usuario u : usuariosVinculados) {
+            u.setActivo(activo);
+        }
+        usuarioDao.saveAll(usuariosVinculados);
+    }
+
+    @Override
+    @Transactional
+    public void cambiarEstadoUsuario(Long idUsuario, boolean activo) {
+        Usuario usuario = usuarioDao.findById(idUsuario)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        
+        usuario.setActivo(activo);
+        usuarioDao.save(usuario);
+    }
+
+    @Override
+    @Transactional
+    public void actualizarDatosBasicosUsuario(Long idUsuario, String nombre, String cedula, String email) {
+        Usuario usuario = usuarioDao.findById(idUsuario)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        
+        usuario.setNombre(nombre);
+        usuario.setCedula(cedula);
+        usuario.setEmail(email);
+        usuarioDao.save(usuario);
     }
 }

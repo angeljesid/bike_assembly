@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -254,36 +255,40 @@ public class AdminController {
     }
 
     @PostMapping("/empleados/guardar")
-    public String guardarEmpleado(Usuario empleado, @RequestParam("rolStr") String rolStr, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+    public String guardarEmpleado(Usuario empleado, @RequestParam("rolStr") String rolStr, RedirectAttributes redirectAttributes) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Usuario admin = usuarioDao.findByUsernameOrEmail(auth.getName(), auth.getName()).orElse(null);
 
         if (admin != null && admin.getOrganizacion() != null) {
-            Organizacion org = admin.getOrganizacion();
-            
-            if (empleado.getIdUsuario() == null) {
-                long cantidadOperarios = usuarioDao.countByOrganizacionAndRolAndActivoTrue(org, Rol.OPERARIO);
-                long cantidadCajeros = usuarioDao.countByOrganizacionAndRolAndActivoTrue(org, Rol.CAJA);
-                long totalEmpleados = cantidadOperarios + cantidadCajeros;
+            Rol rol = Rol.valueOf(rolStr);
+            try {
+                if (empleado.getIdUsuario() == null) {
+                    Organizacion org = admin.getOrganizacion();
+                    long cantidadOperarios = usuarioDao.countByOrganizacionAndRolAndActivoTrue(org, Rol.OPERARIO);
+                    long cantidadCajeros = usuarioDao.countByOrganizacionAndRolAndActivoTrue(org, Rol.CAJA);
+                    long totalEmpleados = cantidadOperarios + cantidadCajeros;
 
-                int limite = 0;
-                if (org.getTipo() != null) {
-                    switch (org.getTipo()) {
-                        case "Taller Pequeño": limite = 4; break;
-                        case "Taller Mediano": limite = 6; break;
-                        case "Taller Grande": limite = 12; break;
-                        default: limite = 2; break;
+                    int limite = 2;
+                    if (org.getTipo() != null) {
+                        switch (org.getTipo()) {
+                            case "Taller Pequeño": limite = 4; break;
+                            case "Taller Mediano": limite = 6; break;
+                            case "Taller Grande": limite = 12; break;
+                        }
+                    }
+
+                    if (totalEmpleados >= limite) {
+                        redirectAttributes.addFlashAttribute("alertaPlan", "Aumenta el plan del taller para crear más empleados.");
+                        redirectAttributes.addAttribute("error", "limite");
+                        return "redirect:/admin/empleados";
                     }
                 }
-
-                if (totalEmpleados >= limite) {
-                    redirectAttributes.addAttribute("error", "limite");
-                    return "redirect:/admin/empleados";
-                }
+                empleadoService.guardarEmpleado(admin, empleado, rol);
+            } catch (RuntimeException e) {
+                redirectAttributes.addFlashAttribute("alertaPlan", "Aumenta el plan del taller. " + e.getMessage());
+                redirectAttributes.addAttribute("error", "limite");
+                return "redirect:/admin/empleados";
             }
-
-            Rol rol = Rol.valueOf(rolStr);
-            empleadoService.guardarEmpleado(admin, empleado, rol);
         }
         return "redirect:/admin/empleados?exito=true";
     }

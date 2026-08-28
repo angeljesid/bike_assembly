@@ -113,6 +113,9 @@
                                                 <td>
                                                     <span th:if="${admin.organizacion != null and (admin.organizacion.activo == null or admin.organizacion.activo == true)}" class="badge bg-success bg-opacity-10 text-success">Activo</span>
                                                     <span th:if="${admin.organizacion != null and admin.organizacion.activo == false}" class="badge bg-danger bg-opacity-10 text-danger">Suspendido</span>
+                                                    
+                                                    <span th:if="${admin.organizacion == null and (admin.activo == null or admin.activo == true)}" class="badge bg-success bg-opacity-10 text-success">Activo</span>
+                                                    <span th:if="${admin.organizacion == null and admin.activo == false}" class="badge bg-danger bg-opacity-10 text-danger">Suspendido</span>
                                                 </td>
                                                 <td class="text-end pe-4 d-flex justify-content-end gap-2">
                                                     <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" th:data-bs-target="'#modalEditarAdmin' + ${admin.idUsuario}">
@@ -123,6 +126,13 @@
                                                         <input type="hidden" name="activo" th:value="${admin.organizacion.activo == false ? 'true' : 'false'}">
                                                         <button type="submit" th:class="${admin.organizacion.activo == false} ? 'btn btn-sm btn-success' : 'btn btn-sm btn-danger'" title="Suspender/Activar Taller">
                                                             <i th:class="${admin.organizacion.activo == false} ? 'bi bi-play-circle' : 'bi bi-pause-circle'"></i>
+                                                        </button>
+                                                    </form>
+                                                    <form th:if="${admin.organizacion == null}" th:action="@{/superadmin/estado-usuario}" method="post" class="m-0">
+                                                        <input type="hidden" name="idUsuario" th:value="${admin.idUsuario}">
+                                                        <input type="hidden" name="activo" th:value="${admin.activo == false ? 'true' : 'false'}">
+                                                        <button type="submit" th:class="${admin.activo == false} ? 'btn btn-sm btn-success' : 'btn btn-sm btn-danger'" title="Suspender/Activar Admin">
+                                                            <i th:class="${admin.activo == false} ? 'bi bi-play-circle' : 'bi bi-pause-circle'"></i>
                                                         </button>
                                                     </form>
                                                 </td>
@@ -162,6 +172,9 @@
                                                     <span th:if="${cliente.activo == false}" class="badge bg-danger bg-opacity-10 text-danger">Inactivo</span>
                                                 </td>
                                                 <td class="text-end pe-4 d-flex justify-content-end gap-2">
+                                                    <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" th:data-bs-target="'#modalDetalleCliente' + ${cliente.idUsuario}" title="Ver Detalles">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
                                                     <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" th:data-bs-target="'#modalEditarCliente' + ${cliente.idUsuario}" title="Editar">
                                                         <i class="bi bi-pencil"></i>
                                                     </button>
@@ -284,6 +297,40 @@
     </th:block>
 
     <th:block th:each="cliente : ${listaClientes}">
+        <div class="modal fade" th:id="'modalDetalleCliente' + ${cliente.idUsuario}" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-light border-bottom px-4">
+                        <h5 class="modal-title fw-bold fs-6">Detalles del Cliente</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body px-4 py-4">
+                        <div class="mb-3">
+                            <span class="d-block fw-semibold text-muted small">Nombre Completo</span>
+                            <span class="fs-6 text-dark" th:text="${cliente.nombre}"></span>
+                        </div>
+                        <div class="mb-3">
+                            <span class="d-block fw-semibold text-muted small">Cédula</span>
+                            <span class="fs-6 text-dark" th:text="${cliente.cedula}"></span>
+                        </div>
+                        <div class="mb-3">
+                            <span class="d-block fw-semibold text-muted small">Correo Electrónico</span>
+                            <span class="fs-6 text-dark" th:text="${cliente.email}"></span>
+                        </div>
+                        <div class="mb-3">
+                            <span class="d-block fw-semibold text-muted small">Taller de Registro</span>
+                            <span class="fs-6 text-dark" th:text="${cliente.organizacion != null ? cliente.organizacion.nombre : 'Plataforma Global'}"></span>
+                        </div>
+                        <div>
+                            <span class="d-block fw-semibold text-muted small">Estado de Cuenta</span>
+                            <span th:if="${cliente.activo == null or cliente.activo == true}" class="badge bg-success bg-opacity-10 text-success">Activo</span>
+                            <span th:if="${cliente.activo == false}" class="badge bg-danger bg-opacity-10 text-danger">Inactivo</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="modal fade" th:id="'modalEditarCliente' + ${cliente.idUsuario}" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 shadow">
