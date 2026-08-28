@@ -32,11 +32,13 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
         Organizacion org = admin.getOrganizacion();
         String tipo = org.getTipo();
 
-        // Consultas soportadas por tu UsuarioDao actual
+        // El cupo se mide sobre el TOTAL de empleados ACTIVOS (operarios + cajeros) según el plan.
+        // Pueden existir más cuentas registradas (suspendidas), pero no más del tope ACTIVAS a la vez.
         long countOperarios = usuarioDao.countByOrganizacionAndRolAndActivoTrue(org, Rol.OPERARIO);
         long countCajas = usuarioDao.countByOrganizacionAndRolAndActivoTrue(org, Rol.CAJA);
+        long totalActivos = countOperarios + countCajas;
 
-        validarLimites(tipo, rol, countOperarios, countCajas);
+        validarLimites(tipo, totalActivos);
 
         nuevoEmpleado.setRol(rol);
         nuevoEmpleado.setOrganizacion(org);
@@ -134,26 +136,11 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
         return usuarioDao.findById(id).orElse(null);
     }
 
-    private void validarLimites(String tipo, Rol rolNuevo, long actualesOperarios, long actualesCajas) {
-        int maxOperarios = 0;
-        int maxCajas = 0;
-
-        if ("Taller Pequeño".equalsIgnoreCase(tipo)) {
-            maxOperarios = 3;
-            maxCajas = 1;
-        } else if ("Taller Mediano".equalsIgnoreCase(tipo)) {
-            maxOperarios = 6;
-            maxCajas = 2;
-        } else if ("Taller Grande".equalsIgnoreCase(tipo)) {
-            maxOperarios = 10;
-            maxCajas = 3;
-        }
-
-        if (rolNuevo == Rol.OPERARIO && actualesOperarios >= maxOperarios) {
-            throw new RuntimeException("Límite de Operarios alcanzado para su plan actual.");
-        }
-        if (rolNuevo == Rol.CAJA && actualesCajas >= maxCajas) {
-            throw new RuntimeException("Límite de Cajeros alcanzado para su plan actual.");
+    private void validarLimites(String tipo, long totalActivos) {
+        int limite = obtenerLimiteTotal(tipo);
+        if (totalActivos >= limite) {
+            throw new RuntimeException("El límite de empleados activos para su plan (" + limite
+                    + ") ya fue alcanzado. Aumenta el plan del taller para agregar más empleados.");
         }
     }
 }
