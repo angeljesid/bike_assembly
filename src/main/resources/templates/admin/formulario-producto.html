@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
     <meta charset="UTF-8">
@@ -61,17 +61,17 @@
                             
                             <div class="col-md-6">
                                 <label for="nombre" class="form-label fw-bold">Nombre del Componente</label>
-                                <input type="text" class="form-control" th:field="*{nombre}" required placeholder="Ej: Llanta Maxxis, Marco, Freno mt200">
+                                <input type="text" class="form-control" th:field="*{nombre}" required maxlength="100" minlength="2" pattern="[A-Za-z0-9 .,/_\-()]+" title="Solo letras, números y caracteres básicos (2-100)" placeholder="Ej: Llanta Maxxis, Marco, Freno mt200">
                             </div>
 
                             <div class="col-md-6">
                                 <label for="codigoBarras" class="form-label fw-bold">Código de Barras <span class="text-muted fw-normal">(Opcional)</span></label>
-                                <input type="text" class="form-control" id="codigoBarras" name="codigoBarras" th:value="${producto.codigoBarras}" placeholder="Escanee o digite el código de barras">
+                                <input type="text" class="form-control" id="codigoBarras" name="codigoBarras" th:value="${producto.codigoBarras}" maxlength="15" minlength="8" pattern="[0-9]{8,15}" title="El código de barras debe tener entre 8 y 15 dígitos numéricos" placeholder="Escanee o digite el código de barras">
                             </div>
                             
                             <div class="col-md-6">
                                 <label for="marca" class="form-label fw-bold">Marca</label>
-                                <input type="text" class="form-control" th:field="*{marca}" required placeholder="Ej: Shimano, Maxxis">
+                                <input type="text" class="form-control" th:field="*{marca}" required maxlength="100" minlength="2" pattern="[A-Za-z0-9 .,/_\-()]+" title="Solo letras, números y caracteres básicos (2-100)" placeholder="Ej: Shimano, Maxxis">
                             </div>
 
                             <div class="col-12">
@@ -166,6 +166,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/seguridad.js}"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {

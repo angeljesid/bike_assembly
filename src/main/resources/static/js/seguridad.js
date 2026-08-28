@@ -59,12 +59,15 @@
         }
     }
 
-    /* Previene la pulsación de caracteres peligrosos en tiempo real (beforeinput). */
+    /* Previene la pulsación de caracteres peligrosos en tiempo real (beforeinput).
+       NUNCA interviene en campos password: las contraseñas pueden contener cualquier
+       símbolo y se almacenan hasheadas (BCrypt), no se interpolan en SQL. */
     function alAntesDeInsertar(ev) {
         var el = ev.target;
         var tipo = (el.type || '').toLowerCase();
+        if (tipo === 'password') { return; }
         // Solo se aplica a campos de texto editables.
-        if (!/^(text|search|email|tel|password|url)$/.test(tipo) && el.tagName !== 'TEXTAREA') {
+        if (!/^(text|search|email|tel|url)$/.test(tipo) && el.tagName !== 'TEXTAREA') {
             return;
         }
         if (ev.data && CARACTERES_PELIGROSOS.test(ev.data)) {
@@ -76,7 +79,8 @@
     function alEntrada(ev) {
         var el = ev.target;
         var tipo = (el.type || '').toLowerCase();
-        if (!/^(text|search|email|tel|password|url)$/.test(tipo) && el.tagName !== 'TEXTAREA') {
+        if (tipo === 'password') { return; }
+        if (!/^(text|search|email|tel|url)$/.test(tipo) && el.tagName !== 'TEXTAREA') {
             return;
         }
         limpiarValor(el);
@@ -89,9 +93,11 @@
     /* Sanitiza todo campo ya presente en la página al cargar. */
     function sanearExistentes() {
         var campos = document.querySelectorAll('input[type="text"], input[type="search"], ' +
-            'input[type="email"], input[type="tel"], input[type="password"], input[type="url"], textarea');
+            'input[type="email"], input[type="tel"], input[type="url"], textarea');
         for (var i = 0; i < campos.length; i++) {
             var el = campos[i];
+            // Nunca se limita un campo password.
+            if ((el.type || '').toLowerCase() === 'password') { continue; }
             if (esCampoBusqueda(el) && !el.maxLength) {
                 el.maxLength = MAX_BUSQUEDA;
             }
