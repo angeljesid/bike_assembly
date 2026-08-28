@@ -19,7 +19,7 @@
     </th:block>
     
     <th:block th:if="${empleado.rol.name() == 'CAJA'}">
-        <div th:replace="~{caja/barra :: sidebar}"></div>
+        <div th:replace="~{caja/barra :: sidebar('pos')}"></div>
     </th:block>
 </th:block>
 

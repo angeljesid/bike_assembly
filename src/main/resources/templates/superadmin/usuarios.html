@@ -65,7 +65,15 @@
                         <div class="card border-0 shadow-sm rounded-4">
                             <div class="card-body p-0">
                                 <div class="p-3 border-bottom">
-                                    <input type="text" class="form-control buscar-tabla" data-tabla="pills-admins" placeholder="Buscar por taller, email o plan...">
+                                    <div class="input-group mb-2">
+                                        <span class="input-group-text bg-light border-0"><i class="bi bi-search text-muted"></i></span>
+                                        <input type="text" class="form-control buscar-tabla" data-tabla="pills-admins" placeholder="Buscar por taller, email o plan...">
+                                    </div>
+                                    <div class="btn-group btn-group-sm w-100" data-filtro="pills-admins">
+                                        <button type="button" class="btn btn-outline-primary filtro-estado active" data-estado="todos">Todos</button>
+                                        <button type="button" class="btn btn-outline-success filtro-estado" data-estado="activo">Activos</button>
+                                        <button type="button" class="btn btn-outline-danger filtro-estado" data-estado="suspendido">Suspendidos</button>
+                                    </div>
                                 </div>
                                 <div class="table-responsive">
                                     <table class="table table-hover align-middle mb-0">
@@ -80,7 +88,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr th:each="admin : ${listaAdmins}">
+                                            <tr th:each="admin : ${listaAdmins}" th:attr="data-estado=${(admin.organizacion != null ? (admin.organizacion.activo == null or admin.organizacion.activo == true) : (admin.activo == null or admin.activo == true)) ? 'activo' : 'suspendido'}">
                                                 <td class="ps-4 fw-bold text-muted" th:text="'#' + ${admin.idUsuario}"></td>
                                                 <td><span class="fw-semibold text-dark" th:text="${admin.organizacion != null ? admin.organizacion.nombre : 'Sin Tienda'}"></span></td>
                                                 <td th:text="${admin.email}"></td>
@@ -99,14 +107,14 @@
                                                     <button type="button" class="btn btn-sm btn-outline-secondary btn-ion btn-accion" data-bs-toggle="modal" th:data-bs-target="'#modalEditarAdmin' + ${admin.idUsuario}" title="Editar Taller">
                                                         <i class="bi bi-pencil-square"></i>
                                                     </button>
-                                                    <form th:if="${admin.organizacion != null}" th:action="@{/superadmin/estado-taller}" method="post" class="m-0">
+                                                    <form th:if="${admin.organizacion != null}" th:action="@{/superadmin/estado-taller}" method="post" class="m-0" th:onsubmit="${admin.organizacion.activo == false} ? 'return true;' : 'return confirm(&#39;¿Seguro que deseas suspender este taller?&#39;);'">
                                                         <input type="hidden" name="idOrganizacion" th:value="${admin.organizacion.idOrganizacion}">
                                                         <input type="hidden" name="activo" th:value="${admin.organizacion.activo == false ? 'true' : 'false'}">
                                                         <button type="submit" th:class="${admin.organizacion.activo == false} ? 'btn btn-sm btn-accion-success' : 'btn btn-sm btn-accion-danger'" title="Suspender/Activar Taller">
                                                             <i th:class="${admin.organizacion.activo == false} ? 'bi bi-play-circle' : 'bi bi-pause-circle'"></i>
                                                         </button>
                                                     </form>
-                                                    <form th:if="${admin.organizacion == null}" th:action="@{/superadmin/estado-usuario}" method="post" class="m-0">
+                                                    <form th:if="${admin.organizacion == null}" th:action="@{/superadmin/estado-usuario}" method="post" class="m-0" th:onsubmit="${admin.activo == false} ? 'return true;' : 'return confirm(&#39;¿Seguro que deseas suspender a este administrador?&#39;);'">
                                                         <input type="hidden" name="idUsuario" th:value="${admin.idUsuario}">
                                                         <input type="hidden" name="activo" th:value="${admin.activo == false ? 'true' : 'false'}">
                                                         <button type="submit" th:class="${admin.activo == false} ? 'btn btn-sm btn-accion-success' : 'btn btn-sm btn-accion-danger'" title="Suspender/Activar Admin">
@@ -126,7 +134,15 @@
                         <div class="card border-0 shadow-sm rounded-4">
                             <div class="card-body p-0">
                                 <div class="p-3 border-bottom">
-                                    <input type="text" class="form-control buscar-tabla" data-tabla="pills-clientes" placeholder="Buscar por nombre, cédula o email...">
+                                    <div class="input-group mb-2">
+                                        <span class="input-group-text bg-light border-0"><i class="bi bi-search text-muted"></i></span>
+                                        <input type="text" class="form-control buscar-tabla" data-tabla="pills-clientes" placeholder="Buscar por nombre, cédula o email...">
+                                    </div>
+                                    <div class="btn-group btn-group-sm w-100" data-filtro="pills-clientes">
+                                        <button type="button" class="btn btn-outline-primary filtro-estado active" data-estado="todos">Todos</button>
+                                        <button type="button" class="btn btn-outline-success filtro-estado" data-estado="activo">Activos</button>
+                                        <button type="button" class="btn btn-outline-danger filtro-estado" data-estado="suspendido">Suspendidos</button>
+                                    </div>
                                 </div>
                                 <div class="table-responsive">
                                     <table class="table table-hover align-middle mb-0">
@@ -142,7 +158,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr th:each="cliente : ${listaClientes}">
+                                            <tr th:each="cliente : ${listaClientes}" th:attr="data-estado=${(cliente.activo == null or cliente.activo == true) ? 'activo' : 'suspendido'}">
                                                 <td class="ps-4 fw-bold text-muted" th:text="'#' + ${cliente.idUsuario}"></td>
                                                 <td class="fw-semibold text-dark" th:text="${cliente.nombre}"></td>
                                                 <td th:text="${cliente.cedula}"></td>
@@ -162,7 +178,7 @@
                                                     <button type="button" class="btn btn-sm btn-outline-dark btn-ion btn-accion" data-bs-toggle="modal" th:data-bs-target="'#modalPromover' + ${cliente.idUsuario}" title="Convertir a Admin">
                                                         <i class="bi bi-arrow-up-circle"></i>
                                                     </button>
-                                                    <form th:action="@{/superadmin/estado-usuario}" method="post" class="m-0">
+                                                    <form th:action="@{/superadmin/estado-usuario}" method="post" class="m-0" th:onsubmit="${cliente.activo == false} ? 'return true;' : 'return confirm(&#39;¿Seguro que deseas suspender a este cliente?&#39;);'">
                                                         <input type="hidden" name="idUsuario" th:value="${cliente.idUsuario}">
                                                         <input type="hidden" name="activo" th:value="${cliente.activo == false ? 'true' : 'false'}">
                                                         <button type="submit" th:class="${cliente.activo == false} ? 'btn btn-sm btn-accion-success' : 'btn btn-sm btn-accion-danger'" title="Cambiar Estado">
@@ -182,7 +198,15 @@
                         <div class="card border-0 shadow-sm rounded-4">
                             <div class="card-body p-0">
                                 <div class="p-3 border-bottom">
-                                    <input type="text" class="form-control buscar-tabla" data-tabla="pills-empleados" placeholder="Buscar por nombre, puesto o taller...">
+                                    <div class="input-group mb-2">
+                                        <span class="input-group-text bg-light border-0"><i class="bi bi-search text-muted"></i></span>
+                                        <input type="text" class="form-control buscar-tabla" data-tabla="pills-empleados" placeholder="Buscar por nombre, puesto o taller...">
+                                    </div>
+                                    <div class="btn-group btn-group-sm w-100" data-filtro="pills-empleados">
+                                        <button type="button" class="btn btn-outline-primary filtro-estado active" data-estado="todos">Todos</button>
+                                        <button type="button" class="btn btn-outline-success filtro-estado" data-estado="activo">Activos</button>
+                                        <button type="button" class="btn btn-outline-danger filtro-estado" data-estado="suspendido">Suspendidos</button>
+                                    </div>
                                 </div>
                                 <div class="table-responsive">
                                     <table class="table table-hover align-middle mb-0">
@@ -197,7 +221,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr th:each="empleado : ${listaEmpleados}">
+                                            <tr th:each="empleado : ${listaEmpleados}" th:attr="data-estado=${(empleado.activo == null or empleado.activo == true) ? 'activo' : 'suspendido'}">
                                                 <td class="ps-4 fw-bold text-muted" th:text="'#' + ${empleado.idUsuario}"></td>
                                                 <td class="fw-semibold text-dark" th:text="${empleado.nombre}"></td>
                                                 <td>
@@ -213,7 +237,7 @@
                                                     <button type="button" class="btn btn-sm btn-outline-primary btn-ion btn-accion" data-bs-toggle="modal" th:data-bs-target="'#modalEditarEmpleado' + ${empleado.idUsuario}" title="Editar">
                                                         <i class="bi bi-pencil"></i>
                                                     </button>
-                                                    <form th:action="@{/superadmin/estado-usuario}" method="post" class="m-0">
+                                                    <form th:action="@{/superadmin/estado-usuario}" method="post" class="m-0" th:onsubmit="${empleado.activo == false} ? 'return true;' : 'return confirm(&#39;¿Seguro que deseas suspender a este empleado?&#39;);'">
                                                         <input type="hidden" name="idUsuario" th:value="${empleado.idUsuario}">
                                                         <input type="hidden" name="activo" th:value="${empleado.activo == false ? 'true' : 'false'}">
                                                         <button type="submit" th:class="${empleado.activo == false} ? 'btn btn-sm btn-accion-success' : 'btn btn-sm btn-accion-danger'" title="Cambiar Estado">
@@ -342,7 +366,7 @@
         <div class="modal fade" th:id="'modalPromover' + ${cliente.idUsuario}" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 shadow">
-                    <form th:action="@{/superadmin/promover-admin}" method="post">
+                    <form th:action="@{/superadmin/promover-admin}" method="post" onsubmit="return confirm('¿Seguro que deseas promover a este cliente como administrador (creará un nuevo taller)?');">
                         <div class="modal-header bg-light border-bottom px-4">
                             <h5 class="modal-title fw-bold fs-6">Promover a Administrador</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -402,16 +426,37 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        var filtrosEstado = {};
+        function aplicarFiltro(tablaId) {
+            var termino = (function () {
+                var input = document.querySelector('.buscar-tabla[data-tabla="' + tablaId + '"]');
+                return input ? input.value.toLowerCase() : '';
+            })();
+            var estado = filtrosEstado[tablaId] || 'todos';
+            var tabla = document.getElementById(tablaId);
+            if (!tabla) return;
+            var filas = tabla.querySelectorAll('tbody tr');
+            filas.forEach(function (fila) {
+                var cumpleTexto = fila.textContent.toLowerCase().indexOf(termino) !== -1;
+                var cumpleEstado = estado === 'todos' || fila.getAttribute('data-estado') === estado;
+                fila.style.display = (cumpleTexto && cumpleEstado) ? '' : 'none';
+            });
+        }
         document.querySelectorAll('.buscar-tabla').forEach(function (input) {
             input.addEventListener('input', function () {
-                var termino = this.value.toLowerCase();
-                var tablaId = this.getAttribute('data-tabla');
-                var tabla = document.getElementById(tablaId);
-                if (!tabla) return;
-                var filas = tabla.querySelectorAll('tbody tr');
-                filas.forEach(function (fila) {
-                    fila.style.display = fila.textContent.toLowerCase().indexOf(termino) !== -1 ? '' : 'none';
+                aplicarFiltro(this.getAttribute('data-tabla'));
+            });
+        });
+        document.querySelectorAll('.filtro-estado').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var grupo = this.closest('[data-filtro]');
+                var tablaId = grupo.getAttribute('data-filtro');
+                grupo.querySelectorAll('.filtro-estado').forEach(function (b) {
+                    b.classList.remove('active');
                 });
+                this.classList.add('active');
+                filtrosEstado[tablaId] = this.getAttribute('data-estado');
+                aplicarFiltro(tablaId);
             });
         });
     </script>

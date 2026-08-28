@@ -34,6 +34,8 @@ public class SuperAdminController {
         List<Organizacion> organizaciones = superAdminService.listarOrganizaciones();
         List<Organizacion> porVencer = superAdminService.listarOrganizacionesPorVencer(30);
         List<Organizacion> suspendidas = superAdminService.listarOrganizacionesSuspendidas();
+        List<Organizacion> vencidos = superAdminService.listarTalleresVencidos();
+        int totalActivas = (int) organizaciones.stream().filter(o -> o.getActivo() == null || o.getActivo()).count();
 
         List<Usuario> listaAdmins = superAdminService.listarAdministradores();
         List<Usuario> listaClientes = superAdminService.listarClientes();
@@ -46,6 +48,9 @@ public class SuperAdminController {
         model.addAttribute("totalEmpleados", listaEmpleados.size());
         model.addAttribute("talleresPorVencer", porVencer);
         model.addAttribute("talleresSuspendidos", suspendidas);
+        model.addAttribute("talleresVencidos", vencidos);
+        model.addAttribute("mapaTipos", superAdminService.contarTalleresPorTipo());
+        model.addAttribute("totalActivas", totalActivas);
 
         return "superadmin/dashboard";
     }

@@ -11,7 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class SuperAdminService implements ISuperAdminService {
@@ -189,6 +191,32 @@ public class SuperAdminService implements ISuperAdminService {
         List<Organizacion> resultado = new ArrayList<>();
         for (Organizacion org : organizaciones) {
             if (org.getActivo() != null && !org.getActivo()) {
+                resultado.add(org);
+            }
+        }
+        return resultado;
+    }
+
+    @Override
+    public Map<String, Long> contarTalleresPorTipo() {
+        Map<String, Long> conteo = new LinkedHashMap<>();
+        List<Organizacion> organizaciones = organizacionDao.findAll();
+        for (Organizacion org : organizaciones) {
+            if (org.getActivo() == null || org.getActivo()) {
+                String tipo = org.getTipo() == null || org.getTipo().isBlank() ? "Sin Plan" : org.getTipo();
+                conteo.put(tipo, conteo.getOrDefault(tipo, 0L) + 1);
+            }
+        }
+        return conteo;
+    }
+
+    @Override
+    public List<Organizacion> listarTalleresVencidos() {
+        LocalDate hoy = LocalDate.now();
+        List<Organizacion> organizaciones = organizacionDao.findAll();
+        List<Organizacion> resultado = new ArrayList<>();
+        for (Organizacion org : organizaciones) {
+            if (org.getFechaVencimiento() != null && org.getFechaVencimiento().isBefore(hoy)) {
                 resultado.add(org);
             }
         }

@@ -4,6 +4,7 @@ import com.bike_assembly.domain.Organizacion;
 import com.bike_assembly.domain.Usuario;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface ISuperAdminService {
     List<Usuario> listarAdministradores();
@@ -17,6 +18,8 @@ public interface ISuperAdminService {
     List<Organizacion> listarOrganizacionesPorVencer(int dias);
     List<Organizacion> listarOrganizacionesSuspendidas();
     void sincronizarTalleresVencidos();
+    Map<String, Long> contarTalleresPorTipo();
+    List<Organizacion> listarTalleresVencidos();
     
     void cambiarEstadoTaller(Long idOrganizacion, boolean activo);
     void cambiarEstadoUsuario(Long idUsuario, boolean activo);

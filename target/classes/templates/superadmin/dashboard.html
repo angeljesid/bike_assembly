@@ -78,18 +78,24 @@
                                     <h6 class="fw-bold text-dark m-0"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>Talleres por vencer (30 días)</h6>
                                     <span class="badge bg-warning rounded-pill" th:text="${talleresPorVencer.size()}">0</span>
                                 </div>
-                                <div th:if="${!talleresPorVencer.isEmpty()}" class="table-responsive" style="max-height: 220px; overflow-y: auto;">
+                                <div th:if="${!talleresPorVencer.isEmpty()}" class="table-responsive" style="max-height: 180px; overflow-y: auto;">
                                     <table class="table table-sm align-middle mb-0">
                                         <thead>
                                             <tr>
                                                 <th class="small text-muted">Tienda</th>
                                                 <th class="small text-muted">Vencimiento</th>
+                                                <th class="small text-muted"></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr th:each="org : ${talleresPorVencer}">
                                                 <td class="small" th:text="${org.nombre}">Tienda</td>
-                                                <td class="small" th:text="${#temporals.format(org.fechaVencimiento, 'dd/MM/yyyy')}">-</td>
+                                                <td class="small text-warning fw-semibold" th:text="${#temporals.format(org.fechaVencimiento, 'dd/MM/yyyy')}">-</td>
+                                                <td class="text-end">
+                                                    <a th:href="@{/superadmin/usuarios}" class="btn btn-sm btn-outline-warning btn-accion py-0 px-2" title="Renovar">
+                                                        <i class="bi bi-arrow-clockwise"></i>
+                                                    </a>
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -126,6 +132,52 @@
                                     </table>
                                 </div>
                                 <p th:if="${talleresSuspendidos.isEmpty()}" class="text-muted small mb-0">No hay talleres suspendidos.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm rounded-4 h-100">
+                            <div class="card-body">
+                                <h6 class="fw-bold text-dark mb-3"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Talleres activos por plan</h6>
+                                <p class="small text-muted mb-3"><span class="fw-bold text-dark" th:text="${totalActivas}">0</span> talleres activos en total.</p>
+                                <div class="d-flex flex-column gap-2">
+                                    <div th:each="entry : ${mapaTipos}" class="d-flex align-items-center gap-2">
+                                        <span class="small fw-semibold text-dark text-truncate" style="width: 120px;" th:text="${entry.key}">Plan</span>
+                                        <div class="flex-grow-1 bg-light rounded-pill overflow-hidden" style="height: 12px;">
+                                            <div class="bg-primary rounded-pill" th:style="'width: ' + ${#numbers.formatDecimal((entry.value / (totalActivas == 0 ? 1 : totalActivas)) * 100, 0, 1)} + '%; height: 100%;'"></div>
+                                        </div>
+                                        <span class="small fw-bold text-primary" th:text="${entry.value}">0</span>
+                                    </div>
+                                    <p th:if="${mapaTipos.isEmpty()}" class="text-muted small mb-0">Aún no hay talleres activos.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm rounded-4 h-100">
+                            <div class="card-body">
+                                <h6 class="fw-bold text-dark mb-3"><i class="bi bi-bell-fill text-warning me-2"></i>Alertas de suscripción</h6>
+                                <div th:if="${!talleresVencidos.isEmpty()}" class="alert alert-danger border-0 py-2 mb-2">
+                                    <i class="bi bi-clock-history me-1"></i> <span class="small" th:text="${talleresVencidos.size()}">0</span> taller(es) con vencimiento ya superado. Renueva el plan para reactivarlos.
+                                </div>
+                                <div th:if="${!talleresPorVencer.isEmpty()}" class="alert alert-warning border-0 py-2 mb-0">
+                                    <i class="bi bi-exclamation-diamond me-1"></i> <span class="small" th:text="${talleresPorVencer.size()}">0</span> taller(es) por vencer en los próximos 30 días.
+                                </div>
+                                <div th:if="${!talleresSuspendidos.isEmpty()}" class="alert alert-danger border-0 py-2 mb-0">
+                                    <i class="bi bi-pause-circle-fill me-1"></i> <span class="small" th:text="${talleresSuspendidos.size()}">0</span> taller(es) suspendidos.
+                                </div>
+                                <div th:if="${talleresVencidos.isEmpty() and talleresPorVencer.isEmpty() and talleresSuspendidos.isEmpty()}" class="text-success small mb-0">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Todos los talleres activos tienen su suscripción al día.
+                                </div>
+                                <div class="mt-3">
+                                    <a th:href="@{/superadmin/usuarios}" class="btn btn-admin btn-sm w-100">
+                                        <i class="bi bi-gear-fill me-1"></i> Gestionar suscripciones
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
