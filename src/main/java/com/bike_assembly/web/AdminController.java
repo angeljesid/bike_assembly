@@ -261,23 +261,25 @@ public class AdminController {
         if (admin != null && admin.getOrganizacion() != null) {
             Organizacion org = admin.getOrganizacion();
             
-            long cantidadOperarios = usuarioDao.countByOrganizacionAndRolAndActivoTrue(org, Rol.OPERARIO);
-            long cantidadCajeros = usuarioDao.countByOrganizacionAndRolAndActivoTrue(org, Rol.CAJA);
-            long totalEmpleados = cantidadOperarios + cantidadCajeros;
+            if (empleado.getIdUsuario() == null) {
+                long cantidadOperarios = usuarioDao.countByOrganizacionAndRolAndActivoTrue(org, Rol.OPERARIO);
+                long cantidadCajeros = usuarioDao.countByOrganizacionAndRolAndActivoTrue(org, Rol.CAJA);
+                long totalEmpleados = cantidadOperarios + cantidadCajeros;
 
-            int limite = 0;
-            if (org.getTipo() != null) {
-                switch (org.getTipo()) {
-                    case "Taller Pequeño": limite = 4; break;
-                    case "Taller Mediano": limite = 6; break;
-                    case "Taller Grande": limite = 12; break;
-                    default: limite = 2; break;
+                int limite = 0;
+                if (org.getTipo() != null) {
+                    switch (org.getTipo()) {
+                        case "Taller Pequeño": limite = 4; break;
+                        case "Taller Mediano": limite = 6; break;
+                        case "Taller Grande": limite = 12; break;
+                        default: limite = 2; break;
+                    }
                 }
-            }
 
-            if (totalEmpleados >= limite) {
-                redirectAttributes.addAttribute("error", "limite");
-                return "redirect:/admin/empleados";
+                if (totalEmpleados >= limite) {
+                    redirectAttributes.addAttribute("error", "limite");
+                    return "redirect:/admin/empleados";
+                }
             }
 
             Rol rol = Rol.valueOf(rolStr);

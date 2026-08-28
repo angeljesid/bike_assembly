@@ -29,7 +29,6 @@ body {
     overflow-y: auto;
 }
 
-
 .top-bar-custom {
     height: 70px;
     background: rgba(255, 255, 255, 0.85);
@@ -271,7 +270,6 @@ footer {
     padding: 20px;
 }
 
-
 .header-form,
 .header-catalogo {
     background-color: var(--brand-blue) !important;
@@ -289,12 +287,10 @@ footer {
     overflow-y: auto;
 }
 
-/* Variables de la marca */
 :root {
-    --brand-blue: #0056b3; /* Puedes cambiar este azul por el color oficial de tu marca */
+    --brand-blue: #0056b3; 
 }
 
-/* Animación simple para el icono del carrito cuando se agrega un producto */
 .animate__animated {
     animation-duration: 0.5s;
     animation-fill-mode: both;
