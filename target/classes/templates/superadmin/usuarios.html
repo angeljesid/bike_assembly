@@ -372,6 +372,15 @@
 
                             <label class="form-label fw-semibold small">Fecha de Vencimiento:</label>
                             <input type="date" class="form-control mb-3" name="fechaVencimiento" th:value="${admin.organizacion != null ? admin.organizacion.fechaVencimiento : ''}">
+
+                            <label class="form-label fw-semibold small">Precio del Plan (USD):</label>
+                            <input type="number" step="0.01" min="0" class="form-control mb-3" name="precioPlan" th:value="${admin.organizacion != null ? admin.organizacion.precioPlan : ''}">
+
+                            <div th:if="${admin.organizacion != null and admin.organizacion.motivoSuspension != null}" class="alert alert-danger border-0 rounded-3 p-3">
+                                <span class="d-block fw-bold small mb-1"><i class="bi bi-shield-x me-1"></i>Suspensión registrada</span>
+                                <span class="d-block small mb-1" th:text="${admin.organizacion.motivoSuspension}"></span>
+                                <span class="d-block small text-muted" th:if="${admin.organizacion.fechaSuspension != null}" th:text="'Fecha: ' + ${#temporals.format(admin.organizacion.fechaSuspension, 'dd/MM/yyyy HH:mm')}">-</span>
+                            </div>
                         </div>
                         <div class="modal-footer bg-light px-4">
                             <button type="submit" class="btn-admin btn-sm px-4">Guardar</button>
@@ -466,6 +475,8 @@
                             </select>
                             <label class="form-label fw-semibold small">Fecha de Vencimiento (opcional):</label>
                             <input type="date" class="form-control mb-3" name="fechaVencimiento">
+                            <label class="form-label fw-semibold small">Precio del Plan (USD):</label>
+                            <input type="number" step="0.01" min="0" class="form-control mb-3" name="precioPlan">
                         </div>
                         <div class="modal-footer bg-light px-4">
                             <button type="submit" class="btn-admin btn-sm px-4">Confirmar Promoción</button>
