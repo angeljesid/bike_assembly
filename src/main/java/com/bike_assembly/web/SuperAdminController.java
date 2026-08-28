@@ -2,8 +2,6 @@ package com.bike_assembly.web;
 
 import com.bike_assembly.domain.Organizacion;
 import com.bike_assembly.domain.Usuario;
-import com.bike_assembly.repository.OrganizacionDao;
-import com.bike_assembly.repository.UsuarioDao;
 import com.bike_assembly.services.usuario.ISuperAdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -26,32 +24,16 @@ public class SuperAdminController {
     @Autowired
     private ISuperAdminService superAdminService;
 
-    @Autowired
-    private OrganizacionDao organizacionDao;
-
-    @Autowired
-    private UsuarioDao usuarioDao;
-
     @GetMapping("/dashboard")
     public String verDashboardGlobal(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
-        
-        List<Organizacion> organizaciones = organizacionDao.findAll();
-        LocalDate hoy = LocalDate.now();
-        
-        for (Organizacion org : organizaciones) {
-            if (org.getFechaVencimiento() != null && org.getFechaVencimiento().isBefore(hoy) && (org.getActivo() == null || org.getActivo())) {
-                org.setActivo(false);
-                organizacionDao.save(org);
-                
-                List<Usuario> vinculados = usuarioDao.findByOrganizacion(org);
-                for(Usuario u : vinculados) {
-                    u.setActivo(false);
-                }
-                usuarioDao.saveAll(vinculados);
-            }
-        }
+
+        superAdminService.sincronizarTalleresVencidos();
+
+        List<Organizacion> organizaciones = superAdminService.listarOrganizaciones();
+        List<Organizacion> porVencer = superAdminService.listarOrganizacionesPorVencer(30);
+        List<Organizacion> suspendidas = superAdminService.listarOrganizacionesSuspendidas();
 
         List<Usuario> listaAdmins = superAdminService.listarAdministradores();
         List<Usuario> listaClientes = superAdminService.listarClientes();
@@ -62,7 +44,9 @@ public class SuperAdminController {
         model.addAttribute("totalAdmins", listaAdmins.size());
         model.addAttribute("totalClientes", listaClientes.size());
         model.addAttribute("totalEmpleados", listaEmpleados.size());
-        
+        model.addAttribute("talleresPorVencer", porVencer);
+        model.addAttribute("talleresSuspendidos", suspendidas);
+
         return "superadmin/dashboard";
     }
 
@@ -87,8 +71,10 @@ public class SuperAdminController {
     public String promoverAdmin(@RequestParam("idUsuario") Long idUsuario, 
                                 @RequestParam("nombreTaller") String nombreTaller,
                                 @RequestParam("direccion") String direccionTaller,
-                                @RequestParam("telefono") String telefonoTaller) {
-        superAdminService.promoverAAdmin(idUsuario, nombreTaller, direccionTaller, telefonoTaller);
+                                @RequestParam("telefono") String telefonoTaller,
+                                @RequestParam("tipo") String tipo,
+                                @RequestParam(value = "fechaVencimiento", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fechaVencimiento) {
+        superAdminService.promoverAAdmin(idUsuario, nombreTaller, direccionTaller, telefonoTaller, tipo, fechaVencimiento);
         return "redirect:/superadmin/usuarios?promovido=true";
     }
 
@@ -106,18 +92,7 @@ public class SuperAdminController {
     @PostMapping("/estado-taller")
     public String cambiarEstadoTaller(@RequestParam("idOrganizacion") Long idOrganizacion, 
                                       @RequestParam("activo") Boolean activo) {
-        Organizacion org = organizacionDao.findById(idOrganizacion).orElse(null);
-        
-        if (org != null) {
-            org.setActivo(activo);
-            organizacionDao.save(org);
-            
-            List<Usuario> vinculados = usuarioDao.findByOrganizacion(org);
-            for(Usuario u : vinculados) {
-                u.setActivo(activo);
-            }
-            usuarioDao.saveAll(vinculados);
-        }
+        superAdminService.cambiarEstadoTaller(idOrganizacion, activo);
         return "redirect:/superadmin/usuarios?estadoCambiado=true";
     }
 
@@ -126,25 +101,23 @@ public class SuperAdminController {
                                     @RequestParam("nombre") String nombre,
                                     @RequestParam("email") String email,
                                     @RequestParam("cedula") String cedula) {
-        Usuario cliente = usuarioDao.findById(idUsuario).orElse(null);
-        if (cliente != null) {
-            cliente.setNombre(nombre);
-            cliente.setEmail(email);
-            cliente.setCedula(cedula);
-            usuarioDao.save(cliente);
-        }
+        superAdminService.actualizarDatosBasicosUsuario(idUsuario, nombre, cedula, email);
         return "redirect:/superadmin/usuarios?clienteActualizado=true";
+    }
+
+    @PostMapping("/actualizar-empleado")
+    public String actualizarEmpleado(@RequestParam("idUsuario") Long idUsuario,
+                                     @RequestParam("nombre") String nombre,
+                                     @RequestParam("email") String email,
+                                     @RequestParam("cedula") String cedula) {
+        superAdminService.actualizarEmpleado(idUsuario, nombre, cedula, email);
+        return "redirect:/superadmin/usuarios?empleadoActualizado=true";
     }
 
     @PostMapping("/estado-usuario")
     public String cambiarEstadoUsuario(@RequestParam("idUsuario") Long idUsuario, 
                                        @RequestParam("activo") Boolean activo) {
-        Usuario usuario = usuarioDao.findById(idUsuario).orElse(null);
-        
-        if (usuario != null) {
-            usuario.setActivo(activo);
-            usuarioDao.save(usuario);
-        }
+        superAdminService.cambiarEstadoUsuario(idUsuario, activo);
         return "redirect:/superadmin/usuarios?estadoCambiado=true";
     }
 }

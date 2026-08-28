@@ -93,14 +93,16 @@ public class SuperAdminService implements ISuperAdminService {
     public void cambiarEstadoTaller(Long idOrganizacion, boolean activo) {
         Organizacion org = organizacionDao.findById(idOrganizacion)
                 .orElseThrow(() -> new RuntimeException("Organización no encontrada"));
-        
-        org.setActivo(activo);
+
+        boolean vencida = org.getFechaVencimiento() != null && org.getFechaVencimiento().isBefore(LocalDate.now());
+        boolean estadoFinal = activo && !vencida;
+
+        org.setActivo(estadoFinal);
         organizacionDao.save(org);
-        
 
         List<Usuario> usuariosVinculados = usuarioDao.findByOrganizacion(org);
         for(Usuario u : usuariosVinculados) {
-            u.setActivo(activo);
+            u.setActivo(estadoFinal);
         }
         usuarioDao.saveAll(usuariosVinculados);
     }
@@ -157,6 +159,11 @@ public class SuperAdminService implements ISuperAdminService {
                 usuarioDao.saveAll(vinculados);
             }
         }
+    }
+
+    @Override
+    public List<Organizacion> listarOrganizaciones() {
+        return organizacionDao.findAll();
     }
 
     @Override

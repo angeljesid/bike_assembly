@@ -13,6 +13,7 @@ public interface ISuperAdminService {
     void promoverAAdmin(Long idUsuario, String nombreTaller, String direccionTaller, String telefonoTaller, String tipo, LocalDate fechaVencimiento);
     void actualizarAdminYOrganizacion(Long idUsuario, String nombreTaller, String direccion, String telefono, String tipo, LocalDate fechaVencimiento);
     void actualizarEmpleado(Long idUsuario, String nombre, String cedula, String email);
+    List<Organizacion> listarOrganizaciones();
     List<Organizacion> listarOrganizacionesPorVencer(int dias);
     List<Organizacion> listarOrganizacionesSuspendidas();
     void sincronizarTalleresVencidos();
