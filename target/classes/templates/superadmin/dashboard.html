@@ -70,6 +70,67 @@
                     </div>
                 </div>
 
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm rounded-4">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="fw-bold text-dark m-0"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>Talleres por vencer (30 días)</h6>
+                                    <span class="badge bg-warning rounded-pill" th:text="${talleresPorVencer.size()}">0</span>
+                                </div>
+                                <div th:if="${!talleresPorVencer.isEmpty()}" class="table-responsive" style="max-height: 220px; overflow-y: auto;">
+                                    <table class="table table-sm align-middle mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th class="small text-muted">Tienda</th>
+                                                <th class="small text-muted">Vencimiento</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="org : ${talleresPorVencer}">
+                                                <td class="small" th:text="${org.nombre}">Tienda</td>
+                                                <td class="small" th:text="${#temporals.format(org.fechaVencimiento, 'dd/MM/yyyy')}">-</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <p th:if="${talleresPorVencer.isEmpty()}" class="text-muted small mb-0">No hay talleres por vencer en los próximos 30 días.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm rounded-4">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="fw-bold text-dark m-0"><i class="bi bi-x-octagon-fill text-danger me-2"></i>Talleres suspendidos</h6>
+                                    <span class="badge bg-danger rounded-pill" th:text="${talleresSuspendidos.size()}">0</span>
+                                </div>
+                                <div th:if="${!talleresSuspendidos.isEmpty()}" class="table-responsive" style="max-height: 220px; overflow-y: auto;">
+                                    <table class="table table-sm align-middle mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th class="small text-muted">Tienda</th>
+                                                <th class="small text-muted">Vencimiento</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="org : ${talleresSuspendidos}">
+                                                <td class="small" th:text="${org.nombre}">Tienda</td>
+                                                <td class="small">
+                                                    <span th:if="${org.fechaVencimiento != null}" th:text="${#temporals.format(org.fechaVencimiento, 'dd/MM/yyyy')}">-</span>
+                                                    <span th:if="${org.fechaVencimiento == null}" class="text-muted">Sin vencimiento</span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <p th:if="${talleresSuspendidos.isEmpty()}" class="text-muted small mb-0">No hay talleres suspendidos.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card border-0 shadow-sm rounded-4">
                     <div class="card-body p-5 text-center">
                         <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">

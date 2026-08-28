@@ -346,6 +346,14 @@
                             <input type="text" class="form-control mb-3" name="direccion" required>
                             <label class="form-label fw-semibold small">Teléfono de la Tienda:</label>
                             <input type="text" class="form-control mb-3" name="telefono" required>
+                            <label class="form-label fw-semibold small">Tipo de Plan:</label>
+                            <select class="form-select mb-3" name="tipo">
+                                <option value="Taller">Taller</option>
+                                <option value="Taller Mediano">Taller Mediano</option>
+                                <option value="Taller Grande">Taller Grande</option>
+                            </select>
+                            <label class="form-label fw-semibold small">Fecha de Vencimiento (opcional):</label>
+                            <input type="date" class="form-control mb-3" name="fechaVencimiento">
                         </div>
                         <div class="modal-footer bg-light px-4">
                             <button type="submit" class="btn btn-dark btn-sm px-4">Confirmar Promoción</button>
@@ -360,7 +368,7 @@
         <div class="modal fade" th:id="'modalEditarEmpleado' + ${empleado.idUsuario}" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 shadow">
-                    <form th:action="@{/superadmin/actualizar-cliente}" method="post">
+                    <form th:action="@{/superadmin/actualizar-empleado}" method="post">
                         <div class="modal-header bg-light border-bottom px-4">
                             <h5 class="modal-title fw-bold fs-6">Editar Datos del Empleado</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
