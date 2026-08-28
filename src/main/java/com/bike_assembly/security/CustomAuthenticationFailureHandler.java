@@ -28,7 +28,7 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
             String username = request.getParameter("username");
             String rol = "";
             if (username != null) {
-                Usuario usuario = usuarioDao.findByUsername(username).orElse(null);
+                Usuario usuario = usuarioDao.findByUsernameOrEmail(username, username).orElse(null);
                 if (usuario != null && usuario.getRol() != null) {
                     rol = usuario.getRol().name();
                 }

@@ -27,6 +27,7 @@ C:\java\bike_assembly\src\main\java\com\bike_assembly\security\CustomAuthenticat
 C:\java\bike_assembly\src\main\java\com\bike_assembly\security\SecurityConfig.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\security\SessionUtils.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\security\UserDetailsServiceImpl.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\security\UsuarioActivoFilter.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\empleado\EmpleadoServiceImpl.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\empleado\IEmpleadoService.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\producto\IProductoService.java
