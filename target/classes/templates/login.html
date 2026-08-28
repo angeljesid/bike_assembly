@@ -21,7 +21,6 @@
             <h3 class="fw-bold text-dark mb-1">Bike Assembly</h3>
             <p class="text-muted small mb-4">Ingresa tu correo o usuario para continuar</p>
 
-            <!-- Alertas de error/logout -->
             <div th:if="${param.error}" class="alert alert-danger border-0 rounded-3 py-2 px-3 mb-3 d-flex align-items-center justify-content-center gap-2 small fw-semibold" role="alert">
                 <i class="bi bi-exclamation-triangle-fill"></i>
                 <span>Usuario/Correo o contraseña incorrectos.</span>
@@ -32,7 +31,6 @@
                 <span>Has cerrado sesión correctamente.</span>
             </div>
 
-            <!-- FORMULARIO DE LOGIN -->
             <form th:action="@{/login}" method="post" class="text-start">
                 
                 <div class="mb-3">
@@ -54,7 +52,6 @@
                     </div>
                 </div>
 
-                <!-- Enlaces de utilidad (Recuperar y Registro) -->
                 <div class="d-flex justify-content-between align-items-center mb-4 mt-2">
                     <a th:href="@{/registro}" class="text-decoration-none small text-primary fw-semibold">
                         ¿No tienes cuenta? Regístrate
