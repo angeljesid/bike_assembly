@@ -74,7 +74,11 @@ public class SuperAdminController {
                                 @RequestParam("telefono") String telefonoTaller,
                                 @RequestParam("tipo") String tipo,
                                 @RequestParam(value = "fechaVencimiento", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fechaVencimiento) {
-        superAdminService.promoverAAdmin(idUsuario, nombreTaller, direccionTaller, telefonoTaller, tipo, fechaVencimiento);
+        try {
+            superAdminService.promoverAAdmin(idUsuario, nombreTaller, direccionTaller, telefonoTaller, tipo, fechaVencimiento);
+        } catch (Exception e) {
+            return "redirect:/superadmin/usuarios?promovido=false";
+        }
         return "redirect:/superadmin/usuarios?promovido=true";
     }
 
@@ -85,14 +89,22 @@ public class SuperAdminController {
                                   @RequestParam("telefono") String telefono,
                                   @RequestParam("tipo") String tipo,
                                   @RequestParam(value = "fechaVencimiento", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fechaVencimiento) {
-        superAdminService.actualizarAdminYOrganizacion(idUsuario, nombreTaller, direccion, telefono, tipo, fechaVencimiento);
+        try {
+            superAdminService.actualizarAdminYOrganizacion(idUsuario, nombreTaller, direccion, telefono, tipo, fechaVencimiento);
+        } catch (Exception e) {
+            return "redirect:/superadmin/usuarios?actualizado=false";
+        }
         return "redirect:/superadmin/usuarios?actualizado=true";
     }
 
     @PostMapping("/estado-taller")
     public String cambiarEstadoTaller(@RequestParam("idOrganizacion") Long idOrganizacion, 
                                       @RequestParam("activo") Boolean activo) {
-        superAdminService.cambiarEstadoTaller(idOrganizacion, activo);
+        try {
+            superAdminService.cambiarEstadoTaller(idOrganizacion, activo);
+        } catch (Exception e) {
+            return "redirect:/superadmin/usuarios?estadoCambiado=false";
+        }
         return "redirect:/superadmin/usuarios?estadoCambiado=true";
     }
 
@@ -101,7 +113,11 @@ public class SuperAdminController {
                                     @RequestParam("nombre") String nombre,
                                     @RequestParam("email") String email,
                                     @RequestParam("cedula") String cedula) {
-        superAdminService.actualizarDatosBasicosUsuario(idUsuario, nombre, cedula, email);
+        try {
+            superAdminService.actualizarDatosBasicosUsuario(idUsuario, nombre, cedula, email);
+        } catch (Exception e) {
+            return "redirect:/superadmin/usuarios?clienteActualizado=false";
+        }
         return "redirect:/superadmin/usuarios?clienteActualizado=true";
     }
 
@@ -110,14 +126,22 @@ public class SuperAdminController {
                                      @RequestParam("nombre") String nombre,
                                      @RequestParam("email") String email,
                                      @RequestParam("cedula") String cedula) {
-        superAdminService.actualizarEmpleado(idUsuario, nombre, cedula, email);
+        try {
+            superAdminService.actualizarEmpleado(idUsuario, nombre, cedula, email);
+        } catch (Exception e) {
+            return "redirect:/superadmin/usuarios?empleadoActualizado=false";
+        }
         return "redirect:/superadmin/usuarios?empleadoActualizado=true";
     }
 
     @PostMapping("/estado-usuario")
     public String cambiarEstadoUsuario(@RequestParam("idUsuario") Long idUsuario, 
                                        @RequestParam("activo") Boolean activo) {
-        superAdminService.cambiarEstadoUsuario(idUsuario, activo);
+        try {
+            superAdminService.cambiarEstadoUsuario(idUsuario, activo);
+        } catch (Exception e) {
+            return "redirect:/superadmin/usuarios?estadoCambiado=false";
+        }
         return "redirect:/superadmin/usuarios?estadoCambiado=true";
     }
 }
