@@ -148,7 +148,7 @@ public class AdminController {
     }
 
     @GetMapping("/producto/eliminar/{id}")
-    public String eliminarProducto(@PathVariable("id") Long id) {
+    public String eliminarProducto(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
         Usuario admin = obtenerAdminAutenticado();
         
         Producto producto = new Producto();
@@ -157,6 +157,11 @@ public class AdminController {
         
         if (admin != null && admin.getOrganizacion() != null && productoExistente != null
                 && productoService.productoPerteneceAOrganizacion(productoExistente, admin.getOrganizacion().getIdOrganizacion())) {
+            if (productoService.productoTieneVentas(productoExistente)) {
+                redirectAttributes.addFlashAttribute("alertaNoEliminable",
+                        "Este producto no puede eliminarse porque ya está registrado en ventas.");
+                return "redirect:/admin/producto";
+            }
             productoService.eliminar(productoExistente);
         }
         

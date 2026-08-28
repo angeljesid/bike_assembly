@@ -1,6 +1,7 @@
 package com.bike_assembly.services.producto;
 
 import com.bike_assembly.domain.Producto;
+import com.bike_assembly.repository.DetalleVentaDao;
 import com.bike_assembly.repository.ProductoDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,9 @@ public class ProductoService implements IProductoService {
 
     @Autowired
     private ProductoDao productoDao;
+
+    @Autowired
+    private DetalleVentaDao detalleVentaDao;
 
     @Override
     @Transactional(readOnly = true)
@@ -41,6 +45,13 @@ public class ProductoService implements IProductoService {
     @Transactional(readOnly = true)
     public Producto encontrarProducto(Producto producto) {
         return productoDao.findById(producto.getIdProducto()).orElse(null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean productoTieneVentas(Producto producto) {
+        return producto != null && producto.getIdProducto() != null
+                && detalleVentaDao.existsByProducto(producto);
     }
 
     @Override

@@ -10,4 +10,5 @@ public interface IProductoService {
     void eliminar(Producto producto);
     Producto encontrarProducto(Producto producto);
     boolean productoPerteneceAOrganizacion(Producto producto, Long idOrganizacion);
+    boolean productoTieneVentas(Producto producto);
 }
