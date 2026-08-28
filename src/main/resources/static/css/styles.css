@@ -270,8 +270,7 @@ footer {
     padding: 20px;
 }
 
-.header-form,
-.header-catalogo {
+.header-form {
     background-color: var(--brand-blue) !important;
     color: #ffffff !important;
 }
@@ -285,10 +284,6 @@ footer {
 .card-scroll-body {
     max-height: 340px;
     overflow-y: auto;
-}
-
-:root {
-    --brand-blue: #0056b3; 
 }
 
 .animate__animated {
