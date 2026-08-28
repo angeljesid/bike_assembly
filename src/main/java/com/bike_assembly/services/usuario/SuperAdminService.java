@@ -42,7 +42,7 @@ public class SuperAdminService implements ISuperAdminService {
 
     @Override
     @Transactional
-    public void promoverAAdmin(Long idUsuario, String nombreTaller, String direccionTaller, String telefonoTaller) {
+    public void promoverAAdmin(Long idUsuario, String nombreTaller, String direccionTaller, String telefonoTaller, String tipo, LocalDate fechaVencimiento) {
         Usuario usuario = usuarioDao.findById(idUsuario)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -51,6 +51,8 @@ public class SuperAdminService implements ISuperAdminService {
         // Se asocian los valores reales enviados desde el modal HTML
         nuevaOrg.setDireccion(direccionTaller);
         nuevaOrg.setTelefono(telefonoTaller);
+        nuevaOrg.setTipo(tipo);
+        nuevaOrg.setFechaVencimiento(fechaVencimiento);
         nuevaOrg.setActivo(true);
         Organizacion orgGuardada = organizacionDao.save(nuevaOrg);
 
@@ -123,5 +125,66 @@ public class SuperAdminService implements ISuperAdminService {
         usuario.setCedula(cedula);
         usuario.setEmail(email);
         usuarioDao.save(usuario);
+    }
+
+    @Override
+    @Transactional
+    public void actualizarEmpleado(Long idUsuario, String nombre, String cedula, String email) {
+        Usuario usuario = usuarioDao.findById(idUsuario)
+                .orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
+        
+        usuario.setNombre(nombre);
+        usuario.setCedula(cedula);
+        usuario.setEmail(email);
+        usuarioDao.save(usuario);
+    }
+
+    @Override
+    @Transactional
+    public void sincronizarTalleresVencidos() {
+        LocalDate hoy = LocalDate.now();
+        List<Organizacion> organizaciones = organizacionDao.findAll();
+        for (Organizacion org : organizaciones) {
+            if (org.getFechaVencimiento() != null && org.getFechaVencimiento().isBefore(hoy)
+                    && (org.getActivo() == null || org.getActivo())) {
+                org.setActivo(false);
+                organizacionDao.save(org);
+
+                List<Usuario> vinculados = usuarioDao.findByOrganizacion(org);
+                for (Usuario u : vinculados) {
+                    u.setActivo(false);
+                }
+                usuarioDao.saveAll(vinculados);
+            }
+        }
+    }
+
+    @Override
+    public List<Organizacion> listarOrganizacionesPorVencer(int dias) {
+        LocalDate hoy = LocalDate.now();
+        LocalDate limite = hoy.plusDays(dias);
+        List<Organizacion> organizaciones = organizacionDao.findAll();
+        List<Organizacion> resultado = new ArrayList<>();
+        for (Organizacion org : organizaciones) {
+            boolean activa = org.getActivo() == null || org.getActivo();
+            if (activa && org.getFechaVencimiento() != null
+                    && !org.getFechaVencimiento().isBefore(hoy)
+                    && !org.getFechaVencimiento().isAfter(limite)) {
+                resultado.add(org);
+            }
+        }
+        return resultado;
+    }
+
+    @Override
+    public List<Organizacion> listarOrganizacionesSuspendidas() {
+        List<Organizacion> organizaciones = organizacionDao.findAll();
+        List<Organizacion> resultado = new ArrayList<>();
+        for (Organizacion org : organizaciones) {
+            if (org.getActivo() != null && !org.getActivo()) {
+                resultado.add(org);
+            }
+        }
+        return resultado;
     }
 }

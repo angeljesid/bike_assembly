@@ -15,6 +15,7 @@ public interface ISuperAdminService {
     void actualizarEmpleado(Long idUsuario, String nombre, String cedula, String email);
     List<Organizacion> listarOrganizacionesPorVencer(int dias);
     List<Organizacion> listarOrganizacionesSuspendidas();
+    void sincronizarTalleresVencidos();
     
     void cambiarEstadoTaller(Long idOrganizacion, boolean activo);
     void cambiarEstadoUsuario(Long idUsuario, boolean activo);
