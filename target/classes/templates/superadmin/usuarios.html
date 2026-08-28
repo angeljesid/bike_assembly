@@ -96,20 +96,20 @@
                                                     <span th:if="${admin.organizacion == null and admin.activo == false}" class="badge bg-danger bg-opacity-10 text-danger">Suspendido</span>
                                                 </td>
                                                 <td class="text-end pe-4 d-flex justify-content-end gap-2">
-                                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" th:data-bs-target="'#modalEditarAdmin' + ${admin.idUsuario}">
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary btn-ion btn-accion" data-bs-toggle="modal" th:data-bs-target="'#modalEditarAdmin' + ${admin.idUsuario}" title="Editar Taller">
                                                         <i class="bi bi-pencil-square"></i>
                                                     </button>
                                                     <form th:if="${admin.organizacion != null}" th:action="@{/superadmin/estado-taller}" method="post" class="m-0">
                                                         <input type="hidden" name="idOrganizacion" th:value="${admin.organizacion.idOrganizacion}">
                                                         <input type="hidden" name="activo" th:value="${admin.organizacion.activo == false ? 'true' : 'false'}">
-                                                        <button type="submit" th:class="${admin.organizacion.activo == false} ? 'btn btn-sm btn-success' : 'btn btn-sm btn-danger'" title="Suspender/Activar Taller">
+                                                        <button type="submit" th:class="${admin.organizacion.activo == false} ? 'btn btn-sm btn-accion-success' : 'btn btn-sm btn-accion-danger'" title="Suspender/Activar Taller">
                                                             <i th:class="${admin.organizacion.activo == false} ? 'bi bi-play-circle' : 'bi bi-pause-circle'"></i>
                                                         </button>
                                                     </form>
                                                     <form th:if="${admin.organizacion == null}" th:action="@{/superadmin/estado-usuario}" method="post" class="m-0">
                                                         <input type="hidden" name="idUsuario" th:value="${admin.idUsuario}">
                                                         <input type="hidden" name="activo" th:value="${admin.activo == false ? 'true' : 'false'}">
-                                                        <button type="submit" th:class="${admin.activo == false} ? 'btn btn-sm btn-success' : 'btn btn-sm btn-danger'" title="Suspender/Activar Admin">
+                                                        <button type="submit" th:class="${admin.activo == false} ? 'btn btn-sm btn-accion-success' : 'btn btn-sm btn-accion-danger'" title="Suspender/Activar Admin">
                                                             <i th:class="${admin.activo == false} ? 'bi bi-play-circle' : 'bi bi-pause-circle'"></i>
                                                         </button>
                                                     </form>
@@ -153,19 +153,19 @@
                                                     <span th:if="${cliente.activo == false}" class="badge bg-danger bg-opacity-10 text-danger">Inactivo</span>
                                                 </td>
                                                 <td class="text-end pe-4 d-flex justify-content-end gap-2">
-                                                    <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" th:data-bs-target="'#modalDetalleCliente' + ${cliente.idUsuario}" title="Ver Detalles">
+                                                    <button type="button" class="btn btn-sm btn-outline-info btn-ion btn-accion" data-bs-toggle="modal" th:data-bs-target="'#modalDetalleCliente' + ${cliente.idUsuario}" title="Ver Detalles">
                                                         <i class="bi bi-eye"></i>
                                                     </button>
-                                                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" th:data-bs-target="'#modalEditarCliente' + ${cliente.idUsuario}" title="Editar">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary btn-ion btn-accion" data-bs-toggle="modal" th:data-bs-target="'#modalEditarCliente' + ${cliente.idUsuario}" title="Editar">
                                                         <i class="bi bi-pencil"></i>
                                                     </button>
-                                                    <button type="button" class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" th:data-bs-target="'#modalPromover' + ${cliente.idUsuario}" title="Convertir a Admin">
+                                                    <button type="button" class="btn btn-sm btn-outline-dark btn-ion btn-accion" data-bs-toggle="modal" th:data-bs-target="'#modalPromover' + ${cliente.idUsuario}" title="Convertir a Admin">
                                                         <i class="bi bi-arrow-up-circle"></i>
                                                     </button>
                                                     <form th:action="@{/superadmin/estado-usuario}" method="post" class="m-0">
                                                         <input type="hidden" name="idUsuario" th:value="${cliente.idUsuario}">
                                                         <input type="hidden" name="activo" th:value="${cliente.activo == false ? 'true' : 'false'}">
-                                                        <button type="submit" th:class="${cliente.activo == false} ? 'btn btn-sm btn-success' : 'btn btn-sm btn-danger'" title="Cambiar Estado">
+                                                        <button type="submit" th:class="${cliente.activo == false} ? 'btn btn-sm btn-accion-success' : 'btn btn-sm btn-accion-danger'" title="Cambiar Estado">
                                                             <i th:class="${cliente.activo == false} ? 'bi bi-play-circle' : 'bi bi-pause-circle'"></i>
                                                         </button>
                                                     </form>
@@ -210,13 +210,13 @@
                                                     <span th:if="${empleado.activo == false}" class="badge bg-danger bg-opacity-10 text-danger">Inactivo</span>
                                                 </td>
                                                 <td class="text-end pe-4 d-flex justify-content-end gap-2">
-                                                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" th:data-bs-target="'#modalEditarEmpleado' + ${empleado.idUsuario}" title="Editar">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary btn-ion btn-accion" data-bs-toggle="modal" th:data-bs-target="'#modalEditarEmpleado' + ${empleado.idUsuario}" title="Editar">
                                                         <i class="bi bi-pencil"></i>
                                                     </button>
                                                     <form th:action="@{/superadmin/estado-usuario}" method="post" class="m-0">
                                                         <input type="hidden" name="idUsuario" th:value="${empleado.idUsuario}">
                                                         <input type="hidden" name="activo" th:value="${empleado.activo == false ? 'true' : 'false'}">
-                                                        <button type="submit" th:class="${empleado.activo == false} ? 'btn btn-sm btn-success' : 'btn btn-sm btn-danger'" title="Cambiar Estado">
+                                                        <button type="submit" th:class="${empleado.activo == false} ? 'btn btn-sm btn-accion-success' : 'btn btn-sm btn-accion-danger'" title="Cambiar Estado">
                                                             <i th:class="${empleado.activo == false} ? 'bi bi-play-circle' : 'bi bi-pause-circle'"></i>
                                                         </button>
                                                     </form>
@@ -271,7 +271,7 @@
                             <input type="date" class="form-control mb-3" name="fechaVencimiento" th:value="${admin.organizacion != null ? admin.organizacion.fechaVencimiento : ''}">
                         </div>
                         <div class="modal-footer bg-light px-4">
-                            <button type="submit" class="btn btn-primary btn-sm px-4">Guardar</button>
+                            <button type="submit" class="btn-admin btn-sm px-4">Guardar</button>
                         </div>
                     </form>
                 </div>
@@ -332,7 +332,7 @@
                             <input type="email" class="form-control mb-3" name="email" th:value="${cliente.email}" required>
                         </div>
                         <div class="modal-footer bg-light px-4">
-                            <button type="submit" class="btn btn-primary btn-sm px-4">Actualizar</button>
+                            <button type="submit" class="btn-admin btn-sm px-4">Actualizar</button>
                         </div>
                     </form>
                 </div>
@@ -365,7 +365,7 @@
                             <input type="date" class="form-control mb-3" name="fechaVencimiento">
                         </div>
                         <div class="modal-footer bg-light px-4">
-                            <button type="submit" class="btn btn-dark btn-sm px-4">Confirmar Promoción</button>
+                            <button type="submit" class="btn-admin btn-sm px-4">Confirmar Promoción</button>
                         </div>
                     </form>
                 </div>
@@ -392,7 +392,7 @@
                             <input type="email" class="form-control mb-3" name="email" th:value="${empleado.email}" required>
                         </div>
                         <div class="modal-footer bg-light px-4">
-                            <button type="submit" class="btn btn-primary btn-sm px-4">Actualizar</button>
+                            <button type="submit" class="btn-admin btn-sm px-4">Actualizar</button>
                         </div>
                     </form>
                 </div>
