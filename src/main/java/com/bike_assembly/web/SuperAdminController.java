@@ -41,7 +41,7 @@ public class SuperAdminController {
         LocalDate hoy = LocalDate.now();
         
         for (Organizacion org : organizaciones) {
-            if (org.getFechaVencimiento() != null && org.getFechaVencimiento().isBefore(hoy) && org.getActivo()) {
+            if (org.getFechaVencimiento() != null && org.getFechaVencimiento().isBefore(hoy) && (org.getActivo() == null || org.getActivo())) {
                 org.setActivo(false);
                 organizacionDao.save(org);
                 
