@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.bike_assembly.security.SessionUtilsTest
--------------------------------------------------------------------------------
-Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.616 s -- in com.bike_assembly.security.SessionUtilsTest

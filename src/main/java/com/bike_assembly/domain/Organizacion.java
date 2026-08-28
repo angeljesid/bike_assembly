@@ -2,7 +2,9 @@ package com.bike_assembly.domain;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "organizacion")
@@ -31,6 +33,15 @@ public class Organizacion implements Serializable {
 
     @Column(nullable = false)
     private Boolean activo = true;
+
+    @Column(name = "precio_plan")
+    private BigDecimal precioPlan;
+
+    @Column(name = "motivo_suspension")
+    private String motivoSuspension;
+
+    @Column(name = "fecha_suspension")
+    private LocalDateTime fechaSuspension;
 
     public Organizacion() {
     }
@@ -61,4 +72,13 @@ public class Organizacion implements Serializable {
 
     public Boolean getActivo() { return activo; }
     public void setActivo(Boolean activo) { this.activo = activo; }
+
+    public BigDecimal getPrecioPlan() { return precioPlan; }
+    public void setPrecioPlan(BigDecimal precioPlan) { this.precioPlan = precioPlan; }
+
+    public String getMotivoSuspension() { return motivoSuspension; }
+    public void setMotivoSuspension(String motivoSuspension) { this.motivoSuspension = motivoSuspension; }
+
+    public LocalDateTime getFechaSuspension() { return fechaSuspension; }
+    public void setFechaSuspension(LocalDateTime fechaSuspension) { this.fechaSuspension = fechaSuspension; }
 }

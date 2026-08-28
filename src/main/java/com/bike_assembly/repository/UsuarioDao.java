@@ -3,6 +3,8 @@ package com.bike_assembly.repository;
 import com.bike_assembly.domain.Usuario;
 import com.bike_assembly.domain.Organizacion;
 import com.bike_assembly.domain.Rol;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 import java.util.List;
@@ -27,4 +29,11 @@ public interface UsuarioDao extends JpaRepository<Usuario, Long> {
     @Query("SELECT u FROM Usuario u WHERE u.rol = :rol")
     List<Usuario> findByRol(Rol rol);
     
+    // Paginación (SSR/server-side)
+    Page<Usuario> paginarPorRol(Rol rol, Pageable pageable);
+    Page<Usuario> paginarPorRolesIn(List<Rol> roles, Pageable pageable);
+    
+    // Cuentas huérfanas (registrados sin taller)
+    @Query("SELECT u FROM Usuario u WHERE u.rol = :rol AND u.organizacion IS NULL")
+    List<Usuario> findByRolAndOrganizacionIsNull(Rol rol);
 }

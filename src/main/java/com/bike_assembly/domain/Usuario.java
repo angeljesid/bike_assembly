@@ -39,6 +39,9 @@ public class Usuario implements Serializable {
     private String resetPasswordToken;
     private LocalDateTime tokenExpirationDate;
 
+    @Column(name = "fecha_creacion")
+    private LocalDateTime fechaCreacion = LocalDateTime.now();
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_organizacion")
     private Organizacion organizacion;
@@ -89,6 +92,9 @@ public class Usuario implements Serializable {
 
     public LocalDateTime getTokenExpirationDate() { return tokenExpirationDate; }
     public void setTokenExpirationDate(LocalDateTime tokenExpirationDate) { this.tokenExpirationDate = tokenExpirationDate; }
+
+    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
+    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
 
     public Organizacion getOrganizacion() { return organizacion; }
     public void setOrganizacion(Organizacion organizacion) { this.organizacion = organizacion; }

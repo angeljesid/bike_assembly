@@ -36,6 +36,7 @@ C:\java\bike_assembly\src\main\java\com\bike_assembly\services\proveedor\IProvee
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\proveedor\ProveedorService.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\usuario\ISuperAdminService.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\usuario\SuperAdminService.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\services\usuario\TareaProgramadaSuperAdmin.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\venta\IVentaService.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\venta\VentaService.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\web\AdminController.java

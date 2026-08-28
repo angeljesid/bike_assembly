@@ -45,5 +45,6 @@ com\bike_assembly\security\SessionUtils.class
 com\bike_assembly\domain\VentaRequestDTO.class
 com\bike_assembly\domain\Venta.class
 com\bike_assembly\security\CustomAuthenticationSuccessHandler.class
+com\bike_assembly\services\usuario\TareaProgramadaSuperAdmin.class
 com\bike_assembly\services\empleado\IEmpleadoService.class
 com\bike_assembly\web\RegistroController.class

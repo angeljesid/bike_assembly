@@ -88,7 +88,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr th:each="admin : ${listaAdmins}" th:attr="data-estado=${(admin.organizacion != null ? (admin.organizacion.activo == null or admin.organizacion.activo == true) : (admin.activo == null or admin.activo == true)) ? 'activo' : 'suspendido'}">
+                                            <tr th:each="admin : ${admins.content}" th:attr="data-estado=${(admin.organizacion != null ? (admin.organizacion.activo == null or admin.organizacion.activo == true) : (admin.activo == null or admin.activo == true)) ? 'activo' : 'suspendido'}">
                                                 <td class="ps-4 fw-bold text-muted" th:text="'#' + ${admin.idUsuario}"></td>
                                                 <td><span class="fw-semibold text-dark" th:text="${admin.organizacion != null ? admin.organizacion.nombre : 'Sin Tienda'}"></span></td>
                                                 <td th:text="${admin.email}"></td>
@@ -127,6 +127,23 @@
                                         </tbody>
                                     </table>
                                 </div>
+                                <nav th:if="${admins.totalPages > 1}" class="d-flex justify-content-center p-3 border-top" aria-label="Paginación administradores">
+                                    <ul class="pagination pagination-sm mb-0">
+                                        <li class="page-item" th:classappend="${admins.number == 0} ? 'disabled' : ''">
+                                            <a class="page-link" th:href="@{/superadmin/usuarios(paginaAdmins=${admins.number - 1})}">
+                                                <i class="bi bi-chevron-left"></i> Anterior
+                                            </a>
+                                        </li>
+                                        <li class="page-item" th:each="i : ${#numbers.sequence(0, admins.totalPages - 1)}" th:classappend="${i == admins.number} ? 'active' : ''">
+                                            <a class="page-link" th:href="@{/superadmin/usuarios(paginaAdmins=${i})}" th:text="${i + 1}">1</a>
+                                        </li>
+                                        <li class="page-item" th:classappend="${admins.number + 1 >= admins.totalPages} ? 'disabled' : ''">
+                                            <a class="page-link" th:href="@{/superadmin/usuarios(paginaAdmins=${admins.number + 1})}">
+                                                Siguiente <i class="bi bi-chevron-right"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
                             </div>
                         </div>
                     </div>
@@ -159,7 +176,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr th:each="cliente : ${listaClientes}" th:attr="data-estado=${(cliente.activo == null or cliente.activo == true) ? 'activo' : 'suspendido'}">
+                                            <tr th:each="cliente : ${clientes.content}" th:attr="data-estado=${(cliente.activo == null or cliente.activo == true) ? 'activo' : 'suspendido'}">
                                                 <td class="ps-4 fw-bold text-muted" th:text="'#' + ${cliente.idUsuario}"></td>
                                                 <td class="fw-semibold text-dark" th:text="${cliente.nombre}"></td>
                                                 <td th:text="${cliente.cedula}"></td>
@@ -222,7 +239,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr th:each="empleado : ${listaEmpleados}" th:attr="data-estado=${(empleado.activo == null or empleado.activo == true) ? 'activo' : 'suspendido'}">
+                                            <tr th:each="empleado : ${empleados.content}" th:attr="data-estado=${(empleado.activo == null or empleado.activo == true) ? 'activo' : 'suspendido'}">
                                                 <td class="ps-4 fw-bold text-muted" th:text="'#' + ${empleado.idUsuario}"></td>
                                                 <td class="fw-semibold text-dark" th:text="${empleado.nombre}"></td>
                                                 <td>
@@ -247,7 +264,7 @@
                                                     </form>
                                                 </td>
                                             </tr>
-                                            <tr th:if="${#lists.isEmpty(listaEmpleados)}">
+                                            <tr th:if="${empleados.empty}">
                                                 <td colspan="6" class="text-center text-muted py-5">
                                                     <i class="bi bi-person-x fs-2 d-block mb-2 text-secondary"></i>
                                                     No se encontraron empleados registrados en la plataforma.
@@ -264,7 +281,7 @@
             </div>
         </div>
     
-    <th:block th:each="admin : ${listaAdmins}">
+    <th:block th:each="admin : ${admins.content}">
         <div class="modal fade" th:id="'modalEditarAdmin' + ${admin.idUsuario}" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 shadow">
@@ -304,7 +321,7 @@
         </div>
     </th:block>
 
-    <th:block th:each="cliente : ${listaClientes}">
+    <th:block th:each="cliente : ${clientes.content}">
         <div class="modal fade" th:id="'modalDetalleCliente' + ${cliente.idUsuario}" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 shadow">
@@ -398,7 +415,7 @@
         </div>
     </th:block>
 
-    <th:block th:each="empleado : ${listaEmpleados}">
+    <th:block th:each="empleado : ${empleados.content}">
         <div class="modal fade" th:id="'modalEditarEmpleado' + ${empleado.idUsuario}" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 shadow">

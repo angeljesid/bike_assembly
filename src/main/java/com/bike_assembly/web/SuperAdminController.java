@@ -4,6 +4,10 @@ import com.bike_assembly.domain.Organizacion;
 import com.bike_assembly.domain.Usuario;
 import com.bike_assembly.services.usuario.ISuperAdminService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,12 +18,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
 @Controller
 @RequestMapping("/superadmin")
 public class SuperAdminController {
+
+    private static final int TAMANO_PAGINA = 10;
 
     @Autowired
     private ISuperAdminService superAdminService;
@@ -37,37 +44,47 @@ public class SuperAdminController {
         List<Organizacion> vencidos = superAdminService.listarTalleresVencidos();
         int totalActivas = (int) organizaciones.stream().filter(o -> o.getActivo() == null || o.getActivo()).count();
 
-        List<Usuario> listaAdmins = superAdminService.listarAdministradores();
-        List<Usuario> listaClientes = superAdminService.listarClientes();
-        List<Usuario> listaEmpleados = superAdminService.listarEmpleados(); 
+        long totalAdmins = superAdminService.listarAdministradores(PageRequest.of(0, 1)).getTotalElements();
+        long totalClientes = superAdminService.listarClientes(PageRequest.of(0, 1)).getTotalElements();
+        long totalEmpleados = superAdminService.listarEmpleados(PageRequest.of(0, 1)).getTotalElements();
 
         model.addAttribute("nombreUsuario", username);
         model.addAttribute("totalOrganizaciones", organizaciones.size());
-        model.addAttribute("totalAdmins", listaAdmins.size());
-        model.addAttribute("totalClientes", listaClientes.size());
-        model.addAttribute("totalEmpleados", listaEmpleados.size());
+        model.addAttribute("totalAdmins", totalAdmins);
+        model.addAttribute("totalClientes", totalClientes);
+        model.addAttribute("totalEmpleados", totalEmpleados);
         model.addAttribute("talleresPorVencer", porVencer);
         model.addAttribute("talleresSuspendidos", suspendidas);
         model.addAttribute("talleresVencidos", vencidos);
         model.addAttribute("mapaTipos", superAdminService.contarTalleresPorTipo());
         model.addAttribute("totalActivas", totalActivas);
+        model.addAttribute("ingresosActivos", superAdminService.obtenerIngresosActivos());
 
         return "superadmin/dashboard";
     }
 
     @GetMapping("/usuarios")
-    public String gestionarUsuarios(Model model) {
+    public String gestionarUsuarios(Model model,
+                                    @RequestParam(value = "paginaAdmins", defaultValue = "0") int paginaAdmins,
+                                    @RequestParam(value = "paginaClientes", defaultValue = "0") int paginaClientes,
+                                    @RequestParam(value = "paginaEmpleados", defaultValue = "0") int paginaEmpleados) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
 
-        List<Usuario> listaAdmins = superAdminService.listarAdministradores();
-        List<Usuario> listaClientes = superAdminService.listarClientes();
-        List<Usuario> listaEmpleados = superAdminService.listarEmpleados();
+        Pageable pageAdmins = PageRequest.of(Math.max(0, paginaAdmins), TAMANO_PAGINA, Sort.by("idUsuario"));
+        Pageable pageClientes = PageRequest.of(Math.max(0, paginaClientes), TAMANO_PAGINA, Sort.by("idUsuario"));
+        Pageable pageEmpleados = PageRequest.of(Math.max(0, paginaEmpleados), TAMANO_PAGINA, Sort.by("idUsuario"));
+
+        Page<Usuario> admins = superAdminService.listarAdministradores(pageAdmins);
+        Page<Usuario> clientes = superAdminService.listarClientes(pageClientes);
+        Page<Usuario> empleados = superAdminService.listarEmpleados(pageEmpleados);
 
         model.addAttribute("nombreUsuario", username);
-        model.addAttribute("listaAdmins", listaAdmins);
-        model.addAttribute("listaClientes", listaClientes);
-        model.addAttribute("listaEmpleados", listaEmpleados);
+        model.addAttribute("admins", admins);
+        model.addAttribute("clientes", clientes);
+        model.addAttribute("empleados", empleados);
+        model.addAttribute("tituloTamano", TAMANO_PAGINA);
+        model.addAttribute("administradoresHuerfanos", superAdminService.listarAdministradoresHuerfanos());
 
         return "superadmin/usuarios";
     }
@@ -78,9 +95,10 @@ public class SuperAdminController {
                                 @RequestParam("direccion") String direccionTaller,
                                 @RequestParam("telefono") String telefonoTaller,
                                 @RequestParam("tipo") String tipo,
+                                @RequestParam(value = "precioPlan", required = false) BigDecimal precioPlan,
                                 @RequestParam(value = "fechaVencimiento", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fechaVencimiento) {
         try {
-            superAdminService.promoverAAdmin(idUsuario, nombreTaller, direccionTaller, telefonoTaller, tipo, fechaVencimiento);
+            superAdminService.promoverAAdmin(idUsuario, nombreTaller, direccionTaller, telefonoTaller, tipo, precioPlan, fechaVencimiento);
         } catch (Exception e) {
             return "redirect:/superadmin/usuarios?promovido=false";
         }
@@ -93,9 +111,10 @@ public class SuperAdminController {
                                   @RequestParam("direccion") String direccion,
                                   @RequestParam("telefono") String telefono,
                                   @RequestParam("tipo") String tipo,
+                                  @RequestParam(value = "precioPlan", required = false) BigDecimal precioPlan,
                                   @RequestParam(value = "fechaVencimiento", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fechaVencimiento) {
         try {
-            superAdminService.actualizarAdminYOrganizacion(idUsuario, nombreTaller, direccion, telefono, tipo, fechaVencimiento);
+            superAdminService.actualizarAdminYOrganizacion(idUsuario, nombreTaller, direccion, telefono, tipo, precioPlan, fechaVencimiento);
         } catch (Exception e) {
             return "redirect:/superadmin/usuarios?actualizado=false";
         }
@@ -104,13 +123,38 @@ public class SuperAdminController {
 
     @PostMapping("/estado-taller")
     public String cambiarEstadoTaller(@RequestParam("idOrganizacion") Long idOrganizacion, 
-                                      @RequestParam("activo") Boolean activo) {
+                                      @RequestParam("activo") Boolean activo,
+                                      @RequestParam(value = "motivo", required = false) String motivo) {
+        if (Boolean.FALSE.equals(activo)) {
+            try {
+                superAdminService.cambiarEstadoTaller(idOrganizacion, activo, motivo);
+            } catch (Exception e) {
+                return "redirect:/superadmin/usuarios?estadoCambiado=false";
+            }
+            return "redirect:/superadmin/usuarios?estadoCambiado=true";
+        }
         try {
-            superAdminService.cambiarEstadoTaller(idOrganizacion, activo);
+            superAdminService.cambiarEstadoTaller(idOrganizacion, activo, null);
         } catch (Exception e) {
             return "redirect:/superadmin/usuarios?estadoCambiado=false";
         }
         return "redirect:/superadmin/usuarios?estadoCambiado=true";
+    }
+
+    @PostMapping("/asignar-taller")
+    public String asignarTaller(@RequestParam("idUsuario") Long idUsuario,
+                                @RequestParam("nombreTaller") String nombreTaller,
+                                @RequestParam("direccion") String direccion,
+                                @RequestParam("telefono") String telefono,
+                                @RequestParam("tipo") String tipo,
+                                @RequestParam(value = "precioPlan", required = false) BigDecimal precioPlan,
+                                @RequestParam(value = "fechaVencimiento", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fechaVencimiento) {
+        try {
+            superAdminService.asignarTallerYPlan(idUsuario, nombreTaller, direccion, telefono, tipo, precioPlan, fechaVencimiento);
+        } catch (Exception e) {
+            return "redirect:/superadmin/usuarios?asignado=false";
+        }
+        return "redirect:/superadmin/usuarios?asignado=true";
     }
 
     @PostMapping("/actualizar-cliente")
