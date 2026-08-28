@@ -10,35 +10,10 @@
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body class="bg-light">
-    <div class="container-fluid">
-        <div class="row">
-            
-            <div class="col-md-2 sidebar-custom d-flex flex-column px-0 bg-dark min-vh-100">
-                <div class="px-4 mb-4 pt-3">
-                    <h4 class="brand-title fs-5 m-0 text-white"><i class="bi bi-bicycle me-2 text-info"></i>Bike Assembly</h4>
-                    <small class="text-white-50">SaaS Administration</small>
-                </div>
-                
-                <div class="flex-grow-1">
-                    <a th:href="@{/superadmin/dashboard}" class="text-white-50 text-decoration-none px-4 py-3 d-flex align-items-center mb-1 hover-bg">
-                        <i class="bi bi-speedometer2 me-3 fs-5"></i> Dashboard Central
-                    </a>
-                    <a th:href="@{/superadmin/usuarios}" class="active text-white text-decoration-none px-4 py-2 d-flex align-items-center mb-1 bg-primary bg-opacity-25 border-start border-4 border-primary">
-                        <i class="bi bi-people-fill me-3 fs-5"></i> Usuarios
-                    </a>
-                </div>
-                
-                <div class="px-3 mb-4">
-                    <form th:action="@{/logout}" method="post">
-                        <button type="submit" class="btn btn-outline-danger btn-sm w-100 d-flex align-items-center justify-content-center gap-2 py-2">
-                            <i class="bi bi-box-arrow-left"></i> Cerrar Sesión
-                        </button>
-                    </form>
-                </div>
-            </div>
-            
-            <div class="col-md-10 p-4 p-md-5">
-                <div th:if="${param.promovido}" class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4">
+    <div class="d-flex">
+        <div th:replace="~{superadmin/barra :: sidebar}"></div>
+        <div class="flex-grow-1 p-4 overflow-auto">
+            <div th:if="${param.promovido}" class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4">
                     <i class="bi bi-check-circle-fill me-2"></i> <strong>¡Éxito!</strong> Usuario promovido a Administrador.
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
@@ -254,7 +229,6 @@
                 </div>
             </div>
         </div>
-    </div>
     
     <th:block th:each="admin : ${listaAdmins}">
         <div class="modal fade" th:id="'modalEditarAdmin' + ${admin.idUsuario}" tabindex="-1">
