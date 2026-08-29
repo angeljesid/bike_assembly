@@ -70,9 +70,9 @@ public class AdminController {
         if (admin != null && admin.getOrganizacion() != null) {
             model.addAttribute("nombreTienda", admin.getOrganizacion().getNombre());
 
-            List<Producto> todos = productoDao.findByOrganizacion(admin.getOrganizacion());
-            List<Producto> productosAgotados = productoDao.findByOrganizacionAndStockLessThanEqual(admin.getOrganizacion(), 0);
-            List<Producto> productosStockBajo = productoDao.findByOrganizacionAndStockLessThanEqual(admin.getOrganizacion(), 5);
+            List<Producto> todos = productoDao.findByOrganizacionAndEliminadoFalse(admin.getOrganizacion());
+            List<Producto> productosAgotados = productoDao.findByOrganizacionAndStockLessThanEqualAndEliminadoFalse(admin.getOrganizacion(), 0);
+            List<Producto> productosStockBajo = productoDao.findByOrganizacionAndStockLessThanEqualAndEliminadoFalse(admin.getOrganizacion(), 5);
             long operariosActivos = usuarioDao.countByOrganizacionAndRolAndActivoTrue(admin.getOrganizacion(), Rol.OPERARIO);
 
             model.addAttribute("totalComponentes", todos.size());
@@ -106,17 +106,17 @@ public class AdminController {
         Usuario admin = obtenerAdminAutenticado();
 
         if (admin != null && admin.getOrganizacion() != null) {
-            List<Producto> productos = productoDao.findByOrganizacion(admin.getOrganizacion());
+            List<Producto> productos = productoDao.findByOrganizacionAndEliminadoFalse(admin.getOrganizacion());
             model.addAttribute("productos", productos);
-            model.addAttribute("productosPorCategoria", productos.stream()
-                    .collect(java.util.stream.Collectors.groupingBy(
-                            p -> p.getCategoria() != null
-                                    ? p.getCategoria().toLowerCase(java.util.Locale.ROOT)
-                                    : "otros",
-                            java.util.stream.Collectors.toList())));
+            java.util.Map<Long, Integer> numeracion = new java.util.LinkedHashMap<>();
+            int idx = 1;
+            for (Producto p : productos) {
+                numeracion.put(p.getIdProducto(), idx++);
+            }
+            model.addAttribute("numeracionProductos", numeracion);
         } else {
             model.addAttribute("productos", List.of());
-            model.addAttribute("productosPorCategoria", java.util.Map.of());
+            model.addAttribute("numeracionProductos", java.util.Map.of());
         }
         return "admin/producto";
     }
@@ -163,7 +163,7 @@ public class AdminController {
     }
 
     @GetMapping("/producto/eliminar/{id}")
-    public String eliminarProducto(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+    public String eliminarProducto(@PathVariable("id") Long id) {
         Usuario admin = obtenerAdminAutenticado();
         
         Producto producto = new Producto();
@@ -172,12 +172,10 @@ public class AdminController {
         
         if (admin != null && admin.getOrganizacion() != null && productoExistente != null
                 && productoService.productoPerteneceAOrganizacion(productoExistente, admin.getOrganizacion().getIdOrganizacion())) {
-            if (productoService.productoTieneVentas(productoExistente)) {
-                redirectAttributes.addFlashAttribute("alertaNoEliminable",
-                        "Este producto no puede eliminarse porque ya está registrado en ventas.");
-                return "redirect:/admin/producto";
-            }
-            productoService.eliminar(productoExistente);
+            productoExistente.setEliminado(true);
+            productoExistente.setPublicado(false);
+            productoExistente.setUnidadesPublicadas(0);
+            productoService.guardar(productoExistente);
         }
         
         return "redirect:/admin/producto";
@@ -218,6 +216,17 @@ public class AdminController {
         }
         producto.setUnidadesPublicadas(unidades);
         producto.setPublicado(unidades > 0);
+
+        if (producto.getIdProducto() != null) {
+            Producto existente = productoService.encontrarProducto(
+                    new Producto() {{ setIdProducto(producto.getIdProducto()); }});
+            if (existente != null) {
+                producto.setEliminado(Boolean.TRUE.equals(existente.getEliminado()));
+            }
+        }
+        if (producto.getEliminado() == null) {
+            producto.setEliminado(false);
+        }
 
         productoService.guardar(producto);
         return "redirect:/admin/producto";

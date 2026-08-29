@@ -24,6 +24,61 @@
             <div class="mb-4">
                 <h2 class="fw-bold" style="color: var(--brand-blue);">Pedidos Pendientes</h2>
             </div>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header py-3" style="background:#fff7e6;">
+                    <h6 class="mb-0 fw-bold text-warning-emphasis">
+                        <i class="bi bi-box-seam me-1"></i> Solicitudes de Repuesto del Operario
+                        <span class="badge bg-warning text-dark ms-2" th:text="${solicitudes != null ? solicitudes.size() : 0}">0</span>
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="py-3 ps-4">Orden</th>
+                                <th class="py-3">Cliente</th>
+                                <th class="py-3">Repuesto</th>
+                                <th class="py-3 text-center">Cant.</th>
+                                <th class="py-3 text-end">Precio Unit.</th>
+                                <th class="py-3 text-end">Subtotal</th>
+                                <th class="py-3 text-center">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${solicitudes == null or solicitudes.empty}">
+                                <td colspan="7" class="text-center py-4 text-muted">No hay solicitudes de repuesto pendientes</td>
+                            </tr>
+                            <tr th:each="sol : ${solicitudes}">
+                                <td class="ps-4 fw-bold" th:text="${'#ORD-' + sol.orden.idOrden}"></td>
+                                <td th:text="${sol.orden.clienteNombre}"></td>
+                                <td>
+                                    <span class="fw-semibold" th:text="${sol.producto.nombre}"></span>
+                                    <small class="d-block text-muted" th:text="${sol.producto.marca}"></small>
+                                </td>
+                                <td class="text-center" th:text="${sol.cantidad}"></td>
+                                <td class="text-end" th:text="${'$ ' + sol.precioUnitario}"></td>
+                                <td class="text-end fw-bold text-success" th:text="${'$ ' + sol.subtotal}"></td>
+                                <td class="text-center text-nowrap">
+                                    <div class="d-flex gap-1 justify-content-center">
+                                        <form th:action="@{/caja/pedidos/aprobar-insumo/{id}(id=${sol.idSolicitud})}" method="post">
+                                            <button type="submit" class="btn btn-sm btn-success">
+                                                <i class="bi bi-check2-circle"></i> Aceptar
+                                            </button>
+                                        </form>
+                                        <form th:action="@{/caja/pedidos/rechazar-insumo/{id}(id=${sol.idSolicitud})}" method="post">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-x-circle"></i> Rechazar
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <div class="card shadow-sm border-0">
                 <div class="card-body p-0">
                     <table class="table table-hover align-middle mb-0">

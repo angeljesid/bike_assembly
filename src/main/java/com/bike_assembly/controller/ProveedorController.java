@@ -164,7 +164,7 @@ public class ProveedorController {
             return ResponseEntity.ok(Map.of("success", true));
         }
 
-        List<Producto> variantes = productoDao.findByOrganizacion(admin.getOrganizacion()).stream()
+        List<Producto> variantes = productoDao.findByOrganizacionAndEliminadoFalse(admin.getOrganizacion()).stream()
             .filter(p -> p.getNombre().equalsIgnoreCase(productoBase.getNombre()) &&
                          p.getCondicion().equalsIgnoreCase(request.getCondicion()) &&
                          p.getProveedor() != null && 

@@ -23,12 +23,19 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         let listaProductosGlobal = [];
+        let numerosProductos = {};
 
         async function cargarProductosIniciales() {
             try {
                 const response = await fetch('/api/buscar/productos');
                 if (!response.ok) throw new Error('Error al obtener productos');
                 listaProductosGlobal = await response.json();
+
+                numerosProductos = {};
+                listaProductosGlobal.forEach((p, idx) => {
+                    numerosProductos[p.idProducto] = idx + 1;
+                });
+
                 actualizarTablas(listaProductosGlobal); 
             } catch (error) {
                 console.error('Error cargando productos:', error);
@@ -75,20 +82,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (tbody) tbody.innerHTML = '';
             });
 
-            const contadores = {};
-
             productos.forEach(p => {
                 const cat = p.categoria ? p.categoria.toLowerCase() : 'otros';
                 const tbody = tbodys[cat] || tbodys['otros'];
                 
                 if (tbody) {
-                    contadores[cat] = (contadores[cat] || 0) + 1;
-                    tbody.insertAdjacentHTML('beforeend', generarFilaHTML(p, cat, contadores[cat]));
+                    tbody.insertAdjacentHTML('beforeend', generarFilaHTML(p, cat));
                 }
             });
         }
 
-        function generarFilaHTML(p, cat, num) {
+        function generarFilaHTML(p, cat) {
             const imgSrc = (p.imagen && p.imagen.trim() !== '') 
                 ? `/recursos/${p.imagen}` 
                 : 'https://via.placeholder.com/80x80.png?text=Sin+Foto';
@@ -104,13 +108,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const precioInicialVal = p.precioInicial != null ? p.precioInicial : (p.precio != null ? p.precio : '0.00');
             const ivaVal = p.iva != null ? p.iva : '0';
             const precioTotalVal = p.precioTotal != null ? p.precioTotal : (p.precio != null ? p.precio : '0.00');
+            const numVisible = numerosProductos[p.idProducto] != null ? numerosProductos[p.idProducto] : '-';
 
             return `
                 <tr>
                     <td class="ps-4">
                         <img src="${imgSrc}" class="catalogo-img rounded" alt="Foto">
                     </td>
-                    <td class="fw-bold text-muted">#${num}</td>
+                    <td class="fw-bold text-muted">#${numVisible} · ID-${numVisible}</td>
                     <td>
                         <span class="fw-bold text-dark">${p.nombre || 'Sin nombre'}</span><br>
                         <small class="text-muted">
@@ -131,7 +136,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             <a href="/admin/producto/editar/${p.idProducto}" class="btn btn-sm btn-outline-primary" title="Editar">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
-                            <a href="/admin/producto/eliminar/${p.idProducto}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar este producto?');" title="Eliminar">
+                            <a href="#" class="btn btn-sm btn-outline-danger" title="Eliminar"
+                                data-eliminar-id="${p.idProducto}"
+                                data-eliminar-nombre="${p.nombre || 'el producto'}"
+                                data-eliminar-stock="${p.stock != null ? p.stock : 0}">
                                 <i class="bi bi-trash"></i>
                             </a>
                         </div>

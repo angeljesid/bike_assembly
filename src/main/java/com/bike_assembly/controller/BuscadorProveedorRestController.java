@@ -48,13 +48,13 @@ public class BuscadorProveedorRestController {
         Usuario admin = obtenerAdminAutenticado();
 
         if (admin != null && admin.getOrganizacion() != null) {
-            return ResponseEntity.ok(productoDao.findByOrganizacion(admin.getOrganizacion()));
+            return ResponseEntity.ok(productoDao.findByOrganizacionAndEliminadoFalse(admin.getOrganizacion()));
         }
         return ResponseEntity.ok(List.of());
     }
 
     @GetMapping("/api/productos")
     public ResponseEntity<List<Producto>> buscarProductosCliente() {
-        return ResponseEntity.ok(productoDao.findByPublicadoTrue());
+        return ResponseEntity.ok(productoDao.findByPublicadoTrueAndEliminadoFalse());
     }
 }

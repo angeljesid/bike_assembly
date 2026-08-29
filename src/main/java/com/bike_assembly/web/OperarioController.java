@@ -1,17 +1,23 @@
 package com.bike_assembly.web;
 
+import com.bike_assembly.domain.Producto;
+import com.bike_assembly.domain.SolicitudRepuesto;
 import com.bike_assembly.domain.Usuario;
 import com.bike_assembly.domain.Venta;
+import com.bike_assembly.repository.ProductoDao;
 import com.bike_assembly.repository.UsuarioDao;
 import com.bike_assembly.security.SessionUtils;
 import com.bike_assembly.services.ordenservicio.IOrdenServicioService;
+import com.bike_assembly.services.solicitud.ISolicitudRepuestoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,6 +31,12 @@ public class OperarioController {
     
     @Autowired
     private IOrdenServicioService ordenServicioService;
+
+    @Autowired
+    private ProductoDao productoDao;
+
+    @Autowired
+    private ISolicitudRepuestoService solicitudRepuestoService;
 
     @Autowired
     private SessionUtils sessionUtils;
@@ -118,5 +130,39 @@ public class OperarioController {
         return ordenes.stream()
                 .filter(o -> estado.equals(o.getEstado()))
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping("/api/productos")
+    @ResponseBody
+    public ResponseEntity<List<Producto>> buscarProductosOperario(@RequestParam("termino") String termino) {
+        Usuario operario = obtenerUsuarioAutenticado();
+        if (operario != null && operario.getOrganizacion() != null) {
+            String filtro = termino == null ? "" : termino.trim().toLowerCase();
+            List<Producto> productos = productoDao.findByOrganizacionAndEliminadoFalse(operario.getOrganizacion()).stream()
+                    .filter(p -> !"SERVICIO".equalsIgnoreCase(p.getTipo()))
+                    .filter(p -> p.getStock() == null || p.getStock() > 0)
+                    .filter(p -> filtro.isEmpty()
+                            || (p.getNombre() != null && p.getNombre().toLowerCase().contains(filtro))
+                            || (p.getMarca() != null && p.getMarca().toLowerCase().contains(filtro))
+                            || (p.getCodigoBarras() != null && p.getCodigoBarras().toLowerCase().contains(filtro)))
+                    .limit(15)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(productos);
+        }
+        return ResponseEntity.ok(List.of());
+    }
+
+    @PostMapping("/solicitar-repuesto")
+    public String solicitarRepuesto(@RequestParam Long ordenId,
+                                    @RequestParam Long productoId,
+                                    @RequestParam(required = false) Integer cantidad) {
+        Usuario operario = obtenerUsuarioAutenticado();
+        Producto producto = new Producto();
+        producto.setIdProducto(productoId);
+        SolicitudRepuesto sol = solicitudRepuestoService.solicitar(ordenId, producto, cantidad, operario);
+        if (sol != null) {
+            return "redirect:/operario/kanban-servicios?solicitado=true";
+        }
+        return "redirect:/operario/kanban-servicios?errorSolicitud=true";
     }
 }

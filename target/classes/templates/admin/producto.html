@@ -82,13 +82,13 @@
                             </tr>
                         </thead>
                         <tbody th:id="'tbody-' + ${catKey}">
-                            <tr th:each="producto, prodStat : ${productosPorCategoria[catKey]}"
+                            <tr th:each="producto : ${productos}" th:if="${producto.categoria != null and #strings.toLowerCase(producto.categoria) == catKey}"
                                 th:classappend="${producto.stock != null and producto.stock <= 0 ? 'table-secondary table-secondary-gris' : ''}">
                                 <td class="ps-4">
                                     <img th:if="${producto.imagen != null and !producto.imagen.isEmpty()}" th:src="@{'/recursos/' + ${producto.imagen}}" class="catalogo-img rounded" alt="Foto">
                                     <img th:if="${producto.imagen == null or producto.imagen.isEmpty()}" src="https://via.placeholder.com/80x80.png?text=Sin+Foto" class="catalogo-img rounded" alt="Default">
                                 </td>
-                                <td class="fw-bold text-muted" th:text="${'#' + prodStat.count}"></td>
+                                <td class="fw-bold text-muted" th:text="${'#' + numeracionProductos[producto.idProducto] + ' \u00b7 ID-' + numeracionProductos[producto.idProducto]}"></td>
                                 <td>
                                     <span class="fw-bold text-dark" th:text="${producto.nombre}"></span><br>
                                     <small class="text-muted">
@@ -110,9 +110,10 @@
                                 <td class="text-center">
                                     <div class="btn-group">
                                         <a th:href="@{/admin/producto/editar/{id}(id=${producto.idProducto})}" class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil-square"></i></a>
-                                        <a th:href="@{/admin/producto/eliminar/{id}(id=${producto.idProducto})}" class="btn btn-sm btn-outline-danger" title="Eliminar"
-                                            th:attr="data-stock=${producto.stock != null ? producto.stock : 0}"
-                                            onclick="return confirm('¿Estás seguro de querer eliminar este producto con ' + this.getAttribute('data-stock') + ' unidades de stock?');" >
+                                        <a href="#" class="btn btn-sm btn-outline-danger" title="Eliminar"
+                                            th:attr="data-eliminar-id=${producto.idProducto},
+                                                     data-eliminar-nombre=${producto.nombre},
+                                                     data-eliminar-stock=${producto.stock != null ? producto.stock : 0}">
                                             <i class="bi bi-trash"></i>
                                         </a>
                                     </div>
@@ -120,6 +121,24 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalEliminarProducto" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-danger text-white py-2">
+                    <h6 class="modal-title fw-bold"><i class="bi bi-exclamation-triangle-fill me-1"></i> Eliminar Producto</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-3">
+                    <p class="mb-0 small" id="mensajeEliminarProducto">¿Estás seguro de eliminar el producto?</p>
+                </div>
+                <div class="modal-footer py-2 d-flex justify-content-center gap-2">
+                    <button type="button" class="btn btn-secondary btn-sm px-3" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" id="btnConfirmarEliminar" class="btn btn-danger btn-sm px-3">Confirmar</button>
                 </div>
             </div>
         </div>
@@ -141,6 +160,40 @@
             formatearMontosPanel();
         }
         window.addEventListener('load', function () { setTimeout(formatearMontosPanel, 100); });
+
+        (function () {
+            var modalEliminar = document.getElementById('modalEliminarProducto');
+            var btnConfirmar = document.getElementById('btnConfirmarEliminar');
+            var urlEliminar = null;
+
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest('[data-eliminar-id]');
+                if (!btn) return;
+                e.preventDefault();
+
+                var id = btn.getAttribute('data-eliminar-id');
+                var nombre = btn.getAttribute('data-eliminar-nombre') || 'el producto';
+                var stock = btn.getAttribute('data-eliminar-stock');
+                var msg = '¿Estás seguro de eliminar el producto ' + nombre;
+                if (stock !== null && stock !== undefined && stock !== '') {
+                    msg += ' con ' + stock + ' unidad(es) de stock';
+                }
+                msg += '?';
+                document.getElementById('mensajeEliminarProducto').textContent = msg;
+                urlEliminar = '/admin/producto/eliminar/' + id;
+
+                var modal = bootstrap.Modal.getOrCreateInstance(modalEliminar);
+                modal.show();
+            });
+
+            if (btnConfirmar) {
+                btnConfirmar.addEventListener('click', function () {
+                    if (urlEliminar) {
+                        window.location.href = urlEliminar;
+                    }
+                });
+            }
+        })();
     </script>
 </body>
 </html>

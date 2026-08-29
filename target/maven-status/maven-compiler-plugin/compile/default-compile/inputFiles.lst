@@ -15,6 +15,7 @@ C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\Producto.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\Proveedor.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\RepuestoOrdenServicio.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\Rol.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\SolicitudRepuesto.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\Turno.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\Usuario.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\Venta.java
@@ -24,6 +25,7 @@ C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\OrdenServicioDa
 C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\OrganizacionDao.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\ProductoDao.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\ProveedorDao.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\SolicitudRepuestoDao.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\UsuarioDao.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\VentaDao.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\security\CustomAuthenticationFailureHandler.java
@@ -40,6 +42,8 @@ C:\java\bike_assembly\src\main\java\com\bike_assembly\services\producto\IProduct
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\producto\ProductoService.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\proveedor\IProveedorService.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\proveedor\ProveedorService.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\services\solicitud\ISolicitudRepuestoService.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\services\solicitud\SolicitudRepuestoService.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\usuario\ISuperAdminService.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\usuario\SuperAdminService.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\usuario\TareaProgramadaSuperAdmin.java

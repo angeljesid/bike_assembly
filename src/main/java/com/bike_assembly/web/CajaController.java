@@ -11,6 +11,7 @@ import com.bike_assembly.repository.ProductoDao;
 import com.bike_assembly.repository.UsuarioDao;
 import com.bike_assembly.security.SessionUtils;
 import com.bike_assembly.services.ordenservicio.IOrdenServicioService;
+import com.bike_assembly.services.solicitud.ISolicitudRepuestoService;
 import com.bike_assembly.services.venta.IVentaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +43,9 @@ public class CajaController {
     private UsuarioDao usuarioDao;
 
     @Autowired
+    private ISolicitudRepuestoService solicitudRepuestoService;
+
+    @Autowired
     private SessionUtils sessionUtils;
 
     private Usuario obtenerUsuarioAutenticado() {
@@ -60,7 +64,7 @@ public class CajaController {
     public ResponseEntity<List<Producto>> listarProductosCaja() {
         Usuario empleado = obtenerUsuarioAutenticado();
         if (empleado != null && empleado.getOrganizacion() != null) {
-            List<Producto> productos = productoDao.findByOrganizacion(empleado.getOrganizacion());
+            List<Producto> productos = productoDao.findByOrganizacionAndEliminadoFalse(empleado.getOrganizacion());
             return ResponseEntity.ok(productos);
         }
         return ResponseEntity.ok(List.of());
@@ -71,7 +75,7 @@ public class CajaController {
     public ResponseEntity<?> buscarProductoPorCodigo(@RequestParam("codigo") String codigoBarras) {
         Usuario empleado = obtenerUsuarioAutenticado();
         if (empleado != null && empleado.getOrganizacion() != null) {
-            Optional<Producto> producto = productoDao.findByCodigoBarrasAndOrganizacion(codigoBarras, empleado.getOrganizacion());
+            Optional<Producto> producto = productoDao.findByCodigoBarrasAndOrganizacionAndEliminadoFalse(codigoBarras, empleado.getOrganizacion());
             if (producto.isPresent()) {
                 return ResponseEntity.ok(producto.get());
             }
@@ -132,10 +136,25 @@ public class CajaController {
         List<Venta> pendientesFiltrados = empleado != null && empleado.getOrganizacion() != null
                 ? ventaService.listarVentasPorOrganizacion(empleado.getOrganizacion().getIdOrganizacion(), "PENDIENTE")
                 : List.of();
+        List<com.bike_assembly.domain.SolicitudRepuesto> solicitudes =
+                empleado != null ? solicitudRepuestoService.listarPendientes(empleado.getOrganizacion()) : List.of();
                 
         model.addAttribute("pedidos", pendientesFiltrados);
+        model.addAttribute("solicitudes", solicitudes);
         model.addAttribute("empleado", empleado);
         return "caja/pedidos-pendientes";
+    }
+
+    @PostMapping("/pedidos/aprobar-insumo/{id}")
+    public String aprobarInsumo(@PathVariable("id") Long id) {
+        solicitudRepuestoService.aceptar(id, obtenerUsuarioAutenticado());
+        return "redirect:/caja/pedidos";
+    }
+
+    @PostMapping("/pedidos/rechazar-insumo/{id}")
+    public String rechazarInsumo(@PathVariable("id") Long id) {
+        solicitudRepuestoService.rechazar(id, obtenerUsuarioAutenticado());
+        return "redirect:/caja/pedidos";
     }
 
     @PostMapping("/pedidos/completar/{id}")
