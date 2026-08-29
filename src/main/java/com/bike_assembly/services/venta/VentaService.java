@@ -37,7 +37,6 @@ public class VentaService implements IVentaService {
         Venta venta = new Venta();
         venta.setFechaHora(LocalDateTime.now());
         venta.setMetodoPago(request.getMetodoPago());
-        venta.setTotal(request.getTotal());
         venta.setEstado("COMPLETADA");
         venta.setEmpleado(empleado);
 
@@ -45,28 +44,33 @@ public class VentaService implements IVentaService {
             venta.setCliente(usuarioDao.findById(request.getIdCliente()).orElse(null));
         }
 
+        double totalCalculado = 0.0;
         for (VentaRequestDTO.DetalleVentaDTO detDTO : request.getDetalles()) {
             Producto producto = productoDao.findById(detDTO.getIdProducto())
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
             
-            if(producto.getStock() != null && producto.getStock() < detDTO.getCantidad()) {
+            int stockDisponible = producto.getStock() == null ? 0 : producto.getStock();
+            if (stockDisponible < detDTO.getCantidad()) {
                 throw new RuntimeException("Stock insuficiente para: " + producto.getNombre());
             }
-            
-            if(producto.getStock() != null) {
-                producto.setStock(producto.getStock() - detDTO.getCantidad());
-                productoDao.save(producto);
-            }
+
+            double precioUnitario = precioVenta(producto);
+            double subtotal = precioUnitario * detDTO.getCantidad();
+            totalCalculado += subtotal;
+
+            producto.setStock(stockDisponible - detDTO.getCantidad());
+            productoDao.save(producto);
             
             DetalleVenta detalle = new DetalleVenta();
             detalle.setVenta(venta);
             detalle.setProducto(producto);
             detalle.setCantidad(detDTO.getCantidad());
-            detalle.setPrecioUnitario(detDTO.getPrecioUnitario());
-            detalle.setSubtotal(detDTO.getSubtotal());
+            detalle.setPrecioUnitario(precioUnitario);
+            detalle.setSubtotal(subtotal);
             venta.getDetalles().add(detalle);
         }
         
+        venta.setTotal(totalCalculado);
         return ventaDao.save(venta);
     }
 
@@ -81,33 +85,47 @@ public class VentaService implements IVentaService {
         Venta venta = new Venta();
         venta.setFechaHora(LocalDateTime.now());
         venta.setMetodoPago(request.getMetodoPago());
-        venta.setTotal(request.getTotal());
         venta.setEstado("PENDIENTE");
         venta.setCliente(cliente);
 
+        double totalCalculado = 0.0;
         for (VentaRequestDTO.DetalleVentaDTO detDTO : request.getDetalles()) {
             Producto producto = productoDao.findById(detDTO.getIdProducto())
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
             
-            if(producto.getStock() != null && producto.getStock() < detDTO.getCantidad()) {
+            int stockDisponible = producto.getStock() == null ? 0 : producto.getStock();
+            if (stockDisponible < detDTO.getCantidad()) {
                 throw new RuntimeException("Stock insuficiente para: " + producto.getNombre());
             }
-            
-            if(producto.getStock() != null) {
-                producto.setStock(producto.getStock() - detDTO.getCantidad());
-                productoDao.save(producto);
-            }
+
+            double precioUnitario = precioVenta(producto);
+            double subtotal = precioUnitario * detDTO.getCantidad();
+            totalCalculado += subtotal;
+
+            producto.setStock(stockDisponible - detDTO.getCantidad());
+            productoDao.save(producto);
             
             DetalleVenta detalle = new DetalleVenta();
             detalle.setVenta(venta);
             detalle.setProducto(producto);
             detalle.setCantidad(detDTO.getCantidad());
-            detalle.setPrecioUnitario(detDTO.getPrecioUnitario());
-            detalle.setSubtotal(detDTO.getSubtotal());
+            detalle.setPrecioUnitario(precioUnitario);
+            detalle.setSubtotal(subtotal);
             venta.getDetalles().add(detalle);
         }
         
+        venta.setTotal(totalCalculado);
         return ventaDao.save(venta);
+    }
+
+    private double precioVenta(Producto producto) {
+        if (producto.getPrecioTotal() != null) {
+            return producto.getPrecioTotal();
+        }
+        if (producto.getPrecio() != null) {
+            return producto.getPrecio();
+        }
+        return 0.0;
     }
 
     @Override

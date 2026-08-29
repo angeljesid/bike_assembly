@@ -12,11 +12,33 @@
     
     <nav class="navbar navbar-expand-lg navbar-custom py-3 mb-4">
         <div class="container">
-            <a class="navbar-brand fw-bold text-dark" href="/cliente"><i class="bi bi-bicycle text-primary me-2"></i>Bike Assembly</a>
-            <a href="/cliente/carrito" class="btn btn-primary position-relative text-decoration-none">
-                <i class="bi bi-cart3"></i> Ver Carrito
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="contadorCarrito">0</span>
-            </a>
+            <a class="navbar-brand fw-bold text-dark" href="/cliente/catalogo"><i class="bi bi-bicycle text-primary me-2"></i>Bike Assembly</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/cliente/catalogo">Catálogo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/cliente/servicios">Mis Servicios</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/cliente/pedidos">Mis Pedidos</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="text-muted fw-semibold" th:text="'Hola, ' + ${cliente != null ? cliente.nombre : 'Cliente'}">Hola, Cliente</span>
+                    <a th:href="@{/cliente/carrito}" class="btn btn-primary position-relative me-2 text-decoration-none">
+                        <i class="bi bi-cart3"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="contadorCarrito">0</span>
+                    </a>
+                    <form th:action="@{/logout}" method="post" class="m-0">
+                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Cerrar Sesión"><i class="bi bi-box-arrow-right"></i></button>
+                    </form>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -42,7 +64,7 @@
 
                 <div class="d-flex align-items-center mb-4">
                     <span class="text-muted me-3">Condición: <strong class="text-dark" id="condicionDetalle">-</strong></span>
-                    <span class="text-muted">Stock disponible: <strong class="text-dark" id="stockDetalle">-</strong></span>
+                    <span class="text-muted">Unidades disponibles: <strong class="text-dark" id="stockDetalle">-</strong></span>
                 </div>
 
                 <h1 class="fw-bold mb-4" style="color: #0d6efd;" id="precioDetalle">$0</h1>

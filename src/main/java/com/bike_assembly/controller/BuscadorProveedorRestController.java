@@ -1,6 +1,7 @@
 package com.bike_assembly.controller;
 
 import com.bike_assembly.domain.Producto;
+import com.bike_assembly.domain.ProductoCatalogoDTO;
 import com.bike_assembly.domain.Proveedor;
 import com.bike_assembly.domain.Usuario;
 import com.bike_assembly.repository.ProductoDao;
@@ -54,7 +55,10 @@ public class BuscadorProveedorRestController {
     }
 
     @GetMapping("/api/productos")
-    public ResponseEntity<List<Producto>> buscarProductosCliente() {
-        return ResponseEntity.ok(productoDao.findByPublicadoTrueAndEliminadoFalse());
+    public ResponseEntity<List<ProductoCatalogoDTO>> buscarProductosCliente() {
+        List<ProductoCatalogoDTO> publicados = productoDao.findProductosDiponiblesParaCliente().stream()
+                .map(ProductoCatalogoDTO::new)
+                .toList();
+        return ResponseEntity.ok(publicados);
     }
 }

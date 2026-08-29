@@ -1,7 +1,10 @@
 let productosData = [];
+let categoriaActiva = '';
 
 document.addEventListener("DOMContentLoaded", () => {
-    cargarProductos();
+    if (document.getElementById("contenedorProductos")) {
+        cargarProductos();
+    }
     actualizarContadorCarrito();
 
     const buscador = document.getElementById("buscadorCliente");
@@ -48,6 +51,7 @@ async function cargarProductos() {
         if (mensajeCarga) mensajeCarga.style.display = "none";
         if (contenedor) contenedor.style.display = "flex";
         
+        renderizarCategorias();
         renderizarProductos(productosData);
     } catch (error) {
         console.error("Error al cargar productos:", error);
@@ -86,7 +90,7 @@ function renderizarProductos(productos) {
         const categoria = prod.categoria ? prod.categoria : 'General'; 
         const marca = prod.marca ? prod.marca : 'Sin marca';
         const condicion = prod.condicion ? prod.condicion : 'N/A';
-        const nombreTaller = (prod.organizacion && prod.organizacion.nombre) ? prod.organizacion.nombre : 'Taller Independiente';
+        const nombreTaller = prod.nombreOrganizacion ? prod.nombreOrganizacion : 'Taller Independiente';
 
         const cardHTML = `
             <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
@@ -122,6 +126,9 @@ function filtrarProductos(termino) {
     const busqueda = termino.toLowerCase().trim();
     
     const filtrados = productosData.filter(prod => {
+        if (categoriaActiva && prod.categoria !== categoriaActiva) {
+            return false;
+        }
         const nombreMatch = prod.nombre && prod.nombre.toLowerCase().includes(busqueda);
         const marcaMatch = prod.marca && prod.marca.toLowerCase().includes(busqueda);
         const categoriaMatch = prod.categoria && prod.categoria.toLowerCase().includes(busqueda);
@@ -130,6 +137,52 @@ function filtrarProductos(termino) {
     });
     
     renderizarProductos(filtrados);
+}
+
+function renderizarCategorias() {
+    const lista = document.getElementById("listaCategorias");
+    const seccion = document.getElementById("seccionCategorias");
+    if (!lista || !seccion) return;
+
+    const categorias = [...new Set(
+        productosData
+            .map(p => p.categoria)
+            .filter(c => c && c.trim() !== '')
+            .map(c => c.trim())
+    )].sort();
+
+    if (categorias.length === 0) {
+        seccion.style.display = "none";
+        return;
+    }
+
+    seccion.style.display = "block";
+    let html = `
+        <button type="button" class="btn btn-sm rounded-pill ${categoriaActiva === '' ? 'btn-primary' : 'btn-outline-primary'}"
+                onclick="filtrarPorCategoria('')">Todas</button>
+    `;
+
+    categorias.forEach(cat => {
+        html += `
+            <button type="button" class="btn btn-sm rounded-pill ${categoriaActiva === cat ? 'btn-primary' : 'btn-outline-primary'}"
+                    onclick="filtrarPorCategoria('${escaparHtml(cat)}')">${escaparHtml(cat)}</button>
+        `;
+    });
+
+    lista.innerHTML = html;
+}
+
+function filtrarPorCategoria(categoria) {
+    categoriaActiva = categoria;
+    renderizarCategorias();
+    const buscador = document.getElementById("buscadorCliente");
+    const termino = buscador ? buscador.value : '';
+    filtrarProductos(termino);
+}
+
+function escaparHtml(valor) {
+    return String(valor).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }
 
 async function cargarDetalleProducto(id) {
@@ -155,7 +208,7 @@ async function cargarDetalleProducto(id) {
             if (catEl) catEl.innerText = producto.categoria || 'General';
             if (nomEl) nomEl.innerText = producto.nombre || 'Sin nombre';
             if (condEl) condEl.innerText = producto.condicion || 'N/A';
-            if (stockEl) stockEl.innerText = (producto.stock || 0) + ' und';
+            if (stockEl) stockEl.innerText = (producto.disponibilidad || 0) + ' und';
             
             const precioFinal = producto.precioTotal ? producto.precioTotal : producto.precio;
             if (precEl) precEl.innerText = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(precioFinal);
@@ -170,8 +223,16 @@ async function cargarDetalleProducto(id) {
 function añadirDesdeDetalle() {
     if (!window.productoActualSeleccionado) return;
     const cantidadInput = document.getElementById("cantidadProducto");
-    const cantidad = cantidadInput ? parseInt(cantidadInput.value) || 1 : 1;
-    
+    let cantidad = cantidadInput ? parseInt(cantidadInput.value) || 1 : 1;
+
+    const disponibilidad = window.productoActualSeleccionado.disponibilidad != null
+        ? window.productoActualSeleccionado.disponibilidad : 0;
+    if (cantidad > disponibilidad) {
+        alert('Solo hay ' + disponibilidad + ' unidad(es) disponible(s).');
+        if (cantidadInput) cantidadInput.value = disponibilidad;
+        return;
+    }
+
     for(let i = 0; i < cantidad; i++) {
         agregarAlCarritoDirecto(window.productoActualSeleccionado);
     }
@@ -185,12 +246,18 @@ function agregarAlCarritoDirecto(prod) {
         ? `/recursos/${prod.imagen}` 
         : 'https://via.placeholder.com/80x80.png?text=Sin+Foto';
 
-    const idOrg = prod.organizacion ? prod.organizacion.idOrganizacion : 0;
-    const nombreTaller = (prod.organizacion && prod.organizacion.nombre) ? prod.organizacion.nombre : 'Taller Independiente';
-    const telefonoTaller = (prod.organizacion && prod.organizacion.telefono) ? prod.organizacion.telefono : '';
+    const idOrg = prod.idOrganizacion ? prod.idOrganizacion : 0;
+    const nombreTaller = prod.nombreOrganizacion ? prod.nombreOrganizacion : 'Taller Independiente';
+    const telefonoTaller = prod.telefonoOrganizacion ? prod.telefonoOrganizacion : '';
 
     const productoExistente = carrito.find(item => item.idProducto === prod.idProducto);
+    const disponibilidad = prod.disponibilidad != null ? prod.disponibilidad : 0;
+
     if (productoExistente) {
+        if (productoExistente.cantidad + 1 > disponibilidad) {
+            alert('Solo hay ' + disponibilidad + ' unidad(es) disponible(s).');
+            return;
+        }
         productoExistente.cantidad += 1;
     } else {
         carrito.push({
@@ -202,7 +269,8 @@ function agregarAlCarritoDirecto(prod) {
             cantidad: 1,
             idOrganizacion: idOrg,
             nombreTaller: nombreTaller,
-            telefonoTaller: telefonoTaller
+            telefonoTaller: telefonoTaller,
+            disponibilidad: disponibilidad
         });
     }
     guardarCarrito(carrito);
@@ -257,7 +325,7 @@ function renderizarCarrito() {
         const totalFormateado = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(taller.total);
 
         html += `
-            <div class="card mb-4 shadow-sm border-0 rounded-4">
+            <div class="card mb-4 shadow-sm border-0 rounded-3">
                 <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
                     <h5 class="fw-bold m-0 text-dark"><i class="bi bi-shop me-2 text-primary"></i> ${taller.nombreTaller}</h5>
                 </div>
@@ -287,7 +355,7 @@ function renderizarCarrito() {
 
         html += `
                 </div>
-                <div class="card-footer bg-light border-top-0 py-3 d-flex justify-content-between align-items-center rounded-bottom-4">
+                <div class="card-footer bg-light border-top-0 py-3 d-flex justify-content-between align-items-center rounded-bottom-3">
                     <h5 class="fw-bold m-0 text-dark">Total: ${totalFormateado}</h5>
                     <button class="btn btn-success fw-bold px-4 rounded-pill shadow-sm" onclick="procesarPagoPorTaller('${idOrg}')">
                         <i class="bi bi-whatsapp me-2"></i> Solicitar Reserva
@@ -304,6 +372,12 @@ function cambiarCantidad(index, nuevaCantidad) {
     let carrito = obtenerCarrito();
     let cant = parseInt(nuevaCantidad);
     if (cant > 0) {
+        const item = carrito[index];
+        if (cant > item.disponibilidad) {
+            alert('Solo hay ' + item.disponibilidad + ' unidad(es) disponible(s).');
+            renderizarCarrito();
+            return;
+        }
         carrito[index].cantidad = cant;
         guardarCarrito(carrito);
         renderizarCarrito();

@@ -9,44 +9,45 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
-<body class="bg-light">
+    <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="/cliente/catalogo"><i class="bi bi-bicycle me-2"></i>Bike Assembly</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/cliente/catalogo">Catálogo</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/cliente/servicios">Mis Servicios</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/cliente/pedidos">Mis Pedidos</a>
-                    </li>
-                </ul>
-                <div class="d-flex align-items-center">
-                    <a href="/cliente/carrito" class="btn btn-outline-light me-3 position-relative">
-                        <i class="bi bi-cart3"></i> Carrito
-                    </a>
-                    <span class="text-white me-3" th:text="${'Hola, ' + cliente.nombre}"></span>
-                    <form th:action="@{/logout}" method="post" class="m-0">
-                        <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-box-arrow-right"></i> Salir</button>
-                    </form>
+        <nav class="navbar navbar-expand-lg navbar-custom py-3 mb-4">
+            <div class="container">
+                <a class="navbar-brand fw-bold text-dark" href="/cliente/catalogo"><i class="bi bi-bicycle text-primary me-2"></i>Bike Assembly</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/cliente/catalogo">Catálogo</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active fw-semibold text-primary" href="/cliente/servicios">Mis Servicios</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/cliente/pedidos">Mis Pedidos</a>
+                        </li>
+                    </ul>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="text-muted fw-semibold" th:text="'Hola, ' + ${cliente != null ? cliente.nombre : 'Cliente'}">Hola, Cliente</span>
+                        <a th:href="@{/cliente/carrito}" class="btn btn-primary position-relative me-2 text-decoration-none">
+                            <i class="bi bi-cart3"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="contadorCarrito">0</span>
+                        </a>
+                        <form th:action="@{/logout}" method="post" class="m-0">
+                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Cerrar Sesión"><i class="bi bi-box-arrow-right"></i></button>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    <div class="container">
+    <div class="container pb-5">
         <div class="row mb-4">
             <div class="col-12">
                 <h2 class="fw-bold"><i class="bi bi-tools text-primary me-2"></i>Seguimiento de Mis Bicicletas</h2>
-                <p class="text-muted">Consulta en tiempo real el estado del mantenimiento de tu bicicleta. Recarga la página para ver la última actualización del operario.</p>
+                <p class="text-muted">Consulta en tiempo real el estado del mantenimiento de tu bicicleta. La página se actualiza automáticamente con cada avance del taller.</p>
             </div>
         </div>
 
@@ -78,58 +79,91 @@
         </div>
 
         <div th:each="orden : ${ordenes}" class="card shadow-sm border-0 rounded-3 mb-4 overflow-hidden">
-            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <h5 class="mb-0 fw-bold" style="color: var(--brand-blue);">
                     <i class="bi bi-bicycle me-2"></i>Orden <span th:text="${'#SV-' + orden.idOrden}"></span>
                 </h5>
                 <span class="badge fs-6"
-                      th:classappend="${orden.estado == 'EN_DIAGNOSTICO' ? 'bg-primary' : (orden.estado == 'EN_REPARACION' ? 'bg-warning text-dark' : (orden.estado == 'ESPERANDO_REPUESTO' ? 'bg-danger' : 'bg-success'))}"
-                      th:text="${orden.estado == 'EN_DIAGNOSTICO' ? 'En Diagnóstico' : (orden.estado == 'EN_REPARACION' ? 'En Reparación' : (orden.estado == 'ESPERANDO_REPUESTO' ? 'Esperando Repuesto' : 'Listo para Entrega'))}"></span>
+                      th:classappend="${orden.estado == 'EN_COLA' ? 'bg-secondary' : (orden.estado == 'EN_DIAGNOSTICO' ? 'bg-primary' : (orden.estado == 'EN_REPARACION' ? 'bg-warning text-dark' : (orden.estado == 'ESPERANDO_REPUESTO' ? 'bg-danger' : 'bg-success')))}"
+                      th:text="${orden.estado == 'EN_COLA' ? 'En Cola' : (orden.estado == 'EN_DIAGNOSTICO' ? 'En Diagnóstico' : (orden.estado == 'EN_REPARACION' ? 'En Reparación' : (orden.estado == 'ESPERANDO_REPUESTO' ? 'Esperando Repuesto' : 'Listo para Entrega')))}"></span>
             </div>
+
             <div class="card-body p-4">
-                <div class="row mb-3">
-                    <div class="col-md-6">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-3">
                         <small class="text-muted d-block">Bicicleta</small>
-                        <span class="fw-semibold" th:text="${(orden.bicicletaMarca != null ? orden.bicicletaMarca : 'N/A') + ' ' + (orden.bicicletaModelo != null ? orden.bicicletaModelo : '')}"></span>
+                        <span class="fw-semibold" th:text="${(orden.bicicletaMarca != null ? orden.bicicletaMarca : 'N/A') + (orden.bicicletaModelo != null ? ' ' + orden.bicicletaModelo : '')}"></span>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-3">
                         <small class="text-muted d-block">Fecha de registro</small>
                         <span th:text="${#temporals.format(orden.fechaRegistro, 'dd/MM/yyyy HH:mm')}"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted d-block">Mano de obra</small>
+                        <span class="fw-semibold" th:text="${orden.precioServicio != null ? '$ ' + #numbers.formatDecimal(orden.precioServicio, 1, 'DEFAULT', 2, 'DEFAULT') : '-'}"></span>
+                    </div>
+                    <div class="col-md-3" th:if="${orden.operarioAsignado != null and orden.operarioAsignado.nombre != null}">
+                        <small class="text-muted d-block">Operario a cargo</small>
+                        <span class="fw-semibold" th:text="${orden.operarioAsignado.nombre}"></span>
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-12">
                         <small class="text-muted d-block mb-1">Servicio solicitado</small>
-                        <p class="mb-0 border rounded p-3 bg-light" th:text="${orden.descripcion}"></p>
+                        <p class="mb-0 border rounded-3 p-3 bg-light" th:text="${orden.descripcion}"></p>
+                    </div>
+                </div>
+
+                <div th:if="${orden.repuestos != null and !orden.repuestos.isEmpty()}" class="mb-3">
+                    <small class="text-muted d-block mb-2">Repuestos utilizados</small>
+                    <div class="table-responsive border rounded-3">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-3 py-2">Repuesto</th>
+                                    <th class="text-center py-2">Cant.</th>
+                                    <th class="text-end py-2">Precio</th>
+                                    <th class="text-end pe-3 py-2">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="rep : ${orden.repuestos}">
+                                    <td class="ps-3" th:text="${rep.producto != null ? rep.producto.nombre : 'Repuesto removido'}"></td>
+                                    <td class="text-center" th:text="${rep.cantidad}"></td>
+                                    <td class="text-end" th:text="${'$ ' + #numbers.formatDecimal(rep.precioUnitario, 1, 'DEFAULT', 2, 'DEFAULT')}"></td>
+                                    <td class="text-end pe-3 fw-bold" th:text="${'$ ' + #numbers.formatDecimal(rep.subtotal, 1, 'DEFAULT', 2, 'DEFAULT')}"></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
                 <div class="row g-2">
                     <div class="col-6 col-md-3 text-center"
-                         th:classappend="${orden.estado == 'EN_DIAGNOSTICO' or orden.estado == 'EN_REPARACION' or orden.estado == 'ESPERANDO_REPUESTO' or orden.estado == 'TERMINADO' ? '' : 'opacity-25'}">
-                        <div class="p-2 rounded-3 border border-success text-success bg-success bg-opacity-10">
+                         th:classappend="${orden.estado == 'EN_COLA' or orden.estado == 'EN_DIAGNOSTICO' or orden.estado == 'EN_REPARACION' or orden.estado == 'ESPERANDO_REPUESTO' or orden.estado == 'TERMINADO' ? '' : 'opacity-25'}">
+                        <div class="p-2 rounded-3 border border-success text-success bg-success bg-opacity-10" th:classappend="${orden.estado == 'EN_COLA' ? 'border-2' : ''}">
                             <i class="bi bi-clipboard-check fs-4 d-block"></i>
                             <small class="fw-bold">En Cola</small>
                         </div>
                     </div>
                     <div class="col-6 col-md-3 text-center"
                          th:classappend="${orden.estado == 'EN_DIAGNOSTICO' or orden.estado == 'EN_REPARACION' or orden.estado == 'ESPERANDO_REPUESTO' or orden.estado == 'TERMINADO' ? '' : 'opacity-25'}">
-                        <div class="p-2 rounded-3 border border-primary text-primary bg-primary bg-opacity-10">
+                        <div class="p-2 rounded-3 border border-primary text-primary bg-primary bg-opacity-10" th:classappend="${orden.estado == 'EN_DIAGNOSTICO' ? 'border-2' : ''}">
                             <i class="bi bi-clipboard-check fs-4 d-block"></i>
                             <small class="fw-bold">Diagnóstico</small>
                         </div>
                     </div>
                     <div class="col-6 col-md-3 text-center"
                          th:classappend="${orden.estado == 'EN_REPARACION' or orden.estado == 'ESPERANDO_REPUESTO' or orden.estado == 'TERMINADO' ? '' : 'opacity-25'}">
-                        <div class="p-2 rounded-3 border border-warning text-dark bg-warning bg-opacity-25">
+                        <div class="p-2 rounded-3 border border-warning text-dark bg-warning bg-opacity-25" th:classappend="${orden.estado == 'EN_REPARACION' ? 'border-2' : ''}">
                             <i class="bi bi-gear fs-4 d-block"></i>
                             <small class="fw-bold">Reparación</small>
                         </div>
                     </div>
                     <div class="col-6 col-md-3 text-center"
                          th:classappend="${orden.estado == 'TERMINADO' ? '' : 'opacity-25'}">
-                        <div class="p-2 rounded-3 border border-success text-dark bg-success bg-opacity-10">
+                        <div class="p-2 rounded-3 border border-success text-dark bg-success bg-opacity-10" th:classappend="${orden.estado == 'TERMINADO' ? 'border-2' : ''}">
                             <i class="bi bi-check2-circle fs-4 d-block"></i>
                             <small class="fw-bold">Terminado</small>
                         </div>
@@ -141,5 +175,11 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script th:src="@{/js/seguridad.js}"></script>
+    <script th:inline="javascript">
+        const username = /*[[${cliente != null ? (cliente.username != null ? cliente.username : cliente.email) : 'invitado'}]]*/ 'invitado';
+        window.CART_KEY = 'carrito_' + username;
+        setTimeout(function () { location.reload(); }, 30000);
+    </script>
+    <script th:src="@{/js/catalogo-cliente.js}"></script>
 </body>
 </html>

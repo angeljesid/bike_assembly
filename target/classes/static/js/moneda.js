@@ -111,8 +111,10 @@
         function setModo(tipo) {
             var registrado = tipo === 'registrado';
             busquedaSection.classList.toggle('d-none', !registrado);
+            /* En modo "cliente final" se captura nombre y cédula manualmente;
+               en modo "registrado" la búsqueda autocompleta ambos campos. */
             campoCedula.classList.toggle('d-none', registrado);
-            campoNombre.classList.toggle('d-none', !registrado);
+            campoNombre.classList.remove('d-none');
             if (!registrado) {
                 limpiarCliente();
             }

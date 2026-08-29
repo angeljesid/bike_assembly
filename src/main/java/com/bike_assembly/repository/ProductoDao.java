@@ -33,4 +33,7 @@ public interface ProductoDao extends JpaRepository<Producto, Long> {
     List<Producto> findByPublicadoTrue();
 
     List<Producto> findByPublicadoTrueAndEliminadoFalse();
+
+    @Query("SELECT p FROM Producto p WHERE p.publicado = true AND p.unidadesPublicadas > 0 AND (p.eliminado = false OR p.eliminado IS NULL)")
+    List<Producto> findProductosDiponiblesParaCliente();
 }

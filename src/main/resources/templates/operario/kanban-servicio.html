@@ -101,13 +101,14 @@
                                 <i class="bi bi-bicycle me-1"></i><span th:text="${orden.bicicletaMarca != null ? orden.bicicletaMarca : 'N/A'}"></span>
                             </small>
                             <small class="d-block text-truncate" th:text="${orden.descripcion}"></small>
-                            <form th:action="@{/operario/actualizar-estado-servicio}" method="post" class="mt-3">
+                            <form th:action="@{/operario/actualizar-estado-servicio}" method="post" class="mt-3 d-grid gap-2">
                                 <input type="hidden" name="ordenId" th:value="${orden.idOrden}">
-                                <select name="nuevoEstado" class="form-select form-select-sm border-0" onchange="this.form.submit()">
-                                    <option value="EN_DIAGNOSTICO" selected>Diagnóstico</option>
-                                    <option value="EN_REPARACION">Reparación</option>
-                                    <option value="ESPERANDO_REPUESTO">Esperando Repuesto</option>
-                                </select>
+                                <button type="submit" name="nuevoEstado" value="EN_REPARACION" class="btn btn-warning btn-lg fw-bold py-2">
+                                    <i class="bi bi-wrench-adjustable me-2"></i>Iniciar Reparación
+                                </button>
+                                <button type="submit" name="nuevoEstado" value="ESPERANDO_REPUESTO" class="btn btn-outline-danger btn-lg fw-bold py-2">
+                                    <i class="bi bi-box-seam me-2"></i>Esperando Repuesto
+                                </button>
                             </form>
                         </div>
                     </div>
@@ -121,19 +122,17 @@
                             <small class="text-muted d-block"><i class="bi bi-person me-1"></i><span th:text="${orden.clienteNombre}"></span></small>
                             <small class="text-muted d-block mb-2"><span th:text="${orden.bicicletaMarca != null ? orden.bicicletaMarca : 'N/A'}"></span></small>
                             <small class="d-block text-truncate" th:text="${orden.descripcion}"></small>
-                            <form th:action="@{/operario/actualizar-estado-servicio}" method="post" class="mt-3">
+                            <form th:action="@{/operario/actualizar-estado-servicio}" method="post" class="mt-3 d-grid gap-2">
                                 <input type="hidden" name="ordenId" th:value="${orden.idOrden}">
-                                <select name="nuevoEstado" class="form-select form-select-sm border-0" onchange="this.form.submit()">
-                                    <option value="EN_REPARACION" selected>Reparación</option>
-                                    <option value="ESPERANDO_REPUESTO">Esperando Repuesto</option>
-                                    <option value="TERMINADO">Terminado</option>
-                                </select>
+                                <button type="submit" name="nuevoEstado" value="ESPERANDO_REPUESTO" class="btn btn-outline-danger btn-lg fw-bold py-2">
+                                    <i class="bi bi-box-seam me-2"></i>Esperando Repuesto
+                                </button>
                             </form>
                             <form th:action="@{/operario/actualizar-estado-servicio}" method="post" class="mt-1 d-grid">
                                 <input type="hidden" name="ordenId" th:value="${orden.idOrden}">
                                 <input type="hidden" name="nuevoEstado" value="TERMINADO">
-                                <button type="submit" class="btn btn-sm btn-success w-100">
-                                    <i class="bi bi-check2-circle me-1"></i> Listo para Entrega
+                                <button type="submit" class="btn btn-success btn-lg fw-bold py-2 w-100">
+                                    <i class="bi bi-check2-circle me-2"></i> Listo para Entrega
                                 </button>
                             </form>
                         </div>
@@ -148,26 +147,25 @@
                             <small class="text-muted d-block"><i class="bi bi-person me-1"></i><span th:text="${orden.clienteNombre}"></span></small>
                             <small class="text-muted d-block mb-2"><span th:text="${orden.bicicletaMarca != null ? orden.bicicletaMarca : 'N/A'}"></span></small>
                             <small class="d-block text-truncate" th:text="${orden.descripcion}"></small>
-                            <form th:action="@{/operario/actualizar-estado-servicio}" method="post" class="mt-3">
+                            <form th:action="@{/operario/actualizar-estado-servicio}" method="post" class="mt-3 d-grid gap-2">
                                 <input type="hidden" name="ordenId" th:value="${orden.idOrden}">
-                                <select name="nuevoEstado" class="form-select form-select-sm border-0" onchange="this.form.submit()">
-                                    <option value="ESPERANDO_REPUESTO" selected>Esperando Repuesto</option>
-                                    <option value="EN_REPARACION">Reparación</option>
-                                </select>
+                                <button type="submit" name="nuevoEstado" value="EN_REPARACION" class="btn btn-warning btn-lg fw-bold py-2">
+                                    <i class="bi bi-arrow-counterclockwise me-2"></i>Volver a Reparación
+                                </button>
                             </form>
                             <form th:action="@{/operario/solicitar-repuesto}" method="post" class="mt-3 border rounded p-2 form-solicitud-repuesto" style="background:#fff8ee;">
                                 <input type="hidden" name="ordenId" th:value="${orden.idOrden}">
                                 <input type="hidden" name="productoId" class="input-producto-id" value="">
                                 <label class="form-label small fw-bold text-muted mb-1">Solicitar repuesto</label>
-                                <input type="text" class="form-control form-control-sm buscador-repuesto"
+                                <input type="text" class="form-control buscador-repuesto"
                                        data-orden-id="${orden.idOrden}" autocomplete="off"
-                                       placeholder="Escribe y selecciona un repuesto...">
+                                       placeholder="Busca y selecciona un repuesto...">
                                 <div class="list-group position-relative shadow-sm d-none sugerencias-repuesto" data-orden-id="${orden.idOrden}"></div>
                                 <div class="input-group mt-2">
-                                    <span class="input-group-text small">Cant.</span>
-                                    <input type="number" name="cantidad" class="form-control form-control-sm cantidad-repuesto" value="1" min="1">
-                                    <button type="button" class="btn btn-sm btn-primary btn-solicitar-repuesto">
-                                        <i class="bi bi-send"></i>
+                                    <span class="input-group-text">Cant.</span>
+                                    <input type="number" name="cantidad" class="form-control cantidad-repuesto" value="1" min="1">
+                                    <button type="button" class="btn btn-primary btn-lg fw-bold btn-solicitar-repuesto">
+                                        <i class="bi bi-send me-1"></i> Solicitar
                                     </button>
                                 </div>
                                 <div class="form-text small text-danger d-none msg-error-repuesto">Selecciona un repuesto de la lista primero.</div>
@@ -187,16 +185,16 @@
                             <div th:if="${!orden.facturado}">
                                 <form th:action="@{/operario/listo-entrega}" method="post" class="mt-3 d-grid">
                                     <input type="hidden" name="ordenId" th:value="${orden.idOrden}">
-                                    <button type="submit" class="btn btn-success w-100">
-                                        <i class="bi bi-box-arrow-right me-1"></i> Listo para Entrega
+                                    <button type="submit" class="btn btn-success btn-lg fw-bold py-2 w-100">
+                                        <i class="bi bi-box-arrow-right me-2"></i> Listo para Entrega
                                     </button>
                                 </form>
 
                                 <form th:action="@{/operario/actualizar-estado-servicio}" method="post" class="mt-1 d-grid">
                                     <input type="hidden" name="ordenId" th:value="${orden.idOrden}">
                                     <input type="hidden" name="nuevoEstado" value="EN_REPARACION">
-                                    <button type="submit" class="btn btn-sm btn-outline-warning w-100">
-                                        <i class="bi bi-arrow-counterclockwise me-1"></i> Devolver a Reparación
+                                    <button type="submit" class="btn btn-outline-warning btn-lg fw-bold py-2 w-100">
+                                        <i class="bi bi-arrow-counterclockwise me-2"></i> Devolver a Reparación
                                     </button>
                                 </form>
                             </div>
