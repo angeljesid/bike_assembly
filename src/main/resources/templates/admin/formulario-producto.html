@@ -143,11 +143,19 @@
                             <div class="col-md-12 mt-3">
                                 <div class="card bg-light border-0">
                                     <div class="card-body">
-                                        <label for="publicado" class="form-label fw-bold text-primary"><i class="bi bi-shop me-2"></i>Publicar en el Mercado</label>
-                                        <select class="form-select border-primary" th:field="*{publicado}" required>
-                                            <option value="true">Sí, mostrar en el catálogo de clientes</option>
-                                            <option value="false">No, mantener solo en mi inventario interno</option>
-                                        </select>
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="chkPublicar"
+                                                th:checked="${producto.unidadesPublicadas != null and producto.unidadesPublicadas > 0}">
+                                            <label class="form-check-label fw-bold text-primary" for="chkPublicar">
+                                                <i class="bi bi-shop me-1"></i>Publicar en el Mercado
+                                            </label>
+                                        </div>
+                                        <label for="unidadesPublicadas" class="form-label fw-semibold">Unidades a Publicar</label>
+                                        <input type="number" class="form-control border-primary" id="unidadesPublicadas" th:field="*{unidadesPublicadas}" required min="0" th:max="${producto.stock}">
+                                        <div class="form-text">
+                                            Debe ser de 1 hasta el stock disponible (<span th:text="${producto.stock != null ? producto.stock : 0}">0</span>).
+                                        </div>
+                                        <span class="form-text text-muted">Desmarca para no publicar nada.</span>
                                     </div>
                                 </div>
                             </div>
@@ -185,6 +193,24 @@
 
             precioInicialInput.addEventListener('input', calcularTotal);
             ivaInput.addEventListener('input', calcularTotal);
+
+            const chkPublicar = document.getElementById('chkPublicar');
+            const unidadesInput = document.getElementById('unidadesPublicadas');
+
+            function aplicarEstadoPublicacion() {
+                if (chkPublicar.checked) {
+                    unidadesInput.disabled = false;
+                    if (unidadesInput.value === '' || unidadesInput.value === '0') {
+                        unidadesInput.value = unidadesInput.max || unidadesInput.value || 0;
+                    }
+                } else {
+                    unidadesInput.disabled = true;
+                    unidadesInput.value = '0';
+                }
+            }
+
+            chkPublicar.addEventListener('change', aplicarEstadoPublicacion);
+            aplicarEstadoPublicacion();
         });
     </script>
 </body>

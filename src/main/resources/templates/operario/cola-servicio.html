@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cola de Servicios - Operario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+
+<div class="layout-wrapper">
+    <div th:replace="~{operario/barra :: sidebar('cola')}"></div>
+
+    <div class="main-content">
+        <div class="top-bar-custom d-flex align-items-center px-4 mb-4" style="height: 70px; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+            <span class="fs-4 fw-bold" style="color: var(--brand-blue);">Cola de Servicios de Bicicleta</span>
+        </div>
+
+        <div class="container-fluid px-4">
+            <p class="text-muted mb-4">
+                <i class="bi bi-inboxes me-1"></i>
+                Pedidos de servicio recién registrados por el cajero o administrador. Toma los que quieras atender: quedarán asignados a ti.
+            </p>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-bold m-0" style="color: var(--brand-blue);">
+                        <i class="bi bi-bell me-2 text-warning"></i>Pedidos En Cola
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div th:if="${enCola == null or enCola.empty}" class="text-center py-5 text-muted">
+                        <i class="bi bi-inboxes fs-1 d-block mb-2 opacity-50"></i>
+                        No hay servicios esperando ser tomados en este momento.
+                    </div>
+                    <table th:if="${enCola != null and !enCola.empty}" class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="py-3 ps-4">N° Orden</th>
+                                <th>Cliente</th>
+                                <th>Bicicleta</th>
+                                <th>Servicio Solicitado</th>
+                                <th>Registro</th>
+                                <th class="text-center">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="orden : ${enCola}">
+                                <td class="ps-4 fw-bold" th:text="${'#SV-' + orden.idOrden}"></td>
+                                <td>
+                                    <span class="fw-semibold" th:text="${orden.clienteNombre}"></span>
+                                    <small class="text-muted d-block" th:text="${orden.clienteTelefono}"></small>
+                                </td>
+                                <td>
+                                    <span th:text="${'Marca: ' + (orden.bicicletaMarca != null ? orden.bicicletaMarca : 'N/A')}"></span>
+                                    <small class="text-muted d-block" th:text="${'Modelo: ' + (orden.bicicletaModelo != null ? orden.bicicletaModelo : 'N/A')}"></small>
+                                </td>
+                                <td style="max-width: 260px;">
+                                    <span class="d-block text-truncate" th:text="${orden.descripcion}"></span>
+                                </td>
+                                <td th:text="${#temporals.format(orden.fechaRegistro, 'dd/MM/yyyy HH:mm')}"></td>
+                                <td class="text-center">
+                                    <form th:action="@{/operario/tomar}" method="post">
+                                        <input type="hidden" name="ordenId" th:value="${orden.idOrden}">
+                                        <button type="submit" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-hand-index-thumb me-1"></i> Tomar
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/seguridad.js}"></script>
+</body>
+</html>

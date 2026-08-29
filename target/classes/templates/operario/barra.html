@@ -25,9 +25,15 @@
                 </a>
             </li>
             <li class="nav-item mt-1">
-                <a href="/operario/kanban" class="nav-link text-white d-flex align-items-center gap-2" th:classappend="${seccion == 'kanban' ? 'active bg-primary' : ''}">
-                    <i class="bi bi-kanban fs-5"></i>
-                    <span>Tablero Kanban</span>
+                <a href="/operario/cola" class="nav-link text-white d-flex align-items-center gap-2" th:classappend="${seccion == 'cola' ? 'active bg-primary' : ''}">
+                    <i class="bi bi-inboxes fs-5"></i>
+                    <span>Cola de Servicios</span>
+                </a>
+            </li>
+            <li class="nav-item mt-1">
+                <a href="/operario/kanban-servicios" class="nav-link text-white d-flex align-items-center gap-2" th:classappend="${seccion == 'servicios' ? 'active bg-primary' : ''}">
+                    <i class="bi bi-person-gear fs-5"></i>
+                    <span>Mis Servicios</span>
                 </a>
             </li>
         </ul>

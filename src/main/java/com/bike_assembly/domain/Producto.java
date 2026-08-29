@@ -53,6 +53,9 @@ public class Producto implements Serializable {
     @Column(nullable = false)
     private Boolean publicado = false;
 
+    @Column(name = "unidades_publicadas")
+    private Integer unidadesPublicadas = 0;
+
     public Producto() {
     }
 
@@ -106,4 +109,7 @@ public class Producto implements Serializable {
 
     public Boolean getPublicado() { return publicado; }
     public void setPublicado(Boolean publicado) { this.publicado = publicado; }
+
+    public Integer getUnidadesPublicadas() { return unidadesPublicadas; }
+    public void setUnidadesPublicadas(Integer unidadesPublicadas) { this.unidadesPublicadas = unidadesPublicadas; }
 }

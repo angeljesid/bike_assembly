@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bike Assembly - Registrar Servicio de Bicicleta</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="bg-light">
+    <div class="d-flex vh-100">
+        <th:block th:if="${empleado != null}">
+            <th:block th:if="${empleado.rol.name() == 'ADMIN'}">
+                <div th:replace="~{admin/barra :: sidebar('servicio')}"></div>
+            </th:block>
+
+            <th:block th:if="${empleado.rol.name() == 'CAJA'}">
+                <div th:replace="~{caja/barra :: sidebar('servicio')}"></div>
+            </th:block>
+        </th:block>
+
+        <div class="flex-grow-1 p-4 overflow-auto">
+            <div class="mb-4">
+                <h2 class="fw-bold" style="color: var(--brand-blue);">
+                    <i class="bi bi-wrench-adjustable me-2"></i>Registrar Servicio de Bicicleta
+                </h2>
+                <p class="text-muted m-0">Captura los datos del servicio que el cliente solicita para tu taller.</p>
+            </div>
+
+            <div th:if="${param.exito != null}" class="alert alert-success border-0 d-flex align-items-start gap-2 mb-4">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Servicio registrado correctamente. Ya está en la cola de pedidos para que un operario lo tome.</span>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header header-form py-3">
+                    <h5 class="mb-0">Nueva Orden de Servicio</h5>
+                </div>
+                <div class="card-body p-4">
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Tipo de Cliente</label>
+                        <div class="d-flex gap-3">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="tipoCliente" id="tipoRegistrado" value="registrado" checked>
+                                <label class="form-check-label fw-semibold" for="tipoRegistrado">
+                                    <i class="bi bi-person-badge me-1"></i>Cliente Registrado (por cédula)
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="tipoCliente" id="tipoFinal" value="final">
+                                <label class="form-check-label fw-semibold" for="tipoFinal">
+                                    <i class="bi bi-person-plus me-1"></i>Cliente Final (sin cuenta)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form th:action="@{/caja/servicio/guardar}" th:object="${orden}" method="POST" class="row g-3">
+
+                        <input type="hidden" th:field="*{idOrden}"/>
+                        <input type="hidden" name="clienteId" id="clienteId" value="">
+                        <input type="hidden" name="precioServicioVal" id="precioServicioVal" value="0">
+
+                        <div class="col-12" id="busquedaClienteSection">
+                            <label class="form-label fw-bold">Buscar cliente por cédula o nombre</label>
+                            <div class="position-relative">
+                                <input type="text" id="busquedaCliente" class="form-control" autocomplete="off"
+                                       placeholder="Escribe la cédula o nombre del cliente...">
+                                <div id="sugerencias" class="list-group position-absolute w-100 shadow-sm d-none"></div>
+                            </div>
+                            <div id="clienteSeleccionado" class="alert alert-primary border-0 mt-2 d-none">
+                                <i class="bi bi-person-check me-1"></i>
+                                <strong id="clienteSelNombre">-</strong> ·
+                                <span id="clienteSelCedula">-</span>
+                                <button type="button" class="btn btn-sm btn-outline-primary float-end" id="limpiarCliente">Quitar</button>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6" id="campoNombre">
+                            <label for="clienteNombre" class="form-label fw-bold">Nombre del Cliente</label>
+                            <input type="text" class="form-control" th:field="*{clienteNombre}" required maxlength="100" minlength="2"
+                                   pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ .,/-]+" title="Solo letras y caracteres básicos"
+                                   placeholder="Nombre del cliente">
+                        </div>
+
+                        <div class="col-md-6 d-none" id="campoCedula">
+                            <label for="clienteCedula" class="form-label fw-bold">Cédula</label>
+                            <input type="text" class="form-control" th:field="*{clienteCedula}" maxlength="30"
+                                   pattern="[0-9]+" title="Solo números"
+                                   placeholder="Cédula del cliente">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="clienteTelefono" class="form-label fw-bold">Teléfono</label>
+                            <input type="tel" class="form-control" th:field="*{clienteTelefono}" maxlength="30"
+                                   pattern="[0-9()+ \-]+" title="Solo números y símbolos de teléfono"
+                                   placeholder="Ej: 300 123 4567">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="bicicletaMarca" class="form-label fw-bold">Marca de la Bicicleta</label>
+                            <input type="text" class="form-control" th:field="*{bicicletaMarca}" maxlength="100"
+                                   pattern="[A-Za-z0-9 .,/_\-() ]+" title="Solo letras, números y caracteres básicos"
+                                   placeholder="Ej: Giant, Trek, Specialized">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="bicicletaModelo" class="form-label fw-bold">Modelo</label>
+                            <input type="text" class="form-control" th:field="*{bicicletaModelo}" maxlength="100"
+                                   pattern="[A-Za-z0-9 .,/_\-() ]+" title="Solo letras, números y caracteres básicos"
+                                   placeholder="Ej: Talon 2, Marlin 7">
+                        </div>
+
+                        <div class="col-12">
+                            <label for="descripcion" class="form-label fw-bold">Descripción del Servicio / Problema</label>
+                            <textarea class="form-control" th:field="*{descripcion}" rows="4" required maxlength="1000"
+                                      placeholder="Describe qué necesita la bicicleta: cambio de frenos, ajuste de cambios, mantenimiento general..."></textarea>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="precioServicioInput" class="form-label fw-bold">Precio del Servicio (Mano de Obra)</label>
+                            <input type="text" id="precioServicioInput" class="form-control" placeholder="Ej: 45.000"
+                                   onblur="sincronizarPrecioServicio()">
+                            <small class="text-muted">Formato de moneda: $1.234.567,89</small>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Repuestos a incluir</label>
+                            <div class="d-flex gap-2 mb-2">
+                                <input type="text" id="buscadorRepuesto" class="form-control" autocomplete="off" placeholder="Escribe el nombre o código del repuesto...">
+                                <button type="button" class="btn btn-outline-primary" id="btnAgregarRepuesto"><i class="bi bi-plus-lg"></i></button>
+                            </div>
+                            <div id="sugerenciasRepuesto" class="list-group position-relative shadow-sm d-none mb-2"></div>
+
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Repuesto</th>
+                                            <th style="width: 110px;">Cantidad</th>
+                                            <th style="width: 160px;">Precio Unitario</th>
+                                            <th style="width: 130px;">Subtotal</th>
+                                            <th style="width: 50px;"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tablaRepuestos">
+                                        <tr id="filaRepuestoVacia">
+                                            <td colspan="5" class="text-center text-muted py-3">No se han agregado repuestos.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="col-12 d-flex justify-content-end align-items-center gap-3 mt-4">
+                            <div class="me-auto fs-5">
+                                <span class="text-muted">Total a facturar: </span>
+                                <strong class="text-success" id="totalServicio">$ 0,00</strong>
+                            </div>
+                            <a th:href="@{/caja/pedidos}" class="btn btn-outline-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-send me-1"></i> Registrar Servicio
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const tipoRegistrado = document.getElementById('tipoRegistrado');
+            const tipoFinal = document.getElementById('tipoFinal');
+            const busquedaSection = document.getElementById('busquedaClienteSection');
+            const campoNombre = document.getElementById('campoNombre');
+            const campoCedula = document.getElementById('campoCedula');
+            const busquedaInput = document.getElementById('busquedaCliente');
+            const sugerencias = document.getElementById('sugerencias');
+            const clienteSeleccionado = document.getElementById('clienteSeleccionado');
+            const clienteIdHidden = document.getElementById('clienteId');
+            const inputNombre = document.querySelector('[name="clienteNombre"]');
+            const inputCedula = document.querySelector('[name="clienteCedula"]');
+            const clienteSelNombre = document.getElementById('clienteSelNombre');
+            const clienteSelCedula = document.getElementById('clienteSelCedula');
+
+            function setModo(tipo) {
+                const registrado = tipo === 'registrado';
+                busquedaSection.classList.toggle('d-none', !registrado);
+                campoCedula.classList.toggle('d-none', registrado);
+                campoNombre.classList.toggle('d-none', !registrado);
+                if (!registrado) {
+                    limpiarCliente();
+                    inputNombre.required = true;
+                } else {
+                    inputNombre.required = true;
+                }
+            }
+
+            function limpiarCliente() {
+                clienteIdHidden.value = '';
+                busquedaInput.value = '';
+                clienteSeleccionado.classList.add('d-none');
+                inputNombre.readOnly = false;
+                inputCedula.readOnly = false;
+            }
+
+            tipoRegistrado.addEventListener('change', function () { setModo('registrado'); });
+            tipoFinal.addEventListener('change', function () { setModo('final'); });
+
+            document.getElementById('limpiarCliente').addEventListener('click', limpiarCliente);
+
+            busquedaInput.addEventListener('input', function () {
+                const termino = this.value.trim();
+                if (termino.length < 2) {
+                    sugerencias.classList.add('d-none');
+                    sugerencias.innerHTML = '';
+                    if (!clienteSeleccionado.classList.contains('d-none') && clienteIdHidden.value) {
+                        limpiarCliente();
+                    }
+                    return;
+                }
+                fetch('/caja/api/buscar-cliente?termino=' + encodeURIComponent(termino))
+                    .then(r => r.json())
+                    .then(clientes => {
+                        sugerencias.innerHTML = '';
+                        if (!clientes || clientes.length === 0) {
+                            sugerencias.innerHTML = '<button type="button" class="list-group-item list-group-item-action disabled">Sin resultados</button>';
+                            sugerencias.classList.remove('d-none');
+                            return;
+                        }
+                        clientes.forEach(c => {
+                            const btn = document.createElement('button');
+                            btn.type = 'button';
+                            btn.className = 'list-group-item list-group-item-action d-flex justify-content-between';
+                            btn.innerHTML = '<span><i class="bi bi-person me-1"></i>' + (c.nombre || '') + '</span><small class="text-muted">' + (c.cedula || '') + '</small>';
+                            btn.addEventListener('click', function () { seleccionarCliente(c); });
+                            sugerencias.appendChild(btn);
+                        });
+                        sugerencias.classList.remove('d-none');
+                    });
+            });
+
+            function seleccionarCliente(c) {
+                clienteIdHidden.value = c.idUsuario;
+                inputNombre.value = c.nombre || '';
+                inputCedula.value = c.cedula || '';
+                inputNombre.readOnly = true;
+                inputCedula.readOnly = true;
+                clienteSelNombre.textContent = c.nombre || '';
+                clienteSelCedula.textContent = c.cedula || 'No registrada';
+                clienteSeleccionado.classList.remove('d-none');
+                sugerencias.classList.add('d-none');
+                sugerencias.innerHTML = '';
+                busquedaInput.value = c.nombre && c.cedula ? (c.nombre + ' - ' + c.cedula) : (c.nombre || c.cedula || '');
+            }
+
+            document.addEventListener('click', function (e) {
+                if (!busquedaSection.contains(e.target)) {
+                    sugerencias.classList.add('d-none');
+                }
+            });
+
+            const precioServicioInput = document.getElementById('precioServicioInput');
+            const precioServicioVal = document.getElementById('precioServicioVal');
+            const buscadorRepuesto = document.getElementById('buscadorRepuesto');
+            const sugerenciasRepuesto = document.getElementById('sugerenciasRepuesto');
+            const tablaRepuestos = document.getElementById('tablaRepuestos');
+            const totalServicioEl = document.getElementById('totalServicio');
+            let productosDisponibles = [];
+            let repuestosSel = [];
+
+            function sincronizarPrecioServicio() {
+                const n = (window.moneda && window.moneda.parse) ? window.moneda.parse(precioServicioInput.value) : parseFloat(precioServicioInput.value || 0);
+                precioServicioVal.value = isNaN(n) ? '0' : n.toFixed(2);
+                recalcularTotal();
+            }
+            window.sincronizarPrecioServicio = sincronizarPrecioServicio;
+            if (window.moneda && window.moneda.formatearInput) {
+                window.moneda.formatearInput(precioServicioInput);
+            }
+
+            fetch('/caja/api/productos')
+                .then(r => r.json())
+                .then(p => {
+                    productosDisponibles = p || [];
+                });
+
+            function recalcularTotal() {
+                const precio = numberFromInput(precioServicioVal.value);
+                let total = precio;
+                repuestosSel.forEach(r => {
+                    total += (r.precio * r.cantidad);
+                });
+                totalServicioEl.textContent = (window.moneda && window.moneda.formato) ? window.moneda.formato(total) : ('$ ' + total.toFixed(2));
+            }
+            function numberFromInput(v) {
+                const n = parseFloat(v);
+                return isNaN(n) ? 0 : n;
+            }
+            function escaparHtml(s) {
+                return String(s).replace(/[&<>"']/g, function (c) {
+                    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+                });
+            }
+
+            buscadorRepuesto.addEventListener('input', function () {
+                const t = this.value.trim().toLowerCase();
+                sugerenciasRepuesto.innerHTML = '';
+                if (t.length < 2) {
+                    sugerenciasRepuesto.classList.add('d-none');
+                    return;
+                }
+                const filtrados = productosDisponibles.filter(p =>
+                    (p.nombre && p.nombre.toLowerCase().includes(t)) ||
+                    (p.marca && p.marca.toLowerCase().includes(t)) ||
+                    (p.codigoBarras && p.codigoBarras.toLowerCase().includes(t))
+                ).slice(0, 8);
+                if (filtrados.length === 0) {
+                    sugerenciasRepuesto.innerHTML = '<button type="button" class="list-group-item list-group-item-action disabled">Sin resultados</button>';
+                    sugerenciasRepuesto.classList.remove('d-none');
+                    return;
+                }
+                filtrados.forEach(p => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+                    const precio = (p.precioTotal != null ? p.precioTotal : (p.precio != null ? p.precio : 0));
+                    btn.innerHTML = '<span><strong>' + escaparHtml(p.nombre || '') + '</strong><br><small class="text-muted">' +
+                        escaparHtml(p.marca || '') + ' · ' + ((p.stock != null) ? ('Stock: ' + p.stock) : 'Servicio') +
+                        '</small></span><span class="text-success fw-bold">' + ((window.moneda && window.moneda.formato) ? window.moneda.formato(precio) : precio) + '</span>';
+                    btn.addEventListener('click', function () {
+                        agregarRepuesto(p);
+                        buscadorRepuesto.value = '';
+                        sugerenciasRepuesto.classList.add('d-none');
+                    });
+                    sugerenciasRepuesto.appendChild(btn);
+                });
+                sugerenciasRepuesto.classList.remove('d-none');
+            });
+
+            function agregarRepuesto(producto) {
+                const precio = (producto.precioTotal != null ? producto.precioTotal : (producto.precio != null ? producto.precio : 0));
+                if ((producto.stock != null && producto.stock <= 0)) {
+                    alert('No hay stock disponible para este repuesto.');
+                    return;
+                }
+                repuestosSel.push({ id: producto.idProducto, nombre: producto.nombre, precio: precio, cantidad: 1, stockMax: producto.stock });
+                renderRepuestos();
+            }
+
+            function renderRepuestos() {
+                tablaRepuestos.innerHTML = '';
+                if (repuestosSel.length === 0) {
+                    tablaRepuestos.innerHTML = '<tr id="filaRepuestoVacia"><td colspan="5" class="text-center text-muted py-3">No se han agregado repuestos.</td></tr>';
+                } else {
+                    repuestosSel.forEach((r, idx) => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML =
+                            '<td class="fw-bold">' + escaparHtml(r.nombre) +
+                            '<input type="hidden" name="repuestoProductoId" value="' + r.id + '"></td>' +
+                            '<td><input type="number" min="1" class="form-control form-control-sm" name="repuestoCantidad" value="' + r.cantidad +
+                            '" onchange="cambiarCantidad(' + idx + ', this.value)" data-idx="' + idx + '"></td>' +
+                            '<td><input type="text" class="form-control form-control-sm repuestoPrecioInput" value="' + moneda.formato(r.precio).replace('$ ', '') +
+                            '"><input type="hidden" name="repuestoPrecio" value="' + r.precio.toFixed(2) + '"></td>' +
+                            '<td class="text-end fw-bold" data-idx="' + idx + '">' + moneda.formato(r.precio * r.cantidad) + '</td>' +
+                            '<td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger" onclick="quitarRepuesto(' + idx + ')"><i class="bi bi-trash"></i></button></td>';
+                        tablaRepuestos.appendChild(tr);
+                        const pInput = tr.querySelector('.repuestoPrecioInput');
+                        moneda.formatearInput(pInput);
+                        pInput.addEventListener('blur', function () {
+                            const n = moneda.parse(pInput.value);
+                            r.precio = n;
+                            tr.querySelector('input[name="repuestoPrecio"]').value = n.toFixed(2);
+                            actualizarSubtotal(idx);
+                        });
+                    });
+                }
+                recalcularTotal();
+            }
+
+            window.cambiarCantidad = function (idx, v) {
+                const cant = parseInt(v, 10) || 1;
+                const r = repuestosSel[idx];
+                if (r.stockMax != null && cant > r.stockMax) {
+                    alert('El stock máximo disponible es ' + r.stockMax);
+                    changeQty(idx, r.stockMax);
+                    return;
+                }
+                r.cantidad = cant;
+                renderRepuestos();
+            };
+            function changeQty(idx, val) {
+                repuestosSel[idx].cantidad = val;
+                renderRepuestos();
+            }
+            window.quitarRepuesto = function (idx) {
+                repuestosSel.splice(idx, 1);
+                renderRepuestos();
+            };
+            function actualizarSubtotal(idx) {
+                const r = repuestosSel[idx];
+                const tdSub = tablaRepuestos.querySelector('td[data-idx="' + idx + '"]');
+                if (tdSub) {
+                    tdSub.textContent = moneda.formato(r.precio * r.cantidad);
+                }
+                recalcularTotal();
+            }
+
+            document.getElementById('btnAgregarRepuesto').addEventListener('click', function () {
+                buscadorRepuesto.dispatchEvent(new Event('input'));
+            });
+
+            document.addEventListener('click', function (e) {
+                const cont = document.getElementById('buscadorRepuesto').parentElement;
+                if (!cont.contains(e.target)) {
+                    sugerenciasRepuesto.classList.add('d-none');
+                }
+            });
+
+            setModo('registrado');
+            recalcularTotal();
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/moneda.js}"></script>
+    <script th:src="@{/js/seguridad.js}"></script>
+</body>
+</html>

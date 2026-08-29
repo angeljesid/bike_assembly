@@ -2,9 +2,11 @@ package com.bike_assembly.web;
 
 import com.bike_assembly.domain.Usuario;
 import com.bike_assembly.domain.Venta;
+import com.bike_assembly.domain.OrdenServicio;
 import com.bike_assembly.domain.VentaRequestDTO;
 import com.bike_assembly.repository.UsuarioDao;
 import com.bike_assembly.security.SessionUtils;
+import com.bike_assembly.services.ordenservicio.IOrdenServicioService;
 import com.bike_assembly.services.venta.IVentaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +36,9 @@ public class ClienteController {
 
     @Autowired
     private IVentaService ventaService;
+
+    @Autowired
+    private IOrdenServicioService ordenServicioService;
 
     private Usuario obtenerClienteAutenticado() {
         return sessionUtils.usuarioActual();
@@ -85,6 +90,25 @@ public class ClienteController {
         }
         
         return "cliente/mis-pedidos"; 
+    }
+
+    @GetMapping("/servicios")
+    public String misServicios(Model model) {
+        Usuario cliente = obtenerClienteAutenticado();
+
+        if (cliente != null) {
+            List<OrdenServicio> ordenes = ordenServicioService.listarPorCliente(cliente);
+            model.addAttribute("ordenes", ordenes);
+            model.addAttribute("enProceso", ordenes.stream()
+                    .filter(o -> !"TERMINADO".equals(o.getEstado()))
+                    .count());
+            model.addAttribute("terminados", ordenes.stream()
+                    .filter(o -> "TERMINADO".equals(o.getEstado()))
+                    .count());
+            model.addAttribute("cliente", cliente);
+        }
+
+        return "cliente/seguimiento-servicios";
     }
 
     @PostMapping("/api/checkout")

@@ -29,6 +29,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let listaProductosGlobal = [];
     let carrito = [];
 
+    const fmt = (valor) => {
+        if (window.moneda && window.moneda.formato) {
+            return window.moneda.formato(valor);
+        }
+        return `$ ${Number(valor || 0).toFixed(2)}`;
+    };
+
     async function cargarProductosCaja() {
         try {
             const response = await fetch('/caja/api/productos');
@@ -158,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span class="fw-bold text-dark">${p.nombre}</span>
                             <small class="text-muted d-block">Marca: ${p.marca || 'N/A'} | Stock: ${p.stock || 0} | Código: ${codigo}</small>
                         </div>
-                        <span class="badge bg-primary rounded-pill fs-6">$ ${precio}</span>
+                        <span class="badge bg-primary rounded-pill fs-6">${fmt(precio)}</span>
                     </button>
                 `;
             });
@@ -285,8 +292,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     </td>
                 </tr>
             `;
-            resumenSubtotal.textContent = '$ 0.00';
-            resumenTotal.textContent = '$ 0.00';
+            resumenSubtotal.textContent = fmt(0);
+            resumenTotal.textContent = fmt(0);
             btnCobrar.disabled = true;
             return;
         }
@@ -299,7 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
             html += `
                 <tr>
                     <td class="ps-4 fw-bold text-dark">${item.nombre}</td>
-                    <td class="text-end text-muted">$ ${item.precioUnitario.toFixed(2)}</td>
+                    <td class="text-end text-muted">${fmt(item.precioUnitario)}</td>
                     <td class="text-center">
                         <div class="input-group input-group-sm justify-content-center">
                             <button class="btn btn-outline-secondary px-2" onclick="cambiarCantidad(${item.idProducto}, -1)">-</button>
@@ -307,7 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <button class="btn btn-outline-secondary px-2" onclick="cambiarCantidad(${item.idProducto}, 1)">+</button>
                         </div>
                     </td>
-                    <td class="text-end fw-bold">$ ${item.subtotal.toFixed(2)}</td>
+                    <td class="text-end fw-bold">${fmt(item.subtotal)}</td>
                     <td class="text-center">
                         <button class="btn btn-sm btn-outline-danger border-0" onclick="eliminarItem(${item.idProducto})">
                             <i class="bi bi-trash"></i>
@@ -318,8 +325,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         tablaCarrito.innerHTML = html;
-        resumenSubtotal.textContent = `$ ${totalGeneral.toFixed(2)}`;
-        resumenTotal.textContent = `$ ${totalGeneral.toFixed(2)}`;
+        resumenSubtotal.textContent = fmt(totalGeneral);
+        resumenTotal.textContent = fmt(totalGeneral);
         btnCobrar.disabled = false;
         calcularCambio();
     }
@@ -330,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalGeneral = carrito.reduce((acc, item) => acc + item.subtotal, 0);
         const recibido = parseFloat(montoRecibidoInput.value) || 0;
         const cambio = recibido - totalGeneral;
-        montoCambioSpan.textContent = `$ ${cambio >= 0 ? cambio.toFixed(2) : '0.00'}`;
+        montoCambioSpan.textContent = fmt(cambio >= 0 ? cambio : 0);
     }
 
     btnCobrar.addEventListener('click', async () => {

@@ -1,6 +1,8 @@
 package com.bike_assembly.web;
 
+import com.bike_assembly.domain.OrdenServicio;
 import com.bike_assembly.domain.Producto;
+import com.bike_assembly.domain.RepuestoOrdenServicio;
 import com.bike_assembly.domain.Rol;
 import com.bike_assembly.domain.Usuario;
 import com.bike_assembly.domain.Venta;
@@ -8,6 +10,7 @@ import com.bike_assembly.domain.VentaRequestDTO;
 import com.bike_assembly.repository.ProductoDao;
 import com.bike_assembly.repository.UsuarioDao;
 import com.bike_assembly.security.SessionUtils;
+import com.bike_assembly.services.ordenservicio.IOrdenServicioService;
 import com.bike_assembly.services.venta.IVentaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +34,9 @@ public class CajaController {
 
     @Autowired
     private IVentaService ventaService;
+
+    @Autowired
+    private IOrdenServicioService ordenServicioService;
 
     @Autowired
     private UsuarioDao usuarioDao;
@@ -74,9 +81,16 @@ public class CajaController {
 
     @GetMapping("/api/buscar-cliente")
     @ResponseBody
-    public ResponseEntity<List<Usuario>> buscarCliente(@RequestParam("termino") String termino) {
+    public ResponseEntity<List<Map<String, Object>>> buscarCliente(@RequestParam("termino") String termino) {
         List<Usuario> clientes = usuarioDao.findByNombreContainingIgnoreCaseOrCedulaContainingIgnoreCaseAndRol(termino, termino, Rol.CLIENTE);
-        return ResponseEntity.ok(clientes);
+        List<Map<String, Object>> resultado = clientes.stream().map(c -> {
+            Map<String, Object> datos = new HashMap<>();
+            datos.put("idUsuario", c.getIdUsuario());
+            datos.put("nombre", c.getNombre());
+            datos.put("cedula", c.getCedula());
+            return datos;
+        }).collect(Collectors.toList());
+        return ResponseEntity.ok(resultado);
     }
 
     @PostMapping("/api/cobrar")
@@ -156,5 +170,62 @@ public class CajaController {
             response.put("mensaje", "La cédula ya está registrada o hubo un error de base de datos.");
             return ResponseEntity.badRequest().body(response);
         }
+    }
+
+    @GetMapping("/servicio/nuevo")
+    public String registrarServicioForm(Model model) {
+        Usuario empleado = obtenerUsuarioAutenticado();
+        model.addAttribute("empleado", empleado);
+        model.addAttribute("orden", new OrdenServicio());
+        return "caja/registrar-servicio";
+    }
+
+    @PostMapping("/servicio/guardar")
+    public String guardarServicio(OrdenServicio orden,
+                                  @RequestParam(value = "clienteId", required = false) Long clienteId,
+                                  @RequestParam(value = "precioServicioVal", required = false) Double precioServicioVal,
+                                  @RequestParam(value = "repuestoProductoId", required = false) List<Long> repuestoProductoId,
+                                  @RequestParam(value = "repuestoCantidad", required = false) List<Integer> repuestoCantidad,
+                                  @RequestParam(value = "repuestoPrecio", required = false) List<Double> repuestoPrecio) {
+        Usuario empleado = obtenerUsuarioAutenticado();
+        if (empleado != null && empleado.getOrganizacion() != null) {
+            if (clienteId != null) {
+                Optional<Usuario> clienteOpt = usuarioDao.findById(clienteId);
+                if (clienteOpt.isPresent() && clienteOpt.get().getRol() == Rol.CLIENTE) {
+                    Usuario cliente = clienteOpt.get();
+                    orden.setClienteUsuario(cliente);
+                    orden.setClienteNombre(cliente.getNombre());
+                    orden.setClienteCedula(cliente.getCedula());
+                }
+            }
+            orden.setPrecioServicio(precioServicioVal != null ? precioServicioVal : 0.0);
+
+            List<RepuestoOrdenServicio> repuestos = new ArrayList<>();
+            if (repuestoProductoId != null && repuestoCantidad != null && repuestoPrecio != null) {
+                for (int i = 0; i < repuestoProductoId.size(); i++) {
+                    Long prodId = repuestoProductoId.get(i);
+                    Integer cant = i < repuestoCantidad.size() ? repuestoCantidad.get(i) : 1;
+                    Double precio = i < repuestoPrecio.size() ? repuestoPrecio.get(i) : 0.0;
+                    if (prodId == null) {
+                        continue;
+                    }
+                    Optional<Producto> prodOpt = productoDao.findById(prodId);
+                    if (prodOpt.isEmpty()) {
+                        continue;
+                    }
+                    RepuestoOrdenServicio rep = new RepuestoOrdenServicio();
+                    rep.setProducto(prodOpt.get());
+                    rep.setCantidad(cant != null && cant > 0 ? cant : 1);
+                    rep.setPrecioUnitario(precio != null ? precio : 0.0);
+                    rep.setSubtotal(rep.getPrecioUnitario() * rep.getCantidad());
+                    repuestos.add(rep);
+                }
+            }
+            orden.setRepuestos(repuestos);
+
+            ordenServicioService.registrar(orden, empleado);
+            return "redirect:/caja/servicio/nuevo?exito=true";
+        }
+        return "redirect:/caja/servicio/nuevo";
     }
 }

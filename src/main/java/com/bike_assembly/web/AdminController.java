@@ -141,6 +141,13 @@ public class AdminController {
         }
         
         model.addAttribute("producto", producto);
+        if (producto.getUnidadesPublicadas() == null || producto.getUnidadesPublicadas() == 0) {
+            if (Boolean.TRUE.equals(producto.getPublicado()) && producto.getStock() != null && producto.getStock() > 0) {
+                producto.setUnidadesPublicadas(producto.getStock());
+            } else {
+                producto.setUnidadesPublicadas(0);
+            }
+        }
         
         model.addAttribute("proveedores", proveedorService.listarProveedoresPorOrganizacion(admin.getOrganizacion()));
             
@@ -192,7 +199,18 @@ public class AdminController {
                 e.printStackTrace();
             }
         }
-        
+
+        Integer stock = producto.getStock() != null ? producto.getStock() : 0;
+        Integer unidades = producto.getUnidadesPublicadas() != null ? producto.getUnidadesPublicadas() : 0;
+        if (unidades < 0) {
+            unidades = 0;
+        }
+        if (unidades > stock) {
+            unidades = stock;
+        }
+        producto.setUnidadesPublicadas(unidades);
+        producto.setPublicado(unidades > 0);
+
         productoService.guardar(producto);
         return "redirect:/admin/producto";
     }
