@@ -72,10 +72,10 @@ public class OrdenServicioService implements IOrdenServicioService {
     @Override
     @Transactional(readOnly = true)
     public List<OrdenServicio> listarPorCliente(Usuario cliente) {
-        if (cliente == null || cliente.getOrganizacion() == null) {
+        if (cliente == null) {
             return List.of();
         }
-        return ordenServicioDao.findByClienteUsuarioAndOrganizacion(cliente, cliente.getOrganizacion());
+        return ordenServicioDao.findByClienteUsuarioAndFacturadoFalse(cliente);
     }
 
     @Override

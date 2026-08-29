@@ -21,5 +21,9 @@ public interface OrdenServicioDao extends JpaRepository<OrdenServicio, Long> {
 
     List<OrdenServicio> findByClienteUsuarioAndOrganizacion(Usuario cliente, Organizacion organizacion);
 
+    List<OrdenServicio> findByClienteUsuario(Usuario cliente);
+
+    List<OrdenServicio> findByClienteUsuarioAndFacturadoFalse(Usuario cliente);
+
     List<OrdenServicio> findByOrganizacion(Organizacion organizacion);
 }
