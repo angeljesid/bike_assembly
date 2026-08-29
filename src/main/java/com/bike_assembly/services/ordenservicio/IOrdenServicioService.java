@@ -3,6 +3,7 @@ package com.bike_assembly.services.ordenservicio;
 import com.bike_assembly.domain.OrdenServicio;
 import com.bike_assembly.domain.Organizacion;
 import com.bike_assembly.domain.Usuario;
+import com.bike_assembly.domain.Venta;
 
 import java.util.List;
 
@@ -20,7 +21,9 @@ public interface IOrdenServicioService {
 
     boolean actualizarEstado(Long idOrden, String nuevoEstado, Usuario operario);
 
-    void facturarServicio(OrdenServicio orden, Usuario empleado);
+    Venta marcarListoEntrega(Long idOrden, Usuario operario);
+
+    Venta facturarServicio(OrdenServicio orden, Usuario empleado);
 
     List<OrdenServicio> listarTodas(Organizacion organizacion);
 }

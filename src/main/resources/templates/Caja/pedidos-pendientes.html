@@ -33,18 +33,24 @@
                                 <th class="py-3">Cliente</th>
                                 <th class="py-3">Fecha</th>
                                 <th class="py-3 text-end">Total</th>
+                                <th class="py-3 text-center">Detalle</th>
                                 <th class="py-3 text-center">Acción</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr th:if="${pedidos == null or pedidos.empty}">
-                                <td colspan="5" class="text-center py-4 text-muted">No hay pedidos pendientes en este momento</td>
+                                <td colspan="6" class="text-center py-4 text-muted">No hay pedidos pendientes en este momento</td>
                             </tr>
                             <tr th:each="pedido : ${pedidos}">
                                 <td class="ps-4 fw-bold" th:text="${'#PED-' + pedido.idVenta}"></td>
                                 <td th:text="${pedido.cliente != null ? pedido.cliente.nombre : 'Cliente Genérico'}"></td>
                                 <td th:text="${#temporals.format(pedido.fechaHora, 'dd/MM/yyyy HH:mm')}"></td>
                                 <td class="text-end fw-bold text-success" th:text="${'$ ' + pedido.total}"></td>
+                                <td class="text-center">
+                                    <a th:href="@{/caja/factura/{id}(id=${pedido.idVenta})}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> Ver Detalle
+                                    </a>
+                                </td>
                                 <td class="text-center">
                                     <form th:action="@{/caja/pedidos/completar/{id}(id=${pedido.idVenta})}" method="post">
                                         <button type="submit" class="btn btn-sm btn-success">

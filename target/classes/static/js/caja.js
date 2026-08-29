@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+    const MAX_PESTANAS = 5;
+
     const normalizar = (texto) => {
         if (!texto) return '';
         return texto.toString()
@@ -26,8 +28,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputIdClienteSeleccionado = document.getElementById('idClienteSeleccionado');
     const formNuevoCliente = document.getElementById('formNuevoCliente');
 
+    const contenedorPestanas = document.getElementById('contenedorPestanas');
+
     let listaProductosGlobal = [];
-    let carrito = [];
+
+    let tabs = [];
+    let tabActivaId = null;
+    let contadorId = 0;
+
+    const tabActual = () => tabs.find(t => t.id === tabActivaId);
 
     const fmt = (valor) => {
         if (window.moneda && window.moneda.formato) {
@@ -35,6 +44,117 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return `$ ${Number(valor || 0).toFixed(2)}`;
     };
+
+    function crearTab() {
+        let numLibre = 1;
+        while (tabs.some(t => t.numero === numLibre)) {
+            numLibre++;
+        }
+        contadorId++;
+        const tab = {
+            id: contadorId,
+            numero: numLibre,
+            nombre: 'Pestaña ' + numLibre,
+            items: [],
+            clienteId: null,
+            clienteNombre: null,
+            clienteCedula: null,
+            metodoPago: 'EFECTIVO',
+            montoRecibido: ''
+        };
+        tabs.push(tab);
+        tabActivaId = tab.id;
+        renderizarPestanas();
+        sincronizarControles();
+    }
+
+    function cerrarTab(id) {
+        const tab = tabs.find(t => t.id === id);
+        if (!tab) return;
+        if (tab.items.length > 0) {
+            if (!confirm('La pestaña "' + tab.nombre + '" tiene ' + tab.items.length + ' artículo(s) en el carrito. ¿Desea eliminar esta venta pendiente?')) {
+                return;
+            }
+        }
+        const idx = tabs.indexOf(tab);
+        tabs = tabs.filter(t => t.id !== id);
+
+        if (tabActivaId === id) {
+            if (tabs.length === 0) {
+                crearTab();
+            } else {
+                const siguiente = tabs[Math.min(idx, tabs.length - 1)];
+                tabActivaId = siguiente.id;
+            }
+        }
+        renderizarPestanas();
+        sincronizarControles();
+    }
+
+    function renderizarPestanas() {
+        let html = '';
+        tabs.forEach(tab => {
+            html += `
+                <div class="pestana-item ${tab.id === tabActivaId ? 'pestana-activa' : ''}" data-id="${tab.id}">
+                    <i class="bi bi-cart pestana-ico"></i>
+                    <span class="pestana-nombre">${tab.nombre}</span>
+                    ${tab.items.length > 0 ? '<i class="bi bi-circle-fill pestana-punto text-warning"></i>' : ''}
+                    <button type="button" class="pestana-cerrar" data-cerrar="${tab.id}" title="Cerrar pestaña">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+            `;
+        });
+        if (tabs.length < MAX_PESTANAS) {
+            html += '<button type="button" class="pestana-nueva" id="pestanaNueva" title="Nueva pestaña"><i class="bi bi-plus-lg"></i></button>';
+        }
+        contenedorPestanas.innerHTML = html;
+
+        contenedorPestanas.querySelectorAll('.pestana-item').forEach(el => {
+            el.addEventListener('click', (e) => {
+                if (e.target.closest('.pestana-cerrar')) return;
+                tabActivaId = parseInt(el.getAttribute('data-id'));
+                renderizarPestanas();
+                sincronizarControles();
+            });
+        });
+        contenedorPestanas.querySelectorAll('.pestana-cerrar').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                cerrarTab(parseInt(btn.getAttribute('data-cerrar')));
+            });
+        });
+        const botonNueva = document.getElementById('pestanaNueva');
+        if (botonNueva) {
+            botonNueva.addEventListener('click', () => {
+                if (tabs.length < MAX_PESTANAS) {
+                    crearTab();
+                }
+            });
+        }
+    }
+
+    function sincronizarControles() {
+        const tab = tabActual();
+        if (!tab) return;
+
+        renderizarCarrito();
+
+        if (tab.clienteId) {
+            inputIdClienteSeleccionado.value = tab.clienteId;
+            clienteSeleccionadoInfo.innerHTML = `Cliente: ${tab.clienteNombre} <br><small>CC: ${tab.clienteCedula}</small>`;
+            clienteSeleccionadoInfo.style.display = 'block';
+        } else {
+            inputIdClienteSeleccionado.value = '';
+            clienteSeleccionadoInfo.style.display = 'none';
+            clienteSeleccionadoInfo.textContent = '';
+        }
+        inputBuscadorCliente.value = '';
+        metodoPagoSelect.value = tab.metodoPago;
+        montoRecibidoInput.value = tab.montoRecibido;
+        calcularCambio();
+
+    }
 
     async function cargarProductosCaja() {
         try {
@@ -94,11 +214,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function seleccionarCliente(id, nombre, cedula) {
+        const tab = tabActual();
+        if (!tab) return;
+        tab.clienteId = id;
+        tab.clienteNombre = nombre;
+        tab.clienteCedula = cedula;
         inputIdClienteSeleccionado.value = id;
         clienteSeleccionadoInfo.innerHTML = `Cliente: ${nombre} <br><small>CC: ${cedula}</small>`;
         clienteSeleccionadoInfo.style.display = 'block';
         inputBuscadorCliente.value = '';
         listaSugerenciasCliente.style.display = 'none';
+        renderizarPestanas();
         metodoPagoSelect.focus();
     }
 
@@ -234,13 +360,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function agregarAlCarrito(producto) {
+        const tab = tabActual();
+        if (!tab) return;
         const stockDisponible = producto.stock != null ? producto.stock : 0;
         if (stockDisponible <= 0) {
             alert('Producto sin stock disponible');
             return;
         }
 
-        const existente = carrito.find(item => item.idProducto === producto.idProducto);
+        const existente = tab.items.find(item => item.idProducto === producto.idProducto);
         const precioUn = producto.precioTotal != null ? producto.precioTotal : (producto.precio != null ? producto.precio : 0);
 
         if (existente) {
@@ -251,7 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('No hay más stock disponible');
             }
         } else {
-            carrito.push({
+            tab.items.push({
                 idProducto: producto.idProducto,
                 nombre: producto.nombre,
                 precioUnitario: precioUn,
@@ -260,11 +388,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 stockMax: stockDisponible
             });
         }
+        renderizarPestanas();
         renderizarCarrito();
     }
 
     window.cambiarCantidad = function(idProducto, delta) {
-        const item = carrito.find(i => i.idProducto === idProducto);
+        const tab = tabActual();
+        if (!tab) return;
+        const item = tab.items.find(i => i.idProducto === idProducto);
         if (!item) return;
 
         const nuevaCantidad = item.cantidad + delta;
@@ -278,12 +409,18 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.eliminarItem = function(idProducto) {
-        carrito = carrito.filter(i => i.idProducto !== idProducto);
+        const tab = tabActual();
+        if (!tab) return;
+        tab.items = tab.items.filter(i => i.idProducto !== idProducto);
+        renderizarPestanas();
         renderizarCarrito();
     };
 
     function renderizarCarrito() {
-        if (carrito.length === 0) {
+        const tab = tabActual();
+        if (!tab) return;
+
+        if (tab.items.length === 0) {
             tablaCarrito.innerHTML = `
                 <tr id="fila-vacia">
                     <td colspan="5" class="text-center text-muted py-5">
@@ -301,7 +438,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let html = '';
         let totalGeneral = 0;
 
-        carrito.forEach(item => {
+        tab.items.forEach(item => {
             totalGeneral += item.subtotal;
             html += `
                 <tr>
@@ -331,38 +468,52 @@ document.addEventListener('DOMContentLoaded', () => {
         calcularCambio();
     }
 
-    montoRecibidoInput.addEventListener('input', calcularCambio);
+    montoRecibidoInput.addEventListener('input', () => {
+        const tab = tabActual();
+        if (!tab) return;
+        tab.montoRecibido = montoRecibidoInput.value;
+        calcularCambio();
+    });
+
+    metodoPagoSelect.addEventListener('change', () => {
+        const tab = tabActual();
+        if (!tab) return;
+        tab.metodoPago = metodoPagoSelect.value;
+    });
 
     function calcularCambio() {
-        const totalGeneral = carrito.reduce((acc, item) => acc + item.subtotal, 0);
+        const tab = tabActual();
+        if (!tab) return;
+        const totalGeneral = tab.items.reduce((acc, item) => acc + item.subtotal, 0);
         const recibido = parseFloat(montoRecibidoInput.value) || 0;
         const cambio = recibido - totalGeneral;
         montoCambioSpan.textContent = fmt(cambio >= 0 ? cambio : 0);
     }
 
     btnCobrar.addEventListener('click', async () => {
-        const totalGeneral = carrito.reduce((acc, item) => acc + item.subtotal, 0);
-        const metodoPago = metodoPagoSelect.value;
-        const recibido = parseFloat(montoRecibidoInput.value) || 0;
+        const tab = tabActual();
+        if (!tab || tab.items.length === 0) return;
+
+        const totalGeneral = tab.items.reduce((acc, item) => acc + item.subtotal, 0);
+        const metodoPago = tab.metodoPago;
+        const recibido = parseFloat(tab.montoRecibido) || 0;
 
         if (metodoPago === 'EFECTIVO' && recibido < totalGeneral) {
             alert('El monto recibido es menor al total de la venta.');
             return;
         }
 
-        const detalles = carrito.map(item => ({
+        const detalles = tab.items.map(item => ({
             idProducto: item.idProducto,
             cantidad: item.cantidad,
             precioUnitario: item.precioUnitario,
             subtotal: item.subtotal
         }));
 
-        const idClienteV = inputIdClienteSeleccionado.value ? parseInt(inputIdClienteSeleccionado.value) : null;
-
         const ventaRequest = {
             metodoPago: metodoPago,
             total: totalGeneral,
-            idCliente: idClienteV,
+            idCliente: tab.clienteId ? parseInt(tab.clienteId) : null,
             detalles: detalles
         };
 
@@ -386,12 +537,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const resultado = await response.json();
             if (response.ok && resultado.success) {
                 window.open(`/caja/factura/${resultado.idVenta}`, '_blank');
-                carrito = [];
-                renderizarCarrito();
-                montoRecibidoInput.value = '';
-                inputIdClienteSeleccionado.value = '';
-                clienteSeleccionadoInfo.style.display = 'none';
-                clienteSeleccionadoInfo.textContent = '';
+                tab.items = [];
+                tab.clienteId = null;
+                tab.clienteNombre = null;
+                tab.clienteCedula = null;
+                tab.metodoPago = 'EFECTIVO';
+                tab.montoRecibido = '';
+                renderizarPestanas();
+                sincronizarControles();
                 inputBuscador.focus();
                 cargarProductosCaja();
             } else {
@@ -402,5 +555,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Error de red al procesar el cobro');
         }
     });
+
+    crearTab();
 
 });

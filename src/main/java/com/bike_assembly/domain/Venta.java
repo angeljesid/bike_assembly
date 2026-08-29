@@ -35,6 +35,12 @@ public class Venta {
     @JoinColumn(name = "id_empleado")
     private Usuario empleado;
 
+    @Column(name = "id_orden_servicio")
+    private Long ordenServicioId;
+
+    @Column(name = "autor_mantenimiento", length = 100)
+    private String autorMantenimiento;
+
     @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<DetalleVenta> detalles = new ArrayList<>();
@@ -91,5 +97,22 @@ public class Venta {
     public Usuario getEmpleado() {
         return empleado; }
     public void setEmpleado(Usuario empleado) {
-        this.empleado = empleado; }
+        this.empleado = empleado;
+    }
+
+    public Long getOrdenServicioId() {
+        return ordenServicioId;
+    }
+
+    public void setOrdenServicioId(Long ordenServicioId) {
+        this.ordenServicioId = ordenServicioId;
+    }
+
+    public String getAutorMantenimiento() {
+        return autorMantenimiento;
+    }
+
+    public void setAutorMantenimiento(String autorMantenimiento) {
+        this.autorMantenimiento = autorMantenimiento;
+    }
 }

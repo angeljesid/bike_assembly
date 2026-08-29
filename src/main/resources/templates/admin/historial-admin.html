@@ -32,23 +32,28 @@
                                 <tr>
                                     <th class="py-3 ps-4">ID Venta</th>
                                     <th class="py-3">Fecha y Hora</th>
+                                    <th class="py-3">Autor Mantenimiento</th>
                                     <th class="py-3">Vendedor</th>
                                     <th class="py-3">Cliente</th>
                                     <th class="py-3">Método de Pago</th>
                                     <th class="py-3 text-end">Total</th>
-                                    <th class="py-3 text-center" style="width: 120px;">Acciones</th>
+                                    <th class="py-3 text-center" style="width: 180px;">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr th:if="${ventas == null or ventas.empty}">
-                                    <td colspan="7" class="text-center text-muted py-5">
+                                    <td colspan="8" class="text-center text-muted py-5">
                                         <i class="bi bi-receipt fs-1 d-block mb-2"></i>
                                         No hay ventas registradas en el sistema.
                                     </td>
                                 </tr>
-                                <tr th:each="venta : ${ventas}">
-                                    <td class="ps-4 fw-bold text-muted" th:text="${'#' + venta.idVenta}"></td>
+                                <tr th:each="venta, ventaStat : ${ventas}">
+                                    <td class="ps-4 fw-bold text-muted" th:text="${'#' + ventaStat.count}"></td>
                                     <td th:text="${#temporals.format(venta.fechaHora, 'dd/MM/yyyy HH:mm')}"></td>
+                                    <td>
+                                        <span th:if="${venta.autorMantenimiento != null}" th:text="${venta.autorMantenimiento}"></span>
+                                        <span th:unless="${venta.autorMantenimiento != null}" class="text-muted">—</span>
+                                    </td>
                                     <td th:text="${venta.empleado != null ? venta.empleado.nombre : 'Admin'}"></td>
                                     <td th:text="${venta.cliente != null ? venta.cliente.nombre : 'Consumidor Final'}"></td>
                                     <td>
@@ -56,9 +61,12 @@
                                     </td>
                                     <td class="text-end fw-bold text-success" th:text="${'$ ' + #numbers.formatDecimal(venta.total, 1, 'DEFAULT', 2, 'DEFAULT')}"></td>
                                     <td class="text-center">
-                                        <button class="btn btn-sm btn-outline-primary shadow-sm" data-bs-toggle="modal" th:data-bs-target="${'#modalDetalle' + venta.idVenta}">
+                                        <button class="btn btn-sm btn-outline-primary shadow-sm me-1" data-bs-toggle="modal" th:data-bs-target="${'#modalDetalle' + venta.idVenta}">
                                             <i class="bi bi-eye me-1"></i> Ver Detalle
                                         </button>
+                                        <a class="btn btn-sm btn-outline-success shadow-sm" th:href="@{/caja/factura/{id}(id=${venta.idVenta})}">
+                                            <i class="bi bi-receipt-cutoff me-1"></i> Factura
+                                        </a>
                                     </td>
                                 </tr>
                             </tbody>
@@ -70,13 +78,13 @@
         </div>
     </div>
 
-    <div th:each="venta : ${ventas}">
+    <div th:each="venta, ventaStat : ${ventas}">
         <div class="modal fade" th:id="${'modalDetalle' + venta.idVenta}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content border-0 shadow">
                     <div class="modal-header bg-light">
                         <h5 class="modal-title fw-bold" style="color: var(--brand-blue);">
-                            <i class="bi bi-receipt me-2"></i> Detalle de la Venta #<span th:text="${venta.idVenta}"></span>
+                            <i class="bi bi-receipt me-2"></i> Detalle de la Venta #<span th:text="${ventaStat.count}"></span>
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -86,6 +94,11 @@
                             <i class="bi bi-wallet2 ms-2 me-1"></i> <strong>Método de Pago:</strong> <span th:text="${venta.metodoPago}"></span> <br>
                             <i class="bi bi-person-badge mt-2 me-1"></i> <strong>Vendedor:</strong> <span th:text="${venta.empleado != null ? venta.empleado.nombre : 'Admin / Web'}"></span> |
                             <i class="bi bi-person ms-2 me-1"></i> <strong>Cliente:</strong> <span th:text="${venta.cliente != null ? venta.cliente.nombre : 'Consumidor Final'}"></span>
+                        </div>
+
+                        <div th:if="${venta.autorMantenimiento != null}" class="mb-3 p-3 bg-light border rounded">
+                            <i class="bi bi-tools me-1"></i> <strong>Autor del Mantenimiento:</strong>
+                            <span th:text="${venta.autorMantenimiento}"></span>
                         </div>
                         
                         <div class="table-responsive border rounded">

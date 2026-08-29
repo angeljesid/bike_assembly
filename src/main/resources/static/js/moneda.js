@@ -186,11 +186,14 @@
             }
         });
 
-        /* --- Precio del Servicio (escritura libre; formatea al salir del campo) --- */
+        /* --- Precio del Servicio (solo números, sin símbolos ni puntos) --- */
         var monto = precioServicioInput.getAttribute('data-monto-input');
         if (monto === null) {
             precioServicioInput.setAttribute('data-monto-input', 'true');
         }
+
+        var MIN_MONTO_CARACTERES = 4;
+        var MAX_MONTO_CARACTERES = 11;
 
         function precioComoNumero() {
             var crudo = String(precioServicioInput.value || '').replace(/[^0-9]/g, '');
@@ -201,25 +204,24 @@
             return isNaN(n) ? 0 : n;
         }
 
-        function sincronizarPrecioServicio() {
-            var n = precioComoNumero();
-            precioServicioVal.value = n.toFixed(2);
-            recalcularTotal();
-        }
-
-        // Mientras se escribe no se toca el valor: el usuario puede escribir
-        // libremente los dígitos y separadores.
+        // Solo se ingresan dígitos; cualquier otro carácter se descarta.
         precioServicioInput.addEventListener('input', function () {
-            var n = precioComoNumero();
-            precioServicioVal.value = n.toFixed(2);
+            var soloDigitos = String(this.value || '').replace(/[^0-9]/g, '');
+            if (soloDigitos.length > MAX_MONTO_CARACTERES) {
+                soloDigitos = soloDigitos.substring(0, MAX_MONTO_CARACTERES);
+            }
+            if (this.value !== soloDigitos) {
+                this.value = soloDigitos;
+            }
+            precioServicioVal.value = (soloDigitos === '' ? '0' : soloDigitos);
             recalcularTotal();
         });
 
-        // Al salir del campo se muestra el formato completo de moneda.
+        // Al salir del campo se conserva el valor ingresado (solo dígitos).
         precioServicioInput.addEventListener('blur', function () {
             var n = precioComoNumero();
-            this.value = n > 0 ? moneda.formato(n) : '';
-            sincronizarPrecioServicio();
+            precioServicioVal.value = n.toFixed(2);
+            recalcularTotal();
         });
 
         /* --- Repuestos --- */

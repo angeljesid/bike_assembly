@@ -1,10 +1,12 @@
 package com.bike_assembly.services.venta;
 
 import com.bike_assembly.domain.DetalleVenta;
+import com.bike_assembly.domain.OrdenServicio;
 import com.bike_assembly.domain.Producto;
 import com.bike_assembly.domain.Usuario;
 import com.bike_assembly.domain.Venta;
 import com.bike_assembly.domain.VentaRequestDTO;
+import com.bike_assembly.repository.OrdenServicioDao;
 import com.bike_assembly.repository.ProductoDao;
 import com.bike_assembly.repository.UsuarioDao;
 import com.bike_assembly.repository.VentaDao;
@@ -25,6 +27,9 @@ public class VentaService implements IVentaService {
 
     @Autowired
     private UsuarioDao usuarioDao;
+
+    @Autowired
+    private OrdenServicioDao ordenServicioDao;
     
     @Override
     @Transactional
@@ -143,9 +148,21 @@ public class VentaService implements IVentaService {
         Venta venta = encontrarPorId(idVenta);
         if (venta != null) {
             venta.setEstado("COMPLETADA");
-            return ventaDao.save(venta);
+            Venta guardada = ventaDao.save(venta);
+            liberarOrdenServicio(venta);
+            return guardada;
         }
         throw new RuntimeException("Pedido no encontrado con ID: " + idVenta);
+    }
+
+    private void liberarOrdenServicio(Venta venta) {
+        if (venta == null || venta.getOrdenServicioId() == null) {
+            return;
+        }
+        ordenServicioDao.findById(venta.getOrdenServicioId()).ifPresent(orden -> {
+            orden.setOperarioAsignado(null);
+            ordenServicioDao.save(orden);
+        });
     }
 
     @Override

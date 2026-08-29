@@ -10,6 +10,7 @@ import com.bike_assembly.domain.Venta;
 import com.bike_assembly.domain.VentaRequestDTO;
 import com.bike_assembly.repository.OrdenServicioDao;
 import com.bike_assembly.repository.ProductoDao;
+import com.bike_assembly.repository.VentaDao;
 import com.bike_assembly.services.venta.IVentaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,9 @@ public class OrdenServicioService implements IOrdenServicioService {
 
     @Autowired
     private ProductoDao productoDao;
+
+    @Autowired
+    private VentaDao ventaDao;
 
     @Autowired
     private IVentaService ventaService;
@@ -116,25 +120,42 @@ public class OrdenServicioService implements IOrdenServicioService {
                 || !orden.getOperarioAsignado().getIdUsuario().equals(operario.getIdUsuario())) {
             return false;
         }
-        boolean primerTerminado = !EstadoOrdenServicio.TERMINADO.name().equals(orden.getEstado())
-                && EstadoOrdenServicio.TERMINADO.name().equals(nuevoEstado);
         orden.setEstado(nuevoEstado);
         ordenServicioDao.save(orden);
-        if (primerTerminado) {
-            try {
-                facturarServicio(orden, operario);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
         return true;
     }
 
     @Override
     @Transactional
-    public void facturarServicio(OrdenServicio orden, Usuario empleado) {
+    public Venta marcarListoEntrega(Long idOrden, Usuario operario) {
+        if (operario == null || operario.getOrganizacion() == null) {
+            return null;
+        }
+        Optional<OrdenServicio> ordenOpt = ordenServicioDao.findById(idOrden);
+        if (ordenOpt.isEmpty()) {
+            return null;
+        }
+        OrdenServicio orden = ordenOpt.get();
+        Long orgId = operario.getOrganizacion().getIdOrganizacion();
+        if (orden.getOrganizacion() == null
+                || !orden.getOrganizacion().getIdOrganizacion().equals(orgId)
+                || !EstadoOrdenServicio.TERMINADO.name().equals(orden.getEstado())
+                || orden.isFacturado()) {
+            return null;
+        }
+        Venta venta = facturarServicio(orden, operario);
+        if (venta != null) {
+            orden.setFacturado(true);
+            ordenServicioDao.save(orden);
+        }
+        return venta;
+    }
+
+    @Override
+    @Transactional
+    public Venta facturarServicio(OrdenServicio orden, Usuario empleado) {
         if (orden == null || orden.getOrganizacion() == null) {
-            return;
+            return null;
         }
         List<VentaRequestDTO.DetalleVentaDTO> detalles = new ArrayList<>();
         double total = 0.0;
@@ -168,7 +189,7 @@ public class OrdenServicioService implements IOrdenServicioService {
         }
 
         if (detalles.isEmpty()) {
-            return;
+            return null;
         }
 
         VentaRequestDTO request = new VentaRequestDTO();
@@ -179,7 +200,16 @@ public class OrdenServicioService implements IOrdenServicioService {
         }
         request.setDetalles(detalles);
 
-        ventaService.procesarPedidoCliente(request, orden.getClienteUsuario());
+        Venta venta = ventaService.procesarPedidoCliente(request, orden.getClienteUsuario());
+        if (venta != null && empleado != null) {
+            venta.setEmpleado(empleado);
+            venta.setOrdenServicioId(orden.getIdOrden());
+            venta.setAutorMantenimiento(orden.getOperarioAsignado() != null
+                    ? orden.getOperarioAsignado().getNombre()
+                    : (empleado != null ? empleado.getNombre() : null));
+            ventaDao.save(venta);
+        }
+        return venta;
     }
 
     @Override

@@ -54,6 +54,9 @@ public class OrdenServicio implements Serializable {
     @Column(nullable = false, length = 30)
     private String estado = EstadoOrdenServicio.EN_COLA.name();
 
+    @Column(name = "facturado")
+    private Boolean facturado = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_operario")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -107,6 +110,12 @@ public class OrdenServicio implements Serializable {
 
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
+
+    public boolean isFacturado() {
+        return facturado != null && facturado;
+    }
+    public void setFacturado(boolean facturado) { this.facturado = facturado; }
+    public void setFacturado(Boolean facturado) { this.facturado = facturado; }
 
     public Usuario getOperarioAsignado() { return operarioAsignado; }
     public void setOperarioAsignado(Usuario operarioAsignado) { this.operarioAsignado = operarioAsignado; }

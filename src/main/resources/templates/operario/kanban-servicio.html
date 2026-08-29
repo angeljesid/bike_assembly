@@ -50,6 +50,26 @@
             </div>
         </div>
 
+        <div th:if="${param.error != null}" class="container-fluid px-4 mb-3">
+            <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2 mb-0" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>No se pudo enviar el pedido a caja. Verifica que el pedido tenga precio de mano de obra o repuestos y stock suficiente.</span>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+
+        <div th:if="${param.entregado != null}" class="container-fluid px-4 mb-3">
+            <div class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2 mb-0" role="alert">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>El pedido fue enviado a la bandeja de pedidos de caja para su facturación.
+                    <th:block th:if="${param.ventaId != null}">
+                        <strong>N° pedido:</strong> #PED-<span th:text="${param.ventaId[0]}"></span>
+                    </th:block>
+                </span>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+
         <div class="container-fluid px-4">
             <div class="row flex-nowrap overflow-auto pb-4">
 
@@ -130,7 +150,29 @@
                             <h6 class="card-title fw-bold" style="color: var(--brand-blue);">Orden #<span th:text="${orden.idOrden}"></span></h6>
                             <small class="text-muted d-block"><i class="bi bi-person me-1"></i><span th:text="${orden.clienteNombre}"></span></small>
                             <small class="d-block mb-2" th:text="${orden.descripcion}"></small>
-                            <span class="status-tag w-100 mt-3 d-block text-center shadow-sm">Listo para Entrega</span>
+
+                            <div th:if="${!orden.facturado}">
+                                <form th:action="@{/operario/listo-entrega}" method="post" class="mt-3 d-grid">
+                                    <input type="hidden" name="ordenId" th:value="${orden.idOrden}">
+                                    <button type="submit" class="btn btn-success w-100">
+                                        <i class="bi bi-box-arrow-right me-1"></i> Listo para Entrega
+                                    </button>
+                                </form>
+
+                                <form th:action="@{/operario/actualizar-estado-servicio}" method="post" class="mt-1 d-grid">
+                                    <input type="hidden" name="ordenId" th:value="${orden.idOrden}">
+                                    <input type="hidden" name="nuevoEstado" value="EN_REPARACION">
+                                    <button type="submit" class="btn btn-sm btn-outline-warning w-100">
+                                        <i class="bi bi-arrow-counterclockwise me-1"></i> Devolver a Reparación
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div th:if="${orden.facturado}">
+                                <span class="badge bg-success w-100 py-2 mt-3">
+                                    <i class="bi bi-check2-circle me-1"></i> Enviado a Caja
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>

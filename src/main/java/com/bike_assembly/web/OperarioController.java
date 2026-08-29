@@ -1,6 +1,7 @@
 package com.bike_assembly.web;
 
 import com.bike_assembly.domain.Usuario;
+import com.bike_assembly.domain.Venta;
 import com.bike_assembly.repository.UsuarioDao;
 import com.bike_assembly.security.SessionUtils;
 import com.bike_assembly.services.ordenservicio.IOrdenServicioService;
@@ -91,6 +92,23 @@ public class OperarioController {
         Usuario operario = obtenerUsuarioAutenticado();
         if (operario != null) {
             ordenServicioService.actualizarEstado(ordenId, nuevoEstado, operario);
+        }
+        return "redirect:/operario/kanban-servicios";
+    }
+
+    @PostMapping("/listo-entrega")
+    public String listoEntrega(@RequestParam Long ordenId) {
+        Usuario operario = obtenerUsuarioAutenticado();
+        if (operario != null) {
+            try {
+                Venta venta = ordenServicioService.marcarListoEntrega(ordenId, operario);
+                if (venta != null) {
+                    return "redirect:/operario/kanban-servicios?entregado=true&ventaId=" + venta.getIdVenta();
+                }
+                return "redirect:/operario/kanban-servicios?error=true";
+            } catch (Exception e) {
+                return "redirect:/operario/kanban-servicios?error=true";
+            }
         }
         return "redirect:/operario/kanban-servicios";
     }
