@@ -121,7 +121,11 @@ public class OrdenServicioService implements IOrdenServicioService {
         orden.setEstado(nuevoEstado);
         ordenServicioDao.save(orden);
         if (primerTerminado) {
-            facturarServicio(orden, operario);
+            try {
+                facturarServicio(orden, operario);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return true;
     }

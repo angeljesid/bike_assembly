@@ -62,10 +62,17 @@
     /* Previene la pulsación de caracteres peligrosos en tiempo real (beforeinput).
        NUNCA interviene en campos password: las contraseñas pueden contener cualquier
        símbolo y se almacenan hasheadas (BCrypt), no se interpolan en SQL. */
+    /* Campos de monto/precio: no se sanciona su entrada (se necesita teclear
+       números con puntos y comas de separación, manejados por moneda.js). */
+    function esCampoMonto(el) {
+        return el && el.hasAttribute && el.hasAttribute('data-monto-input');
+    }
+
     function alAntesDeInsertar(ev) {
         var el = ev.target;
         var tipo = (el.type || '').toLowerCase();
         if (tipo === 'password') { return; }
+        if (esCampoMonto(el)) { return; }
         // Solo se aplica a campos de texto editables.
         if (!/^(text|search|email|tel|url)$/.test(tipo) && el.tagName !== 'TEXTAREA') {
             return;
@@ -80,6 +87,7 @@
         var el = ev.target;
         var tipo = (el.type || '').toLowerCase();
         if (tipo === 'password') { return; }
+        if (esCampoMonto(el)) { return; }
         if (!/^(text|search|email|tel|url)$/.test(tipo) && el.tagName !== 'TEXTAREA') {
             return;
         }
@@ -98,6 +106,8 @@
             var el = campos[i];
             // Nunca se limita un campo password.
             if ((el.type || '').toLowerCase() === 'password') { continue; }
+            // Los campos de monto los gestiona moneda.js: no se tocan aquí.
+            if (esCampoMonto(el)) { continue; }
             if (esCampoBusqueda(el) && !el.maxLength) {
                 el.maxLength = MAX_BUSQUEDA;
             }

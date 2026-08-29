@@ -93,6 +93,13 @@
                                     <option value="TERMINADO">Terminado</option>
                                 </select>
                             </form>
+                            <form th:action="@{/operario/actualizar-estado-servicio}" method="post" class="mt-1 d-grid">
+                                <input type="hidden" name="ordenId" th:value="${orden.idOrden}">
+                                <input type="hidden" name="nuevoEstado" value="TERMINADO">
+                                <button type="submit" class="btn btn-sm btn-success w-100">
+                                    <i class="bi bi-check2-circle me-1"></i> Listo para Entrega
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>

@@ -129,6 +129,18 @@
 <script th:src="@{/js/seguridad.js}"></script>
     <script th:src="@{/js/buscador.js}"></script>
     <script th:src="@{/js/moneda.js}"></script>
-    <script>document.addEventListener('DOMContentLoaded', function(){ if (window.moneda) { window.moneda.formatearCeldas('[data-monto]'); } });</script>
+    <script>
+        function formatearMontosPanel() {
+            if (window.moneda && window.moneda.formatearCeldas) {
+                window.moneda.formatearCeldas('[data-monto]');
+            }
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', formatearMontosPanel);
+        } else {
+            formatearMontosPanel();
+        }
+        window.addEventListener('load', function () { setTimeout(formatearMontosPanel, 100); });
+    </script>
 </body>
 </html>
