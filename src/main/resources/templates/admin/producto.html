@@ -82,13 +82,13 @@
                             </tr>
                         </thead>
                         <tbody th:id="'tbody-' + ${catKey}">
-                            <tr th:each="producto : ${productos}" th:if="${producto.categoria != null and #strings.toLowerCase(producto.categoria) == catKey}"
+                            <tr th:each="producto, prodStat : ${productosPorCategoria[catKey]}"
                                 th:classappend="${producto.stock != null and producto.stock <= 0 ? 'table-secondary table-secondary-gris' : ''}">
                                 <td class="ps-4">
                                     <img th:if="${producto.imagen != null and !producto.imagen.isEmpty()}" th:src="@{'/recursos/' + ${producto.imagen}}" class="catalogo-img rounded" alt="Foto">
                                     <img th:if="${producto.imagen == null or producto.imagen.isEmpty()}" src="https://via.placeholder.com/80x80.png?text=Sin+Foto" class="catalogo-img rounded" alt="Default">
                                 </td>
-                                <td class="fw-bold text-muted" th:text="${'ID-' + producto.idProducto}"></td>
+                                <td class="fw-bold text-muted" th:text="${'#' + prodStat.count}"></td>
                                 <td>
                                     <span class="fw-bold text-dark" th:text="${producto.nombre}"></span><br>
                                     <small class="text-muted">

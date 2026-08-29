@@ -75,17 +75,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (tbody) tbody.innerHTML = '';
             });
 
+            const contadores = {};
+
             productos.forEach(p => {
                 const cat = p.categoria ? p.categoria.toLowerCase() : 'otros';
                 const tbody = tbodys[cat] || tbodys['otros'];
                 
                 if (tbody) {
-                    tbody.insertAdjacentHTML('beforeend', generarFilaHTML(p, cat));
+                    contadores[cat] = (contadores[cat] || 0) + 1;
+                    tbody.insertAdjacentHTML('beforeend', generarFilaHTML(p, cat, contadores[cat]));
                 }
             });
         }
 
-        function generarFilaHTML(p, cat) {
+        function generarFilaHTML(p, cat, num) {
             const imgSrc = (p.imagen && p.imagen.trim() !== '') 
                 ? `/recursos/${p.imagen}` 
                 : 'https://via.placeholder.com/80x80.png?text=Sin+Foto';
@@ -107,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td class="ps-4">
                         <img src="${imgSrc}" class="catalogo-img rounded" alt="Foto">
                     </td>
-                    <td class="fw-bold text-muted">ID-${p.idProducto}</td>
+                    <td class="fw-bold text-muted">#${num}</td>
                     <td>
                         <span class="fw-bold text-dark">${p.nombre || 'Sin nombre'}</span><br>
                         <small class="text-muted">

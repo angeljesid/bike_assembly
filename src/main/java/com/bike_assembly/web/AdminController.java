@@ -106,9 +106,17 @@ public class AdminController {
         Usuario admin = obtenerAdminAutenticado();
 
         if (admin != null && admin.getOrganizacion() != null) {
-            model.addAttribute("productos", productoDao.findByOrganizacion(admin.getOrganizacion()));
+            List<Producto> productos = productoDao.findByOrganizacion(admin.getOrganizacion());
+            model.addAttribute("productos", productos);
+            model.addAttribute("productosPorCategoria", productos.stream()
+                    .collect(java.util.stream.Collectors.groupingBy(
+                            p -> p.getCategoria() != null
+                                    ? p.getCategoria().toLowerCase(java.util.Locale.ROOT)
+                                    : "otros",
+                            java.util.stream.Collectors.toList())));
         } else {
             model.addAttribute("productos", List.of());
+            model.addAttribute("productosPorCategoria", java.util.Map.of());
         }
         return "admin/producto";
     }
