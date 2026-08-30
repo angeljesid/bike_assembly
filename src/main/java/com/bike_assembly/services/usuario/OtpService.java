@@ -53,6 +53,22 @@ public class OtpService {
             otpDao.delete(existente.get());
         }
 
+        String codigo = crearYGuardarOtp(usuario);
+        return enviarCorreo(usuario, codigo);
+    }
+
+    @Transactional
+    public boolean reenviarCodigo(Usuario usuario) {
+        Optional<OtpVerificacion> existente = otpDao.findByIdUsuario(usuario.getIdUsuario());
+        if (existente.isPresent()) {
+            otpDao.delete(existente.get());
+        }
+
+        String codigo = crearYGuardarOtp(usuario);
+        return enviarCorreo(usuario, codigo);
+    }
+
+    private String crearYGuardarOtp(Usuario usuario) {
         String codigo = String.valueOf(100000 + RANDOM.nextInt(900000));
 
         OtpVerificacion nuevo = new OtpVerificacion();
@@ -61,7 +77,10 @@ public class OtpService {
         nuevo.setFechaCreacion(LocalDateTime.now());
         nuevo.setFechaVencimiento(LocalDateTime.now().plusHours(OtpVerificacion.VALIDEZ_HORAS));
         otpDao.save(nuevo);
+        return codigo;
+    }
 
+    private boolean enviarCorreo(Usuario usuario, String codigo) {
         String cuerpo = "Hola " + ((usuario.getNombre() != null && !usuario.getNombre().isBlank())
                 ? usuario.getNombre() : "usuario")
                 + ",\n\n"
@@ -69,8 +88,7 @@ public class OtpService {
                 + "   " + codigo + "\n\n"
                 + "Este código es válido por 24 horas. No lo compartas con nadie.\n\n"
                 + "Bike Assembly";
-        emailService.enviar(usuario.getEmail(), "Tu código de acceso - Bike Assembly", cuerpo);
-        return true;
+        return emailService.enviar(usuario.getEmail(), "Tu código de acceso - Bike Assembly", cuerpo);
     }
 
     private boolean existeVigente(OtpVerificacion otp) {

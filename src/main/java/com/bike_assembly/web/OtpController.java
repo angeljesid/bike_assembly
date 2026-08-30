@@ -43,9 +43,9 @@ public class OtpController {
             return redirigirSegunRol(usuario.getRol());
         }
 
-        boolean enviadoNuevo = otpService.generarOEnviarOtp(usuario);
-        request.getSession().removeAttribute("otpIntentosFallidos");
-        model.addAttribute("enviadoNuevo", enviadoNuevo);
+        boolean existeVigente = otpService.existeOtpVigente(usuario.getIdUsuario());
+        boolean correoEnviado = existeVigente || otpService.generarOEnviarOtp(usuario);
+        model.addAttribute("correoEnviado", correoEnviado);
         model.addAttribute("nombre", usuario.getNombre());
         return "verificar-otp";
     }
@@ -87,5 +87,21 @@ public class OtpController {
 
     private String redirigirSegunRol(Rol rol) {
         return "redirect:" + RedirectPorRol.urlDestino(rol);
+    }
+
+    @PostMapping("/verificar-otp/reenviar")
+    public String reenviar(jakarta.servlet.http.HttpServletRequest request,
+                           org.springframework.security.core.Authentication authentication,
+                           Model model) {
+        Usuario usuario = obtenerUsuario(authentication == null ? null : authentication.getName());
+        if (usuario == null) {
+            return "redirect:/login";
+        }
+
+        boolean correoEnviado = otpService.reenviarCodigo(usuario);
+        request.getSession().removeAttribute("otpIntentosFallidos");
+        model.addAttribute("correoEnviado", correoEnviado);
+        model.addAttribute("nombre", usuario.getNombre());
+        return "verificar-otp";
     }
 }
