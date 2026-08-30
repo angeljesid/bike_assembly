@@ -17,11 +17,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -61,7 +63,7 @@ public class ClienteController {
         return "cliente/producto-detalle"; 
     }
 
-    @GetMapping("/carrito")
+    @GetMapping({"/carrito", "/guardados"})
     public String verCarrito(Model model) {
         Usuario cliente = obtenerClienteAutenticado();
         model.addAttribute("cliente", cliente);
@@ -111,23 +113,57 @@ public class ClienteController {
         return "cliente/seguimiento-servicios";
     }
 
-    @PostMapping("/api/checkout")
-    @ResponseBody
-    public ResponseEntity<?> procesarCheckout(@RequestBody VentaRequestDTO request) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            Usuario cliente = obtenerClienteAutenticado();
-            if (cliente == null) {
-                throw new RuntimeException("Cliente no encontrado");
-            }
-
-            ventaService.procesarPedidoCliente(request, cliente);
-            response.put("success", true);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            response.put("success", false);
-            response.put("mensaje", e.getMessage());
-            return ResponseEntity.badRequest().body(response);
+    @GetMapping("/perfil")
+    public String verPerfil(@RequestParam(value = "guardado", required = false) String guardado,
+                            Model model) {
+        Usuario cliente = obtenerClienteAutenticado();
+        if (cliente == null) {
+            return "redirect:/login";
         }
+        model.addAttribute("cliente", cliente);
+        model.addAttribute("guardado", "true".equals(guardado));
+        return "cliente/perfil";
     }
+
+    @PostMapping("/perfil")
+    public String actualizarPerfil(@RequestParam("nombre") String nombre,
+                                   @RequestParam("cedula") String cedula,
+                                   @RequestParam(value = "telefono", required = false) String telefono,
+                                   @RequestParam("email") String email,
+                                   Model model) {
+        Usuario cliente = obtenerClienteAutenticado();
+        if (cliente == null) {
+            return "redirect:/login";
+        }
+
+        boolean duplicado = false;
+        if (cedula != null && !cedula.isBlank()) {
+            Optional<Usuario> porCedula = usuarioDao.findByCedula(cedula.trim());
+            if (porCedula.isPresent() && !porCedula.get().getIdUsuario().equals(cliente.getIdUsuario())) {
+                duplicado = true;
+            }
+        }
+        if (!duplicado && email != null && !email.isBlank()) {
+            Optional<Usuario> porEmail = usuarioDao.findByEmail(email.trim());
+            if (porEmail.isPresent() && !porEmail.get().getIdUsuario().equals(cliente.getIdUsuario())) {
+                duplicado = true;
+            }
+        }
+
+        if (duplicado) {
+            model.addAttribute("cliente", cliente);
+            model.addAttribute("error", "La cédula o el correo ya están registrados por otra cuenta.");
+            return "cliente/perfil";
+        }
+
+        if (nombre != null) cliente.setNombre(nombre.trim());
+        if (cedula != null) cliente.setCedula(cedula.trim());
+        cliente.setTelefono(telefono != null ? telefono.trim() : null);
+        if (email != null) cliente.setEmail(email.trim().toLowerCase());
+
+        usuarioDao.save(cliente);
+        model.addAttribute("redirectMessage", "tus datos se actualizaron correctamente");
+        return "redirect:/cliente/perfil?guardado=true";
+    }
+
 }

@@ -30,10 +30,11 @@
                 </ul>
                 <div class="d-flex align-items-center gap-3">
                     <span class="text-muted fw-semibold" th:text="'Hola, ' + ${cliente != null ? cliente.nombre : 'Cliente'}">Hola, Cliente</span>
-                    <a th:href="@{/cliente/carrito}" class="btn btn-primary position-relative me-2 text-decoration-none">
-                        <i class="bi bi-cart3"></i>
+                    <a th:href="@{/cliente/guardados}" class="btn btn-primary position-relative me-2 text-decoration-none" title="Mis guardados">
+                        <i class="bi bi-heart"></i>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="contadorCarrito">0</span>
                     </a>
+                    <a th:href="@{/cliente/perfil}" class="btn btn-outline-dark me-2 text-decoration-none btn-sm" title="Mi Perfil"><i class="bi bi-person"></i></a>
                     <form th:action="@{/logout}" method="post" class="m-0">
                         <button type="submit" class="btn btn-outline-danger btn-sm" title="Cerrar Sesión"><i class="bi bi-box-arrow-right"></i></button>
                     </form>
@@ -69,12 +70,15 @@
 
                 <h1 class="fw-bold mb-4" style="color: #0d6efd;" id="precioDetalle">$0</h1>
 
-                <div class="d-flex gap-3 mb-4">
-                    <input type="number" class="form-control text-center" value="1" min="1" max="10" style="width: 80px;" id="cantidadProducto">
-                    <button class="btn btn-primary btn-lg flex-grow-1" onclick="añadirDesdeDetalle()">
-                        <i class="bi bi-cart-plus me-2"></i> Añadir al carrito
+                <div class="d-flex flex-column flex-md-row gap-3 mb-4">
+                    <button class="btn btn-success btn-lg flex-grow-1" onclick="contactarDuenoDesdeDetalle()">
+                        <i class="bi bi-whatsapp me-2"></i> Contactar al dueño
+                    </button>
+                    <button class="btn btn-outline-primary btn-lg" id="btnGuardarDetalle" onclick="guardarProducto(window.productoActualSeleccionado)">
+                        <i class="bi bi-heart me-2" id="iconoGuardarDetalle"></i><span id="labelGuardarDetalle">Guardar para después</span>
                     </button>
                 </div>
+                <p class="text-muted small mb-4"><i class="bi bi-info-circle me-1"></i> Al contactar al vendedor no se genera ningún pedido: podrás coordinar la compra, entrega y pago directamente con él.</p>
                 
                 <div class="alert alert-info border-0 bg-opacity-10 d-flex align-items-center">
                     <i class="bi bi-shield-check fs-4 me-3 text-info"></i>
@@ -92,6 +96,10 @@
     <script th:inline="javascript">
         const username = /*[[${cliente != null ? (cliente.username != null ? cliente.username : cliente.email) : 'invitado'}]]*/ 'invitado';
         window.CART_KEY = 'carrito_' + username;
+        window.clienteUserName = /*[[${cliente != null ? (cliente.username != null ? cliente.username : cliente.email) : 'invitado'}]]*/ 'invitado';
+        window.clienteNombre = /*[[${cliente != null ? cliente.nombre : ''}]]*/ '';
+        window.clienteCedula = /*[[${cliente != null ? cliente.cedula : ''}]]*/ '';
+        window.clienteTelefono = /*[[${cliente != null ? cliente.telefono : ''}]]*/ '';
     </script>
     <script th:src="@{/js/catalogo-cliente.js}"></script>
 </body>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bike Assembly - Mi Perfil</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-custom py-3 mb-4">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-dark" href="/cliente/catalogo"><i class="bi bi-bicycle text-primary me-2"></i>Bike Assembly</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/cliente/catalogo">Catálogo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/cliente/servicios">Mis Servicios</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/cliente/pedidos">Mis Pedidos</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center gap-3">
+                    <a class="btn btn-outline-primary btn-sm me-2" th:href="@{/cliente/guardados}" title="Mis guardados">
+                        <i class="bi bi-heart"></i>
+                        <span class="position-relative top-0 start-0 translate-middle badge rounded-pill bg-danger" id="contadorCarrito" style="display:none;">0</span>
+                    </a>
+                    <a class="btn btn-outline-dark btn-sm me-2" th:href="@{/cliente/perfil}" title="Mi Perfil">
+                        <i class="bi bi-person"></i>
+                    </a>
+                    <form th:action="@{/logout}" method="post" class="m-0">
+                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Cerrar Sesión"><i class="bi bi-box-arrow-right"></i></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container pb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <div class="mb-4">
+                    <a href="/cliente" class="text-decoration-none text-muted"><i class="bi bi-arrow-left me-1"></i> Volver al catálogo</a>
+                </div>
+
+                <div class="card shadow-sm border-0 rounded-3">
+                    <div class="card-body p-4 p-md-5">
+                        <div class="text-center mb-4">
+                            <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 72px; height: 72px;">
+                                <i class="bi bi-person-lines-fill fs-2"></i>
+                            </div>
+                            <h2 class="fw-bold mb-1">Mi Perfil</h2>
+                            <p class="text-muted mb-0">Actualiza tus datos de contacto y envío.</p>
+                        </div>
+
+                        <div th:if="${guardado}" class="alert alert-success border-0 d-flex align-items-center">
+                            <i class="bi bi-check-circle-fill me-2"></i> Tus datos se actualizaron correctamente.
+                        </div>
+                        <div th:if="${error}" class="alert alert-danger border-0 d-flex align-items-center">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i> <span th:text="${error}">Error</span>
+                        </div>
+
+                        <form th:action="@{/cliente/perfil}" method="post" class="text-start">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-dark small" for="nombre">Nombre completo</label>
+                                <input type="text" class="form-control" id="nombre" name="nombre"
+                                       th:value="${cliente.nombre}" required maxlength="100"
+                                       pattern="[A-Za-z0-9 áéíóúüñÁÉÍÓÚÜÑ. ]+" title="Solo letras, números y espacios">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-dark small" for="cedula">Cédula</label>
+                                <input type="text" class="form-control" id="cedula" name="cedula"
+                                       th:value="${cliente.cedula}" maxlength="20" pattern="[0-9]+" title="Solo números">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-dark small" for="telefono">Teléfono / WhatsApp</label>
+                                <input type="tel" class="form-control" id="telefono" name="telefono"
+                                       th:value="${cliente.telefono}" maxlength="20" pattern="[0-9+ ]+" title="Solo números, espacios y +">
+                                <small class="text-muted">Este número aparecerá cuando contactes a los vendedores.</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-dark small" for="email">Correo electrónico</label>
+                                <input type="email" class="form-control" id="email" name="email"
+                                       th:value="${cliente.email}" required maxlength="100">
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold text-dark small" for="username">Usuario</label>
+                                <input type="text" class="form-control" id="username" name="username"
+                                       th:value="${cliente.username}" disabled readonly>
+                                <small class="text-muted">El usuario no se puede cambiar.</small>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 fw-bold py-2">
+                                <i class="bi bi-check-lg me-2"></i> Guardar cambios
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/seguridad.js}"></script>
+    <script th:inline="javascript">
+        const username = /*[[${cliente != null ? (cliente.username != null ? cliente.username : cliente.email) : 'invitado'}]]*/ 'invitado';
+        window.CART_KEY = 'carrito_' + username;
+        window.clienteUserName = /*[[${cliente != null ? (cliente.username != null ? cliente.username : cliente.email) : 'invitado'}]]*/ 'invitado';
+        window.clienteNombre = /*[[${cliente != null ? cliente.nombre : ''}]]*/ '';
+        window.clienteCedula = /*[[${cliente != null ? cliente.cedula : ''}]]*/ '';
+        window.clienteTelefono = /*[[${cliente != null ? cliente.telefono : ''}]]*/ '';
+    </script>
+    <script th:src="@{/js/catalogo-cliente.js}"></script>
+</body>
+</html>

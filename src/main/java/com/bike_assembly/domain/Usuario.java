@@ -29,6 +29,9 @@ public class Usuario implements Serializable {
     @Column(unique = true)
     private String cedula;
 
+    @Column(name = "telefono", length = 30)
+    private String telefono;
+
     @Column(nullable = false)
     private Boolean activo = true;
 
@@ -83,6 +86,9 @@ public class Usuario implements Serializable {
 
     public String getCedula() { return cedula; }
     public void setCedula(String cedula) { this.cedula = cedula; }
+
+    public String getTelefono() { return telefono; }
+    public void setTelefono(String telefono) { this.telefono = telefono; }
 
     public Rol getRol() { return rol; }
     public void setRol(Rol rol) { this.rol = rol; }

@@ -23,6 +23,9 @@ public class SecurityConfig {
     @Autowired
     private UsuarioActivoFilter usuarioActivoFilter;
 
+    @Autowired
+    private OtpVerificationFilter otpVerificationFilter;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -50,7 +53,8 @@ public class SecurityConfig {
             .logout(logout -> logout
                 .logoutSuccessUrl("/login?logout")
                 .permitAll())
-            .addFilterAfter(usuarioActivoFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterAfter(usuarioActivoFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(otpVerificationFilter, UsuarioActivoFilter.class);
 
         return http.build();
     }

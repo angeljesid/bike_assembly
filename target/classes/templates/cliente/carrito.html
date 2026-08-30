@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}"/>
     <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}"/>
-    <title>Bike Assembly - Mi Carrito</title>
+    <title>Bike Assembly - Mis Guardados</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
@@ -31,10 +31,11 @@
                 </ul>
                 <div class="d-flex align-items-center gap-3">
                     <span class="text-muted fw-semibold" th:text="'Hola, ' + ${cliente != null ? cliente.nombre : 'Cliente'}"></span>
-                    <a href="/cliente/carrito" class="btn btn-primary position-relative me-2 text-decoration-none">
-                        <i class="bi bi-cart3"></i>
+                    <a href="/cliente/guardados" class="btn btn-primary position-relative me-2 text-decoration-none" title="Mis guardados">
+                        <i class="bi bi-heart"></i>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="contadorCarrito">0</span>
                     </a>
+                    <a th:href="@{/cliente/perfil}" class="btn btn-outline-dark me-2 text-decoration-none btn-sm" title="Mi Perfil"><i class="bi bi-person"></i></a>
                     <form th:action="@{/logout}" method="post" class="m-0">
                         <button type="submit" class="btn btn-outline-danger btn-sm" title="Cerrar Sesión"><i class="bi bi-box-arrow-right"></i></button>
                     </form>
@@ -45,8 +46,8 @@
     <div class="container pb-5">
         <div class="row mb-4">
             <div class="col-12">
-                <h2 class="fw-bold"><i class="bi bi-cart3 text-primary me-2"></i>Tu Carrito de Compras</h2>
-                <p class="text-muted mb-0">Revisa los productos que seleccionaste antes de solicitar tu reserva.</p>
+                <h2 class="fw-bold"><i class="bi bi-heart text-primary me-2"></i>Mis Guardados</h2>
+                <p class="text-muted mb-0">Productos que te interesan. Guárdalos para verlos después y ponte en contacto con el vendedor para tu compra.</p>
             </div>
         </div>
         <div class="row justify-content-center">
@@ -59,6 +60,10 @@
     <script th:inline="javascript">
         const username = /*[[${cliente != null ? (cliente.username != null ? cliente.username : cliente.email) : 'invitado'}]]*/ 'invitado';
         window.CART_KEY = 'carrito_' + username;
+        window.clienteUserName = /*[[${cliente != null ? (cliente.username != null ? cliente.username : cliente.email) : 'invitado'}]]*/ 'invitado';
+        window.clienteNombre = /*[[${cliente != null ? cliente.nombre : ''}]]*/ '';
+        window.clienteCedula = /*[[${cliente != null ? cliente.cedula : ''}]]*/ '';
+        window.clienteTelefono = /*[[${cliente != null ? cliente.telefono : ''}]]*/ '';
     </script>
     <script th:src="@{/js/catalogo-cliente.js}"></script>
 </body>
