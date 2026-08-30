@@ -1,12 +1,12 @@
 package com.bike_assembly.security;
 
+import com.bike_assembly.repository.UsuarioDao;
+import com.bike_assembly.services.usuario.OtpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -20,15 +20,19 @@ public class SecurityConfig {
     @Autowired
     private CustomAuthenticationFailureHandler failureHandler;
 
-    @Autowired
-    private UsuarioActivoFilter usuarioActivoFilter;
-
-    @Autowired
-    private OtpVerificationFilter otpVerificationFilter;
+    @Bean
+    public UsuarioActivoFilter usuarioActivoFilter(UsuarioDao usuarioDao) {
+        return new UsuarioActivoFilter(usuarioDao);
+    }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public OtpVerificationFilter otpVerificationFilter(OtpService otpService, UsuarioDao usuarioDao) {
+        return new OtpVerificationFilter(otpService, usuarioDao);
+    }
+
+    @Bean
+    public NoCacheFilter noCacheFilter() {
+        return new NoCacheFilter();
     }
 
     @Bean
@@ -53,8 +57,9 @@ public class SecurityConfig {
             .logout(logout -> logout
                 .logoutSuccessUrl("/login?logout")
                 .permitAll())
-            .addFilterAfter(usuarioActivoFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterAfter(otpVerificationFilter, UsuarioActivoFilter.class);
+            .addFilterBefore(noCacheFilter(), UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(usuarioActivoFilter(usuarioDao()), UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(otpVerificationFilter(otpService(), usuarioDao()), UsuarioActivoFilter.class);
 
         return http.build();
     }

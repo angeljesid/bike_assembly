@@ -4,6 +4,7 @@ import com.bike_assembly.domain.Organizacion;
 import com.bike_assembly.domain.Rol;
 import com.bike_assembly.domain.Usuario;
 import com.bike_assembly.repository.UsuarioDao;
+import com.bike_assembly.services.PasswordValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -43,7 +44,25 @@ public class EmpleadoServiceImpl implements IEmpleadoService {
         nuevoEmpleado.setRol(rol);
         nuevoEmpleado.setOrganizacion(org);
         nuevoEmpleado.setActivo(true);
-        nuevoEmpleado.setPassword(passwordEncoder.encode(nuevoEmpleado.getPassword()));
+
+        // Solo se encripta/reemplaza la contraseña si se proporciona una nueva.
+        // En edición, si el campo viene vacío se conserva la contraseña existente.
+        String nuevaPass = nuevoEmpleado.getPassword();
+        if (nuevaPass == null || nuevaPass.isBlank()) {
+            Usuario existente = nuevoEmpleado.getIdUsuario() != null
+                    ? usuarioDao.findById(nuevoEmpleado.getIdUsuario()).orElse(null) : null;
+            if (existente != null) {
+                nuevoEmpleado.setPassword(existente.getPassword());
+            } else {
+                throw new RuntimeException("Debes ingresar una contraseña para el nuevo empleado.");
+            }
+        } else {
+            String errorPolitica = PasswordValidator.validar(nuevaPass);
+            if (errorPolitica != null) {
+                throw new RuntimeException(errorPolitica);
+            }
+            nuevoEmpleado.setPassword(passwordEncoder.encode(nuevaPass));
+        }
 
         return usuarioDao.save(nuevoEmpleado);
     }

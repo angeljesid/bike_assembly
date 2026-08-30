@@ -25,6 +25,9 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     @Autowired
     private UsuarioDao usuarioDao;
 
+    @Autowired
+    private LoginIntentoService loginIntentoService;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
@@ -32,6 +35,9 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         Rol rol = obtenerRol(authentication.getAuthorities());
         Usuario usuario = usuarioDao.findByUsernameOrEmail(authentication.getName(), authentication.getName())
                 .orElse(null);
+
+        // Login exitoso: se limpian los intentos fallidos previos
+        loginIntentoService.limpiar(authentication.getName());
 
         String destino = RedirectPorRol.urlDestino(rol);
 

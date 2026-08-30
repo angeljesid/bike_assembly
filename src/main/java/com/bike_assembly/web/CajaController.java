@@ -15,6 +15,7 @@ import com.bike_assembly.services.solicitud.ISolicitudRepuestoService;
 import com.bike_assembly.services.venta.IVentaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -44,6 +45,9 @@ public class CajaController {
 
     @Autowired
     private ISolicitudRepuestoService solicitudRepuestoService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private SessionUtils sessionUtils;
@@ -168,12 +172,21 @@ public class CajaController {
     public ResponseEntity<?> registrarClienteRapido(@RequestBody Usuario nuevoCliente) {
         Map<String, Object> response = new HashMap<>();
         try {
-            if (nuevoCliente.getEmail() == null || nuevoCliente.getEmail().isEmpty()) {
-                nuevoCliente.setEmail(nuevoCliente.getCedula() + "@consumidor.local");
+            if (nuevoCliente.getCedula() == null || nuevoCliente.getCedula().isBlank()) {
+                throw new RuntimeException("La cédula es obligatoria.");
             }
-            
+            if (usuarioDao.findByCedula(nuevoCliente.getCedula().trim()).isPresent()) {
+                throw new RuntimeException("La cédula ya está registrada.");
+            }
+
+            if (nuevoCliente.getEmail() == null || nuevoCliente.getEmail().isBlank()) {
+                nuevoCliente.setEmail(nuevoCliente.getCedula() + "@consumidor.local");
+            } else if (usuarioDao.findByEmail(nuevoCliente.getEmail().trim().toLowerCase()).isPresent()) {
+                throw new RuntimeException("El correo ya está registrado.");
+            }
+
             nuevoCliente.setUsername(nuevoCliente.getCedula());
-            nuevoCliente.setPassword("12345");
+            nuevoCliente.setPassword(passwordEncoder.encode("12345"));
             nuevoCliente.setRol(Rol.CLIENTE);
             nuevoCliente.setActivo(true);
             
@@ -186,7 +199,8 @@ public class CajaController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.put("success", false);
-            response.put("mensaje", "La cédula ya está registrada o hubo un error de base de datos.");
+            response.put("mensaje", e.getMessage() != null ? e.getMessage()
+                    : "La cédula ya está registrada o hubo un error de base de datos.");
             return ResponseEntity.badRequest().body(response);
         }
     }

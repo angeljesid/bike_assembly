@@ -3,6 +3,7 @@ package com.bike_assembly.security;
 import com.bike_assembly.domain.Usuario;
 import com.bike_assembly.repository.UsuarioDao;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,8 +19,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
     private UsuarioDao usuarioDao;
 
+    @Autowired
+    private LoginIntentoService loginIntentoService;
+
     @Override
     public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
+        if (loginIntentoService.isBloqueado(usernameOrEmail)) {
+            throw new LockedException("Cuenta bloqueada temporalmente por demasiados intentos fallidos.");
+        }
+
         Usuario usuario = usuarioDao.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario o correo no encontrado: " + usernameOrEmail));
 

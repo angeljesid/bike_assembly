@@ -48,7 +48,14 @@ public class VentaService implements IVentaService {
         for (VentaRequestDTO.DetalleVentaDTO detDTO : request.getDetalles()) {
             Producto producto = productoDao.findById(detDTO.getIdProducto())
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
-            
+
+            // Seguridad: el cajero solo puede cobrar productos de su propia organización
+            if (empleado == null || empleado.getOrganizacion() == null
+                    || producto.getOrganizacion() == null
+                    || !producto.getOrganizacion().getIdOrganizacion().equals(empleado.getOrganizacion().getIdOrganizacion())) {
+                throw new RuntimeException("No tienes permiso para vender ese producto.");
+            }
+
             int stockDisponible = producto.getStock() == null ? 0 : producto.getStock();
             if (stockDisponible < detDTO.getCantidad()) {
                 throw new RuntimeException("Stock insuficiente para: " + producto.getNombre());

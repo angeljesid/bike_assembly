@@ -190,19 +190,44 @@ public class AdminController {
         }
 
         if (imagen != null && !imagen.isEmpty()) {
-            Path directorioImagenes = Paths.get("uploads");
-            String rutaAbsoluta = directorioImagenes.toFile().getAbsolutePath();
-
             try {
+                // Validar que sea una imagen y no un archivo arbitrario/ejecutable
+                String contentType = imagen.getContentType();
+                if (contentType == null || !contentType.toLowerCase().startsWith("image/")) {
+                    return "redirect:/admin/producto?error=imagen";
+                }
+                long maxBytes = 5L * 1024 * 1024; // 5 MB
+                if (imagen.getSize() > maxBytes) {
+                    return "redirect:/admin/producto?error=imagen";
+                }
+
+                Path directorioImagenes = Paths.get("uploads");
                 if (!Files.exists(directorioImagenes)) {
                     Files.createDirectories(directorioImagenes);
                 }
+
+                // Nombre seguro: solo se conserva la extensión de un archivo de imagen
+                String nombreOriginal = imagen.getOriginalFilename() != null ? imagen.getOriginalFilename() : "";
+                String extension = "";
+                int idx = nombreOriginal.lastIndexOf('.');
+                if (idx >= 0) {
+                    extension = nombreOriginal.substring(idx).toLowerCase();
+                }
+                if (!java.util.Set.of(".jpg", ".jpeg", ".png", ".webp", ".gif").contains(extension)) {
+                    return "redirect:/admin/producto?error=imagen";
+                }
+
+                String nombreSeguro = java.util.UUID.randomUUID().toString().replace("-", "") + extension;
+                Path rutaCompleta = directorioImagenes.resolve(nombreSeguro).normalize();
+                if (!rutaCompleta.getParent().equals(directorioImagenes.toAbsolutePath().normalize())) {
+                    return "redirect:/admin/producto?error=imagen";
+                }
+
                 byte[] bytesImg = imagen.getBytes();
-                Path rutaCompleta = Paths.get(rutaAbsoluta + "/" + imagen.getOriginalFilename());
                 Files.write(rutaCompleta, bytesImg);
-                producto.setImagen(imagen.getOriginalFilename());
+                producto.setImagen(nombreSeguro);
             } catch (Exception e) {
-                e.printStackTrace();
+                return "redirect:/admin/producto?error=imagen";
             }
         }
 
