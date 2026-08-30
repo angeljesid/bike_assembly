@@ -3,6 +3,8 @@ package com.bike_assembly.domain;
 import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "usuario")
@@ -51,6 +53,9 @@ public class Usuario implements Serializable {
 
     @Transient
     private Turno turnoActual;
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductoGuardado> productosGuardados = new ArrayList<>();
 
     public Usuario() {}
 
@@ -107,6 +112,8 @@ public class Usuario implements Serializable {
 
     public Turno getTurnoActual() { return turnoActual; }
     public void setTurnoActual(Turno turnoActual) { this.turnoActual = turnoActual; 
+    }
 
-}
+    public List<ProductoGuardado> getProductosGuardados() { return productosGuardados; }
+    public void setProductosGuardados(List<ProductoGuardado> productosGuardados) { this.productosGuardados = productosGuardados; }
 }

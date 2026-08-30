@@ -48,16 +48,11 @@ public class OtpService {
                 && opt.get().getFechaVencimiento().isAfter(LocalDateTime.now());
     }
 
-    /**
-     * Genera (si aún no existe) un código OTP de 6 dígitos y lo envía por correo.
-     * Solo se envía UN correo por día: si ya existe un código vigente, no se reenvía
-     * ni se genera otro. Devuelve true si se envió un email nuevo.
-     */
     @Transactional
     public boolean generarOEnviarOtp(Usuario usuario) {
         Optional<OtpVerificacion> existente = otpDao.findByIdUsuario(usuario.getIdUsuario());
         if (existente.isPresent() && existeVigente(existente.get())) {
-            return false; // ya hay código de hoy; no reenviamos
+            return false;
         }
         if (existente.isPresent()) {
             otpDao.delete(existente.get());
@@ -86,9 +81,7 @@ public class OtpService {
         return otp.getFechaVencimiento() != null && otp.getFechaVencimiento().isAfter(LocalDateTime.now());
     }
 
-    /**
-     * Valida el código ingresado contra el OTP vigente del usuario.
-     */
+
     @Transactional(readOnly = true)
     public boolean validarOtp(Usuario usuario, String codigo) {
         if (usuario == null || codigo == null) {

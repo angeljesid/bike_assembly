@@ -8,6 +8,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -28,6 +29,9 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     @Autowired
     private LoginIntentoService loginIntentoService;
 
+    @Value("${app.otp.desactivado:false}")
+    private boolean otpDesactivado;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
@@ -41,13 +45,15 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         String destino = RedirectPorRol.urlDestino(rol);
 
-        if (usuario != null && otpService.requiereOtp(rol)) {
+        if (!otpDesactivado && usuario != null && otpService.requiereOtp(rol)) {
             // El usuario debe pasar por el 2FA antes de entrar a su área
             request.getSession().setAttribute("urlDestino", destino);
             response.sendRedirect("/verificar-otp");
             return;
         }
 
+        // Con 2FA desactivado (o rol sin OTP) se marca la sesión como verificada
+        request.getSession().setAttribute(AtributosSesion.OTP_VERIFICADO, Boolean.TRUE);
         response.sendRedirect(destino);
     }
 

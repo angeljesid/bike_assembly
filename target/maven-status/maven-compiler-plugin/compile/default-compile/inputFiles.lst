@@ -16,6 +16,7 @@ C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\Organizacion.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\OtpVerificacion.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\Producto.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\ProductoCatalogoDTO.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\ProductoGuardado.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\Proveedor.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\RepuestoOrdenServicio.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\domain\Rol.java
@@ -29,6 +30,7 @@ C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\OrdenServicioDa
 C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\OrganizacionDao.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\OtpVerificacionDao.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\ProductoDao.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\ProductoGuardadoDao.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\ProveedorDao.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\SolicitudRepuestoDao.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\repository\UsuarioDao.java
@@ -44,6 +46,7 @@ C:\java\bike_assembly\src\main\java\com\bike_assembly\security\SecurityConfig.ja
 C:\java\bike_assembly\src\main\java\com\bike_assembly\security\SessionUtils.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\security\UserDetailsServiceImpl.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\security\UsuarioActivoFilter.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\services\cliente\ClienteGuardadoService.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\EmailService.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\empleado\EmpleadoServiceImpl.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\services\empleado\IEmpleadoService.java
@@ -66,6 +69,7 @@ C:\java\bike_assembly\src\main\java\com\bike_assembly\services\venta\VentaServic
 C:\java\bike_assembly\src\main\java\com\bike_assembly\web\AdminController.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\web\CajaController.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\web\ClienteController.java
+C:\java\bike_assembly\src\main\java\com\bike_assembly\web\ClienteGuardadoRestController.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\web\OperarioController.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\web\OtpController.java
 C:\java\bike_assembly\src\main\java\com\bike_assembly\web\RecuperacionPasswordController.java

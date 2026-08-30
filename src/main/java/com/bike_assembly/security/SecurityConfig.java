@@ -36,7 +36,10 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http,
+                                           NoCacheFilter noCacheFilter,
+                                           UsuarioActivoFilter usuarioActivoFilter,
+                                           OtpVerificationFilter otpVerificationFilter) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/login", "/bloqueado/**", "/recuperar-password/**", "/css/**", "/js/**", "/images/**", "/recursos/**", "/registro").permitAll()
@@ -57,9 +60,9 @@ public class SecurityConfig {
             .logout(logout -> logout
                 .logoutSuccessUrl("/login?logout")
                 .permitAll())
-            .addFilterBefore(noCacheFilter(), UsernamePasswordAuthenticationFilter.class)
-            .addFilterAfter(usuarioActivoFilter(usuarioDao()), UsernamePasswordAuthenticationFilter.class)
-            .addFilterAfter(otpVerificationFilter(otpService(), usuarioDao()), UsuarioActivoFilter.class);
+            .addFilterBefore(noCacheFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(usuarioActivoFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(otpVerificationFilter, UsuarioActivoFilter.class);
 
         return http.build();
     }

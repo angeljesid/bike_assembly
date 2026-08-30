@@ -48,6 +48,7 @@ public class LimpiezaDatosRunner implements CommandLineRunner {
         em.createQuery("DELETE FROM DetalleVenta").executeUpdate();
         em.createQuery("DELETE FROM OrdenServicio").executeUpdate();
         em.createQuery("DELETE FROM Venta").executeUpdate();
+        em.createQuery("DELETE FROM ProductoGuardado").executeUpdate();
         em.createQuery("DELETE FROM Producto").executeUpdate();
         em.createQuery("DELETE FROM Proveedor").executeUpdate();
         em.createQuery("DELETE FROM OtpVerificacion").executeUpdate();

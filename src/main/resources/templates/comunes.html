@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<body>
+
+    <!-- FRAGMENTO: HEAD -->
+    <head th:fragment="head(titulo)">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}"/>
+        <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}"/>
+        <title th:text="${titulo}">Bike Assembly</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+        <link rel="stylesheet" th:href="@{/css/styles.css}">
+    </head>
+
+    <!-- FRAGMENTO: NAVBAR -->
+    <nav th:fragment="navbar(menuActivo)" class="navbar navbar-expand-lg navbar-custom py-3 mb-4">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-dark" href="/cliente/catalogo"><i class="bi bi-bicycle text-primary me-2"></i>Bike Assembly</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" th:classappend="${menuActivo == 'catalogo' ? 'active fw-semibold text-primary' : ''}" href="/cliente/catalogo">Catálogo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:classappend="${menuActivo == 'servicios' ? 'active fw-semibold text-primary' : ''}" href="/cliente/servicios">Mis Servicios</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:classappend="${menuActivo == 'pedidos' ? 'active fw-semibold text-primary' : ''}" href="/cliente/pedidos">Mis Pedidos</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="text-muted fw-semibold" th:text="'Hola, ' + ${cliente != null ? cliente.nombre : 'Cliente'}"></span>
+                    <a th:href="@{/cliente/guardados}" class="btn btn-primary position-relative me-2 text-decoration-none" title="Mis guardados">
+                        <i class="bi bi-heart"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="contadorCarrito">0</span>
+                    </a>
+                    <a th:href="@{/cliente/perfil}" class="btn btn-outline-dark me-2 text-decoration-none btn-sm" title="Mi Perfil"><i class="bi bi-person"></i></a>
+                    <form th:action="@{/logout}" method="post" class="m-0">
+                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Cerrar Sesión"><i class="bi bi-box-arrow-right"></i></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- FRAGMENTO: SCRIPTS -->
+    <div th:fragment="scripts">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script th:src="@{/js/seguridad.js}"></script>
+        <script th:inline="javascript">
+            window.clienteNombre = /*[[${cliente != null ? cliente.nombre : ''}]]*/ '';
+            window.clienteCedula = /*[[${cliente != null ? cliente.cedula : ''}]]*/ '';
+            window.clienteTelefono = /*[[${cliente != null ? cliente.telefono : ''}]]*/ '';
+        </script>
+        <script th:src="@{/js/catalogo-cliente.js}"></script>
+    </div>
+
+</body>
+</html>

@@ -30,10 +30,6 @@ public class RecuperacionPasswordService {
     @Value("${app.base-url:http://localhost:8080}")
     private String baseUrl;
 
-    /**
-     * Genera un token de recuperación, lo guarda y envía el enlace por correo.
-     * Devuelve true si pertenece a un usuario existente (usado para mensaje genérico).
-     */
     @Transactional
     public boolean solicitarRecuperacion(String email) {
         String correo = email == null ? "" : email.trim().toLowerCase();
@@ -42,7 +38,6 @@ public class RecuperacionPasswordService {
             return false;
         }
         Usuario u = opt.get();
-        // Token largo y aleatorio (doble UUID) para evitar adivinación por fuerza bruta
         String token = UUID.randomUUID().toString().replace("-", "")
                 + UUID.randomUUID().toString().replace("-", "");
 
@@ -61,8 +56,6 @@ public class RecuperacionPasswordService {
         emailService.enviar(u.getEmail(), "Recuperación de contraseña - Bike Assembly", cuerpo);
         return true;
     }
-
-    /** Valida que el token exista y no esté vencido. */
     @Transactional(readOnly = true)
     public Optional<Usuario> validarToken(String token) {
         if (token == null || token.isBlank()) {
@@ -79,7 +72,6 @@ public class RecuperacionPasswordService {
         return opt;
     }
 
-    /** Establece una nueva contraseña y limpia el token. */
     @Transactional
     public boolean restablecerContrasena(String token, String nuevaContrasena) {
         Optional<Usuario> opt = validarToken(token);
