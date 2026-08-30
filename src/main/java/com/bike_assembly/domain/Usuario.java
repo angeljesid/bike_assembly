@@ -51,9 +51,6 @@ public class Usuario implements Serializable {
     @JoinColumn(name = "id_organizacion")
     private Organizacion organizacion;
 
-    @Transient
-    private Turno turnoActual;
-
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductoGuardado> productosGuardados = new ArrayList<>();
 
@@ -109,10 +106,6 @@ public class Usuario implements Serializable {
 
     public Organizacion getOrganizacion() { return organizacion; }
     public void setOrganizacion(Organizacion organizacion) { this.organizacion = organizacion; }
-
-    public Turno getTurnoActual() { return turnoActual; }
-    public void setTurnoActual(Turno turnoActual) { this.turnoActual = turnoActual; 
-    }
 
     public List<ProductoGuardado> getProductosGuardados() { return productosGuardados; }
     public void setProductosGuardados(List<ProductoGuardado> productosGuardados) { this.productosGuardados = productosGuardados; }

@@ -13,11 +13,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-/**
- * Obliga a que los usuarios con 2FA (admin, superadmin, caja, operario) completen
- * la verificación OTP de la sesión antes de acceder a sus áreas autenticadas.
- * Se registra como bean en SecurityConfig (no @Component) para evitar doble filtrado.
- */
 public class OtpVerificationFilter extends OncePerRequestFilter {
 
     private final OtpService otpService;

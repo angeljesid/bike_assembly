@@ -4,10 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-/**
- * Valida que una contraseña cumpla la política de seguridad fuerte:
- * mínimo 8 caracteres, al menos una mayúscula, una minúscula, un número y un símbolo.
- */
 public final class PasswordValidator {
 
     private static final int MIN_LONGITUD = 8;
@@ -19,10 +15,6 @@ public final class PasswordValidator {
     private PasswordValidator() {
     }
 
-    /**
-     * Devuelve el primer mensaje de error si la contraseña no cumple la política,
-     * o null si es válida.
-     */
     public static String validar(String password) {
         if (password == null) {
             return "La contraseña es obligatoria.";

@@ -7,11 +7,6 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Protección contra fuerza bruta: registra intentos fallidos de login por nombre de
- * usuario y bloquea de forma temporal tras un máximo de intentos en una ventana de tiempo.
- * Almacenamiento en memoria (compatible con despliegue de un solo nodo).
- */
 @Component
 public class LoginIntentoService {
 

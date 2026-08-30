@@ -1,8 +1,5 @@
 package com.bike_assembly.security;
 
-/**
- * Nombres de atributos de sesión utilizados por la seguridad de la aplicación.
- */
 public final class AtributosSesion {
 
     private AtributosSesion() {

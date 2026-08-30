@@ -38,14 +38,9 @@ public class OtpService {
         return rol != null && ROLES_CON_OTP.contains(rol);
     }
 
-    /**
-     * Devuelve true si el usuario ya tiene un código OTP vigente (emitido hace menos de 24h).
-     */
-    private boolean tieneOtpVigente(Long idUsuario) {
+    public boolean existeOtpVigente(Long idUsuario) {
         Optional<OtpVerificacion> opt = otpDao.findByIdUsuario(idUsuario);
-        return opt.isPresent()
-                && opt.get().getFechaVencimiento() != null
-                && opt.get().getFechaVencimiento().isAfter(LocalDateTime.now());
+        return opt.isPresent() && existeVigente(opt.get());
     }
 
     @Transactional
@@ -58,7 +53,8 @@ public class OtpService {
             otpDao.delete(existente.get());
         }
 
-        String codigo = String.valueOf(100000 + RANDOM.nextInt(900000)); // 6 dígitos
+        String codigo = String.valueOf(100000 + RANDOM.nextInt(900000));
+
         OtpVerificacion nuevo = new OtpVerificacion();
         nuevo.setIdUsuario(usuario.getIdUsuario());
         nuevo.setCodigo(passwordEncoder.encode(codigo));

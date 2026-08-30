@@ -36,6 +36,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
 
+        // Obtener el rol de las autoridades de autenticación
         Rol rol = obtenerRol(authentication.getAuthorities());
         Usuario usuario = usuarioDao.findByUsernameOrEmail(authentication.getName(), authentication.getName())
                 .orElse(null);
@@ -45,6 +46,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         String destino = RedirectPorRol.urlDestino(rol);
 
+        // El usuario debe pasar por el 2FA antes de entrar a su área
         if (!otpDesactivado && usuario != null && otpService.requiereOtp(rol)) {
             // El usuario debe pasar por el 2FA antes de entrar a su área
             request.getSession().setAttribute("urlDestino", destino);
