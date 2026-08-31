@@ -2,6 +2,7 @@ package com.bike_assembly.domain;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +47,18 @@ public class Usuario implements Serializable {
 
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion = LocalDateTime.now();
+
+    @Column(name = "plan_solicitado", length = 50)
+    private String planSolicitado;
+
+    @Column(name = "plan_estado", length = 20)
+    private String planEstado;
+
+    @Column(name = "precio_plan_solicitado")
+    private BigDecimal precioPlanSolicitado;
+
+    @Column(name = "fecha_solicitud_plan")
+    private LocalDateTime fechaSolicitudPlan;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_organizacion")
@@ -109,4 +122,16 @@ public class Usuario implements Serializable {
 
     public List<ProductoGuardado> getProductosGuardados() { return productosGuardados; }
     public void setProductosGuardados(List<ProductoGuardado> productosGuardados) { this.productosGuardados = productosGuardados; }
+
+    public String getPlanSolicitado() { return planSolicitado; }
+    public void setPlanSolicitado(String planSolicitado) { this.planSolicitado = planSolicitado; }
+
+    public String getPlanEstado() { return planEstado; }
+    public void setPlanEstado(String planEstado) { this.planEstado = planEstado; }
+
+    public BigDecimal getPrecioPlanSolicitado() { return precioPlanSolicitado; }
+    public void setPrecioPlanSolicitado(BigDecimal precioPlanSolicitado) { this.precioPlanSolicitado = precioPlanSolicitado; }
+
+    public LocalDateTime getFechaSolicitudPlan() { return fechaSolicitudPlan; }
+    public void setFechaSolicitudPlan(LocalDateTime fechaSolicitudPlan) { this.fechaSolicitudPlan = fechaSolicitudPlan; }
 }

@@ -193,4 +193,70 @@ public class SuperAdminController {
         }
         return "redirect:/superadmin/usuarios?estadoCambiado=true";
     }
+
+    @GetMapping("/solicitudes-plan")
+    public String solicitudesPlan(Model model,
+                                  @RequestParam(value = "paginaNuevas", defaultValue = "0") int paginaNuevas,
+                                  @RequestParam(value = "paginaCambios", defaultValue = "0") int paginaCambios) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+
+        Pageable pageNuevas = PageRequest.of(Math.max(0, paginaNuevas), TAMANO_PAGINA, Sort.by("fechaSolicitudPlan").descending());
+        Pageable pageCambios = PageRequest.of(Math.max(0, paginaCambios), TAMANO_PAGINA, Sort.by("fechaSolicitudPlan").descending());
+
+        model.addAttribute("nombreUsuario", username);
+        model.addAttribute("nuevas", superAdminService.listarSolicitudesPlanNuevas(pageNuevas));
+        model.addAttribute("cambios", superAdminService.listarSolicitudesCambioPlan(pageCambios));
+        model.addAttribute("tituloTamano", TAMANO_PAGINA);
+
+        return "superadmin/solicitudes-plan";
+    }
+
+    @PostMapping("/plan/rechazar")
+    public String rechazarSolicitudPlan(@RequestParam("idUsuario") Long idUsuario) {
+        try {
+            superAdminService.rechazarSolicitudPlan(idUsuario);
+        } catch (Exception e) {
+            return "redirect:/superadmin/solicitudes-plan?rechazado=false";
+        }
+        return "redirect:/superadmin/solicitudes-plan?rechazado=true";
+    }
+
+    @PostMapping("/plan/aprobar-nueva")
+    public String aprobarSolicitudNueva(@RequestParam("idUsuario") Long idUsuario,
+                                        @RequestParam("nombreTaller") String nombreTaller,
+                                        @RequestParam("direccion") String direccionTaller,
+                                        @RequestParam("telefono") String telefonoTaller,
+                                        @RequestParam("tipo") String tipo,
+                                        @RequestParam(value = "precioPlan", required = false) BigDecimal precioPlan,
+                                        @RequestParam(value = "fechaVencimiento", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fechaVencimiento) {
+        if (precioPlan == null || fechaVencimiento == null) {
+            return "redirect:/superadmin/solicitudes-plan?aprobado=incompleto";
+        }
+        try {
+            superAdminService.promoverAAdmin(idUsuario, nombreTaller, direccionTaller, telefonoTaller, tipo, precioPlan, fechaVencimiento);
+        } catch (Exception e) {
+            return "redirect:/superadmin/solicitudes-plan?aprobado=false";
+        }
+        return "redirect:/superadmin/solicitudes-plan?aprobado=true";
+    }
+
+    @PostMapping("/plan/aprobar-cambio")
+    public String aprobarCambioPlan(@RequestParam("idUsuario") Long idUsuario,
+                                    @RequestParam("nombreTaller") String nombreTaller,
+                                    @RequestParam("direccion") String direccion,
+                                    @RequestParam("telefono") String telefono,
+                                    @RequestParam("tipo") String tipo,
+                                    @RequestParam(value = "precioPlan", required = false) BigDecimal precioPlan,
+                                    @RequestParam(value = "fechaVencimiento", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate fechaVencimiento) {
+        if (precioPlan == null || fechaVencimiento == null) {
+            return "redirect:/superadmin/solicitudes-plan?aprobado=incompleto";
+        }
+        try {
+            superAdminService.actualizarAdminYOrganizacion(idUsuario, nombreTaller, direccion, telefono, tipo, precioPlan, fechaVencimiento);
+        } catch (Exception e) {
+            return "redirect:/superadmin/solicitudes-plan?aprobado=false";
+        }
+        return "redirect:/superadmin/solicitudes-plan?aprobado=true";
+    }
 }

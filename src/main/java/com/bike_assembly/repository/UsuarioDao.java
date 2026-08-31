@@ -35,4 +35,8 @@ public interface UsuarioDao extends JpaRepository<Usuario, Long> {
     Page<Usuario> paginarPorRolesIn(List<Rol> roles, Pageable pageable);
     @Query("SELECT u FROM Usuario u WHERE u.rol = :rol AND u.organizacion IS NULL")
     List<Usuario> findByRolAndOrganizacionIsNull(Rol rol);
+    @Query("SELECT u FROM Usuario u WHERE u.rol = :rol AND u.planSolicitado IS NOT NULL")
+    Page<Usuario> findByRolAndPlanSolicitadoIsNotNull(Rol rol, Pageable pageable);
+    @Query("SELECT u FROM Usuario u WHERE u.rol = :rol AND u.planSolicitado IS NULL")
+    Page<Usuario> paginarPorRolSinPlan(Rol rol, Pageable pageable);
 }

@@ -16,9 +16,19 @@
                 <i class="bi bi-bicycle"></i>
             </div>
             <h3 class="fw-bold text-dark mb-1">Crea tu cuenta</h3>
-            <p class="text-muted small mb-4">Únete a Bike Assembly</p>
+            <p class="text-muted small mb-4" th:text="${plan != null ? 'Registrando taller con plan ' + plan : 'Únete a Bike Assembly'}">Únete a Bike Assembly</p>
+
+            <div th:if="${plan != null}" class="alert alert-primary border-0 rounded-3 p-3 mb-4 text-start">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <i class="bi bi-card-text fs-5 text-primary"></i>
+                    <span class="fw-bold text-dark small">Plan <span th:text="${plan}">Taller</span></span>
+                </div>
+                <span class="small text-muted d-block">Tu cuenta se activará cuando el administrador global apruebe el plan. Precio: <span class="fw-bold text-dark" th:text="'$ ' + ${precioPlan}">$50</span> /mes</span>
+            </div>
 
             <form th:action="@{/registro}" method="post" class="text-start">
+
+                <input type="hidden" name="plan" th:value="${plan}">
                 
                 <div class="mb-3">
                     <label for="cedula" class="form-label fw-bold text-dark small">Cédula</label>

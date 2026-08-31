@@ -4,6 +4,7 @@ import com.bike_assembly.domain.Rol;
 import com.bike_assembly.domain.Usuario;
 import com.bike_assembly.repository.UsuarioDao;
 import com.bike_assembly.services.PasswordValidator;
+import com.bike_assembly.services.usuario.ISuperAdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -11,11 +12,16 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDateTime;
 import java.util.Locale;
+import java.util.Set;
 
 @Controller
 public class RegistroController {
+
+    private static final Set<String> PLANES_VALIDOS = Set.of("Taller Pequeño", "Taller Mediano", "Taller Grande");
 
     @Autowired
     private UsuarioDao usuarioDao;
@@ -24,28 +30,52 @@ public class RegistroController {
     private PasswordEncoder passwordEncoder;
 
     @GetMapping("/registro")
-    public String mostrarFormularioRegistro(Model model) {
+    public String mostrarFormularioRegistro(Model model,
+                                            @RequestParam(value = "plan", required = false) String plan) {
         model.addAttribute("usuario", new Usuario());
+        model.addAttribute("plan", validarPlan(plan));
+        model.addAttribute("precioPlan", plan != null ? ISuperAdminService.precioFijo(plan) : null);
         return "registro";
     }
 
     @PostMapping("/registro")
-    public String procesarRegistro(@ModelAttribute Usuario usuario, Model model) {
+    public String procesarRegistro(@ModelAttribute Usuario usuario, Model model,
+                                   @RequestParam(value = "plan", required = false) String plan) {
 
         String error = validarRegistro(usuario);
         if (error != null) {
             model.addAttribute("error", error);
             model.addAttribute("usuario", usuario);
+            model.addAttribute("plan", validarPlan(plan));
+            model.addAttribute("precioPlan", plan != null ? ISuperAdminService.precioFijo(plan) : null);
             return "registro";
         }
 
         usuario.setRol(Rol.CLIENTE);
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
-        usuario.setActivo(true);
         usuario.setEmail(usuario.getEmail() != null ? usuario.getEmail().trim().toLowerCase(Locale.ROOT) : null);
+
+        String planValido = validarPlan(plan);
+        if (planValido != null) {
+            usuario.setActivo(false);
+            usuario.setPlanSolicitado(planValido);
+            usuario.setPlanEstado("PENDIENTE");
+            usuario.setPrecioPlanSolicitado(ISuperAdminService.precioFijo(planValido));
+            usuario.setFechaSolicitudPlan(LocalDateTime.now());
+        } else {
+            usuario.setActivo(true);
+        }
         usuarioDao.save(usuario);
 
         return "redirect:/login?registrado=true";
+    }
+
+    private String validarPlan(String plan) {
+        if (plan == null || plan.isBlank()) {
+            return null;
+        }
+        String normalizado = plan.trim();
+        return PLANES_VALIDOS.contains(normalizado) ? normalizado : null;
     }
 
     private String validarRegistro(Usuario usuario) {

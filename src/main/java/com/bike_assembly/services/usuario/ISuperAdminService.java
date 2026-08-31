@@ -34,4 +34,15 @@ public interface ISuperAdminService {
     void asignarTallerYPlan(Long idUsuario, String nombreTaller, String direccion, String telefono, String tipo, BigDecimal precioPlan, LocalDate fechaVencimiento);
     List<Usuario> listarAdministradoresHuerfanos();
     int purgarCuentasHuerfanas(int dias);
+
+    // Solicitudes de plan (registro por plan y cambios de plan de administradores)
+    Page<Usuario> listarSolicitudesPlanNuevas(Pageable pageable);
+    Page<Usuario> listarSolicitudesCambioPlan(Pageable pageable);
+    void rechazarSolicitudPlan(Long idUsuario);
+    static BigDecimal precioFijo(String tipo) {
+        if ("Taller Pequeño".equals(tipo)) return new BigDecimal("50");
+        if ("Taller Mediano".equals(tipo)) return new BigDecimal("80");
+        if ("Taller Grande".equals(tipo)) return new BigDecimal("120");
+        return BigDecimal.ZERO;
+    }
 }

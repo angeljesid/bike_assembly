@@ -27,6 +27,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -280,10 +281,50 @@ public class AdminController {
         if (admin != null && admin.getOrganizacion() != null) {
             model.addAttribute("admin", admin);
             model.addAttribute("organizacion", admin.getOrganizacion());
+
+            long operarios = usuarioDao.countByOrganizacionAndRolAndActivoTrue(admin.getOrganizacion(), Rol.OPERARIO);
+            long cajeros = usuarioDao.countByOrganizacionAndRolAndActivoTrue(admin.getOrganizacion(), Rol.CAJA);
+            model.addAttribute("empleadosActivos", operarios + cajeros);
+            model.addAttribute("cupoPlan", cupoSegunPlan(admin.getOrganizacion().getTipo()));
             return "admin/configuracion";
         }
         
         return "redirect:/admin";
+    }
+
+    private int cupoSegunPlan(String tipo) {
+        if (tipo == null) {
+            return 0;
+        }
+        switch (tipo) {
+            case "Taller Mediano": return 6;
+            case "Taller Grande": return 12;
+            case "Taller Pequeño":
+            default: return 4;
+        }
+    }
+
+    @PostMapping("/solicitar-plan")
+    public String solicitarCambioPlan(@RequestParam("tipo") String tipo, RedirectAttributes redirectAttributes) {
+        Usuario admin = obtenerAdminAutenticado();
+
+        if (admin != null && admin.getOrganizacion() != null
+                && java.util.Set.of("Taller Pequeño", "Taller Mediano", "Taller Grande").contains(tipo)) {
+            if (admin.getPlanSolicitado() != null && "PENDIENTE".equals(admin.getPlanEstado())) {
+                redirectAttributes.addFlashAttribute("alertaPlanSolicitado",
+                        "Ya tienes una solicitud de cambio de plan pendiente de aprobación.");
+                return "redirect:/admin/configuracion?solicitado=pendiente";
+            }
+            admin.setPlanSolicitado(tipo);
+            admin.setPlanEstado("PENDIENTE");
+            admin.setPrecioPlanSolicitado(com.bike_assembly.services.usuario.ISuperAdminService.precioFijo(tipo));
+            admin.setFechaSolicitudPlan(LocalDateTime.now());
+            usuarioDao.save(admin);
+            redirectAttributes.addFlashAttribute("alertaPlanSolicitado",
+                    "Solicitud de plan enviada al administrador global. Espera su aprobación.");
+            return "redirect:/admin/configuracion?solicitado=true";
+        }
+        return "redirect:/admin/configuracion?solicitado=false";
     }
 
     @PostMapping("/configuracion/guardar")

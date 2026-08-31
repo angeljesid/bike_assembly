@@ -40,7 +40,7 @@ public class SuperAdminService implements ISuperAdminService {
     @Override
     @Transactional(readOnly = true)
     public Page<Usuario> listarClientes(Pageable pageable) {
-        return usuarioDao.paginarPorRol(Rol.CLIENTE, pageable);
+        return usuarioDao.paginarPorRolSinPlan(Rol.CLIENTE, pageable);
     }
 
     @Override
@@ -55,6 +55,10 @@ public class SuperAdminService implements ISuperAdminService {
         Usuario usuario = usuarioDao.findById(idUsuario)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
+        if (precioPlan == null || fechaVencimiento == null) {
+            throw new IllegalArgumentException("Debes ingresar el precio del plan y la fecha de vencimiento.");
+        }
+
         Organizacion nuevaOrg = new Organizacion();
         nuevaOrg.setNombre(nombreTaller);
         // Se asocian los valores reales enviados desde el modal HTML
@@ -68,6 +72,11 @@ public class SuperAdminService implements ISuperAdminService {
 
         usuario.setRol(Rol.ADMIN);
         usuario.setOrganizacion(orgGuardada);
+        usuario.setActivo(true);
+        usuario.setPlanSolicitado(null);
+        usuario.setPlanEstado(null);
+        usuario.setPrecioPlanSolicitado(null);
+        usuario.setFechaSolicitudPlan(null);
         if (usuario.getFechaCreacion() == null) {
             usuario.setFechaCreacion(LocalDateTime.now());
         }
@@ -101,6 +110,14 @@ public class SuperAdminService implements ISuperAdminService {
             }
 
             organizacionDao.save(org);
+        }
+
+        if (usuario.getPlanSolicitado() != null) {
+            usuario.setPlanSolicitado(null);
+            usuario.setPlanEstado(null);
+            usuario.setPrecioPlanSolicitado(null);
+            usuario.setFechaSolicitudPlan(null);
+            usuarioDao.save(usuario);
         }
     }
 
@@ -272,6 +289,10 @@ public class SuperAdminService implements ISuperAdminService {
             throw new RuntimeException("La cuenta ya tiene un taller asignado o no corresponde a un administrador huérfano.");
         }
 
+        if (precioPlan == null || fechaVencimiento == null) {
+            throw new IllegalArgumentException("Debes ingresar el precio del plan y la fecha de vencimiento.");
+        }
+
         Organizacion org = new Organizacion();
         org.setNombre(nombreTaller);
         org.setDireccion(direccion);
@@ -283,6 +304,7 @@ public class SuperAdminService implements ISuperAdminService {
         Organizacion guardada = organizacionDao.save(org);
 
         usuario.setOrganizacion(guardada);
+        usuario.setActivo(true);
         if (usuario.getFechaCreacion() == null) {
             usuario.setFechaCreacion(LocalDateTime.now());
         }
@@ -311,5 +333,33 @@ public class SuperAdminService implements ISuperAdminService {
             usuarioDao.deleteAll(aEliminar);
         }
         return aEliminar.size();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Usuario> listarSolicitudesPlanNuevas(Pageable pageable) {
+        return usuarioDao.findByRolAndPlanSolicitadoIsNotNull(Rol.CLIENTE, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Usuario> listarSolicitudesCambioPlan(Pageable pageable) {
+        return usuarioDao.findByRolAndPlanSolicitadoIsNotNull(Rol.ADMIN, pageable);
+    }
+
+    @Override
+    @Transactional
+    public void rechazarSolicitudPlan(Long idUsuario) {
+        Usuario usuario = usuarioDao.findById(idUsuario)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        limpiarSolicitudPlan(usuario);
+        usuarioDao.save(usuario);
+    }
+
+    private void limpiarSolicitudPlan(Usuario usuario) {
+        usuario.setPlanSolicitado(null);
+        usuario.setPlanEstado(null);
+        usuario.setPrecioPlanSolicitado(null);
+        usuario.setFechaSolicitudPlan(null);
     }
 }
