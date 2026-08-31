@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SolicitudRepuesto.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.bike_assembly.domain</a> &gt; <span class="el_source">SolicitudRepuesto.java</span></div><h1>SolicitudRepuesto.java</h1><pre class="source lang-java linenums">package com.bike_assembly.domain;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = &quot;solicitud_repuesto&quot;)
+public class SolicitudRepuesto implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    public static final String PENDIENTE = &quot;PENDIENTE&quot;;
+    public static final String ACEPTADA = &quot;ACEPTADA&quot;;
+    public static final String RECHAZADA = &quot;RECHAZADA&quot;;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = &quot;id_solicitud&quot;)
+    private Long idSolicitud;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = &quot;id_orden&quot;)
+    @JsonIgnoreProperties({&quot;hibernateLazyInitializer&quot;, &quot;handler&quot;, &quot;repuestos&quot;})
+    private OrdenServicio orden;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = &quot;id_producto&quot;)
+    @JsonIgnoreProperties({&quot;hibernateLazyInitializer&quot;, &quot;handler&quot;})
+    private Producto producto;
+
+    @Column(nullable = false)
+<span class="fc" id="L34">    private Integer cantidad = 1;</span>
+
+    @Column(name = &quot;precio_unitario&quot;)
+    private Double precioUnitario;
+
+    private Double subtotal;
+
+    @Column(nullable = false, length = 20)
+<span class="fc" id="L42">    private String estado = PENDIENTE;</span>
+
+    @Column(name = &quot;fecha_solicitud&quot;, nullable = false)
+<span class="fc" id="L45">    private LocalDateTime fechaSolicitud = LocalDateTime.now();</span>
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;id_solicitante&quot;)
+    @JsonIgnoreProperties({&quot;hibernateLazyInitializer&quot;, &quot;handler&quot;})
+    private Usuario solicitadoPor;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;id_organizacion&quot;)
+    @JsonIgnoreProperties({&quot;hibernateLazyInitializer&quot;, &quot;handler&quot;})
+    private Organizacion organizacion;
+
+<span class="fc" id="L57">    public SolicitudRepuesto() {</span>
+<span class="fc" id="L58">    }</span>
+
+<span class="nc" id="L60">    public Long getIdSolicitud() { return idSolicitud; }</span>
+<span class="nc" id="L61">    public void setIdSolicitud(Long idSolicitud) { this.idSolicitud = idSolicitud; }</span>
+
+<span class="nc" id="L63">    public OrdenServicio getOrden() { return orden; }</span>
+<span class="nc" id="L64">    public void setOrden(OrdenServicio orden) { this.orden = orden; }</span>
+
+<span class="nc" id="L66">    public Producto getProducto() { return producto; }</span>
+<span class="nc" id="L67">    public void setProducto(Producto producto) { this.producto = producto; }</span>
+
+<span class="nc" id="L69">    public Integer getCantidad() { return cantidad; }</span>
+<span class="nc" id="L70">    public void setCantidad(Integer cantidad) { this.cantidad = cantidad; }</span>
+
+<span class="nc" id="L72">    public Double getPrecioUnitario() { return precioUnitario; }</span>
+<span class="nc" id="L73">    public void setPrecioUnitario(Double precioUnitario) { this.precioUnitario = precioUnitario; }</span>
+
+<span class="nc" id="L75">    public Double getSubtotal() { return subtotal; }</span>
+<span class="nc" id="L76">    public void setSubtotal(Double subtotal) { this.subtotal = subtotal; }</span>
+
+<span class="nc" id="L78">    public String getEstado() { return estado; }</span>
+<span class="nc" id="L79">    public void setEstado(String estado) { this.estado = estado; }</span>
+
+<span class="nc" id="L81">    public LocalDateTime getFechaSolicitud() { return fechaSolicitud; }</span>
+<span class="nc" id="L82">    public void setFechaSolicitud(LocalDateTime fechaSolicitud) { this.fechaSolicitud = fechaSolicitud; }</span>
+
+<span class="nc" id="L84">    public Usuario getSolicitadoPor() { return solicitadoPor; }</span>
+<span class="nc" id="L85">    public void setSolicitadoPor(Usuario solicitadoPor) { this.solicitadoPor = solicitadoPor; }</span>
+
+<span class="nc" id="L87">    public Organizacion getOrganizacion() { return organizacion; }</span>
+<span class="nc" id="L88">    public void setOrganizacion(Organizacion organizacion) { this.organizacion = organizacion; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

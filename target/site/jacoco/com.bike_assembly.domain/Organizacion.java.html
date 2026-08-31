@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Organizacion.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.bike_assembly.domain</a> &gt; <span class="el_source">Organizacion.java</span></div><h1>Organizacion.java</h1><pre class="source lang-java linenums">package com.bike_assembly.domain;
+
+import jakarta.persistence.*;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = &quot;organizacion&quot;)
+public class Organizacion implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = &quot;id_organizacion&quot;)
+    private Long idOrganizacion;
+
+    @Column(nullable = false, unique = true)
+    private String nombre;
+
+    @Column(nullable = false)
+    private String telefono;
+
+    @Column(nullable = false)
+    private String direccion;
+
+    private String tipo;
+
+    @Column(name = &quot;fecha_vencimiento&quot;)
+    private LocalDate fechaVencimiento;
+
+    @Column(nullable = false)
+<span class="fc" id="L35">    private Boolean activo = true;</span>
+
+    @Column(name = &quot;precio_plan&quot;)
+    private BigDecimal precioPlan;
+
+    @Column(name = &quot;motivo_suspension&quot;)
+    private String motivoSuspension;
+
+    @Column(name = &quot;fecha_suspension&quot;)
+    private LocalDateTime fechaSuspension;
+
+<span class="fc" id="L46">    public Organizacion() {</span>
+<span class="fc" id="L47">    }</span>
+
+<span class="fc" id="L49">    public Organizacion(String nombre, String telefono, String direccion) {</span>
+<span class="fc" id="L50">        this.nombre = nombre;</span>
+<span class="fc" id="L51">        this.telefono = telefono;</span>
+<span class="fc" id="L52">        this.direccion = direccion;</span>
+<span class="fc" id="L53">    }</span>
+
+<span class="fc" id="L55">    public Long getIdOrganizacion() { return idOrganizacion; }</span>
+<span class="fc" id="L56">    public void setIdOrganizacion(Long idOrganizacion) { this.idOrganizacion = idOrganizacion; }</span>
+
+<span class="nc" id="L58">    public String getNombre() { return nombre; }</span>
+<span class="fc" id="L59">    public void setNombre(String nombre) { this.nombre = nombre; }</span>
+
+<span class="nc" id="L61">    public String getDireccion() { return direccion; }</span>
+<span class="fc" id="L62">    public void setDireccion(String direccion) { this.direccion = direccion; }</span>
+
+<span class="nc" id="L64">    public String getTelefono() { return telefono; }</span>
+<span class="fc" id="L65">    public void setTelefono(String telefono) { this.telefono = telefono; }</span>
+
+<span class="fc" id="L67">    public String getTipo() { return tipo; }</span>
+<span class="fc" id="L68">    public void setTipo(String tipo) { this.tipo = tipo; }</span>
+
+<span class="fc" id="L70">    public LocalDate getFechaVencimiento() { return fechaVencimiento; }</span>
+<span class="fc" id="L71">    public void setFechaVencimiento(LocalDate fechaVencimiento) { this.fechaVencimiento = fechaVencimiento; }</span>
+
+<span class="fc" id="L73">    public Boolean getActivo() { return activo; }</span>
+<span class="fc" id="L74">    public void setActivo(Boolean activo) { this.activo = activo; }</span>
+
+<span class="fc" id="L76">    public BigDecimal getPrecioPlan() { return precioPlan; }</span>
+<span class="fc" id="L77">    public void setPrecioPlan(BigDecimal precioPlan) { this.precioPlan = precioPlan; }</span>
+
+<span class="fc" id="L79">    public String getMotivoSuspension() { return motivoSuspension; }</span>
+<span class="fc" id="L80">    public void setMotivoSuspension(String motivoSuspension) { this.motivoSuspension = motivoSuspension; }</span>
+
+<span class="nc" id="L82">    public LocalDateTime getFechaSuspension() { return fechaSuspension; }</span>
+<span class="fc" id="L83">    public void setFechaSuspension(LocalDateTime fechaSuspension) { this.fechaSuspension = fechaSuspension; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RedirectPorRol.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.bike_assembly.security</a> &gt; <span class="el_source">RedirectPorRol.java</span></div><h1>RedirectPorRol.java</h1><pre class="source lang-java linenums">package com.bike_assembly.security;
+
+import com.bike_assembly.domain.Rol;
+
+public final class RedirectPorRol {
+
+    private RedirectPorRol() {
+    }
+
+    public static String urlDestino(Rol rol) {
+<span class="fc bfc" id="L11" title="All 2 branches covered.">        if (rol == null) {</span>
+<span class="fc" id="L12">            return &quot;/&quot;;</span>
+        }
+<span class="pc bpc" id="L14" title="1 of 6 branches missed.">        switch (rol) {</span>
+<span class="fc" id="L15">            case SUPER_ADMIN: return &quot;/superadmin/dashboard&quot;;</span>
+<span class="fc" id="L16">            case ADMIN:       return &quot;/admin&quot;;</span>
+<span class="fc" id="L17">            case CAJA:        return &quot;/caja/pos&quot;;</span>
+<span class="fc" id="L18">            case OPERARIO:    return &quot;/operario/ensambles&quot;;</span>
+<span class="fc" id="L19">            case CLIENTE:     return &quot;/cliente/catalogo&quot;;</span>
+<span class="nc" id="L20">            default:          return &quot;/&quot;;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

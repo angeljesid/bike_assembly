@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CustomAuthenticationSuccessHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.bike_assembly.security</a> &gt; <span class="el_source">CustomAuthenticationSuccessHandler.java</span></div><h1>CustomAuthenticationSuccessHandler.java</h1><pre class="source lang-java linenums">package com.bike_assembly.security;
+
+import com.bike_assembly.domain.Rol;
+import com.bike_assembly.domain.Usuario;
+import com.bike_assembly.repository.UsuarioDao;
+import com.bike_assembly.services.usuario.OtpService;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.util.Collection;
+
+@Component
+<span class="fc" id="L21">public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {</span>
+
+    @Autowired
+    private OtpService otpService;
+
+    @Autowired
+    private UsuarioDao usuarioDao;
+
+    @Autowired
+    private LoginIntentoService loginIntentoService;
+
+    @Value(&quot;${app.otp.desactivado:false}&quot;)
+    private boolean otpDesactivado;
+
+    @Override
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+                                        Authentication authentication) throws IOException, ServletException {
+
+        // Obtener el rol de las autoridades de autenticación
+<span class="nc" id="L40">        Rol rol = obtenerRol(authentication.getAuthorities());</span>
+<span class="nc" id="L41">        Usuario usuario = usuarioDao.findByUsernameOrEmail(authentication.getName(), authentication.getName())</span>
+<span class="nc" id="L42">                .orElse(null);</span>
+
+        // Login exitoso: se limpian los intentos fallidos previos
+<span class="nc" id="L45">        loginIntentoService.limpiar(authentication.getName());</span>
+
+<span class="nc" id="L47">        String destino = RedirectPorRol.urlDestino(rol);</span>
+
+        // El usuario debe pasar por el 2FA antes de entrar a su área
+<span class="nc bnc" id="L50" title="All 6 branches missed.">        if (!otpDesactivado &amp;&amp; usuario != null &amp;&amp; otpService.requiereOtp(rol)) {</span>
+            // El usuario debe pasar por el 2FA antes de entrar a su área
+<span class="nc" id="L52">            request.getSession().setAttribute(&quot;urlDestino&quot;, destino);</span>
+<span class="nc" id="L53">            response.sendRedirect(&quot;/verificar-otp&quot;);</span>
+<span class="nc" id="L54">            return;</span>
+        }
+
+        // Con 2FA desactivado (o rol sin OTP) se marca la sesión como verificada
+<span class="nc" id="L58">        request.getSession().setAttribute(AtributosSesion.OTP_VERIFICADO, Boolean.TRUE);</span>
+<span class="nc" id="L59">        response.sendRedirect(destino);</span>
+<span class="nc" id="L60">    }</span>
+
+    private Rol obtenerRol(Collection&lt;? extends GrantedAuthority&gt; authorities) {
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        for (GrantedAuthority authority : authorities) {</span>
+<span class="nc" id="L64">            String auth = authority.getAuthority();</span>
+<span class="nc bnc" id="L65" title="All 4 branches missed.">            if (auth != null &amp;&amp; auth.startsWith(&quot;ROLE_&quot;)) {</span>
+                try {
+<span class="nc" id="L67">                    return Rol.valueOf(auth.substring(5));</span>
+<span class="nc" id="L68">                } catch (IllegalArgumentException ignored) {</span>
+                    // rol desconocido
+                }
+            }
+        }
+<span class="nc" id="L73">        return null;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

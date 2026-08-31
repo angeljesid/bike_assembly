@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SecurityConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.bike_assembly.security</a> &gt; <span class="el_source">SecurityConfig.java</span></div><h1>SecurityConfig.java</h1><pre class="source lang-java linenums">package com.bike_assembly.security;
+
+import com.bike_assembly.repository.UsuarioDao;
+import com.bike_assembly.services.usuario.OtpService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+@Configuration
+@EnableWebSecurity
+<span class="fc" id="L15">public class SecurityConfig {</span>
+
+    @Autowired
+    private CustomAuthenticationSuccessHandler successHandler;
+
+    @Autowired
+    private CustomAuthenticationFailureHandler failureHandler;
+
+    @Bean
+    public UsuarioActivoFilter usuarioActivoFilter(UsuarioDao usuarioDao) {
+<span class="fc" id="L25">        return new UsuarioActivoFilter(usuarioDao);</span>
+    }
+
+    @Bean
+    public OtpVerificationFilter otpVerificationFilter(OtpService otpService, UsuarioDao usuarioDao) {
+<span class="fc" id="L30">        return new OtpVerificationFilter(otpService, usuarioDao);</span>
+    }
+
+    @Bean
+    public NoCacheFilter noCacheFilter() {
+<span class="fc" id="L35">        return new NoCacheFilter();</span>
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http,
+                                           NoCacheFilter noCacheFilter,
+                                           UsuarioActivoFilter usuarioActivoFilter,
+                                           OtpVerificationFilter otpVerificationFilter) throws Exception {
+<span class="fc" id="L43">        http</span>
+<span class="fc" id="L44">            .authorizeHttpRequests(auth -&gt; auth</span>
+<span class="fc" id="L45">                .requestMatchers(&quot;/&quot;, &quot;/login&quot;, &quot;/bloqueado/**&quot;, &quot;/recuperar-password/**&quot;, &quot;/css/**&quot;, &quot;/js/**&quot;, &quot;/images/**&quot;, &quot;/recursos/**&quot;, &quot;/registro&quot;).permitAll()</span>
+<span class="fc" id="L46">                .requestMatchers(&quot;/superadmin/**&quot;).hasRole(&quot;SUPER_ADMIN&quot;)</span>
+<span class="fc" id="L47">                .requestMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)</span>
+<span class="fc" id="L48">                .requestMatchers(&quot;/caja/**&quot;).hasAnyRole(&quot;ADMIN&quot;, &quot;CAJA&quot;)</span>
+<span class="fc" id="L49">                .requestMatchers(&quot;/operario/**&quot;).hasRole(&quot;OPERARIO&quot;)</span>
+<span class="fc" id="L50">                .requestMatchers(&quot;/cliente/**&quot;).hasRole(&quot;CLIENTE&quot;)</span>
+<span class="fc" id="L51">                .anyRequest().authenticated()</span>
+            )
+<span class="fc" id="L53">            .formLogin(form -&gt; form</span>
+<span class="fc" id="L54">                .loginPage(&quot;/login&quot;)</span>
+<span class="fc" id="L55">                .usernameParameter(&quot;username&quot;)</span>
+<span class="fc" id="L56">                .successHandler(successHandler)</span>
+<span class="fc" id="L57">                .failureHandler(failureHandler)</span>
+<span class="fc" id="L58">                .permitAll()</span>
+            )
+<span class="fc" id="L60">            .logout(logout -&gt; logout</span>
+<span class="fc" id="L61">                .logoutSuccessUrl(&quot;/login?logout&quot;)</span>
+<span class="fc" id="L62">                .permitAll())</span>
+<span class="fc" id="L63">            .addFilterBefore(noCacheFilter, UsernamePasswordAuthenticationFilter.class)</span>
+<span class="fc" id="L64">            .addFilterAfter(usuarioActivoFilter, UsernamePasswordAuthenticationFilter.class)</span>
+<span class="fc" id="L65">            .addFilterAfter(otpVerificationFilter, UsuarioActivoFilter.class);</span>
+
+<span class="fc" id="L67">        return http.build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

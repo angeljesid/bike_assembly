@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CajaController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.bike_assembly.web</a> &gt; <span class="el_source">CajaController.java</span></div><h1>CajaController.java</h1><pre class="source lang-java linenums">package com.bike_assembly.web;
+
+import com.bike_assembly.domain.OrdenServicio;
+import com.bike_assembly.domain.Producto;
+import com.bike_assembly.domain.RepuestoOrdenServicio;
+import com.bike_assembly.domain.Rol;
+import com.bike_assembly.domain.Usuario;
+import com.bike_assembly.domain.Venta;
+import com.bike_assembly.domain.VentaRequestDTO;
+import com.bike_assembly.repository.ProductoDao;
+import com.bike_assembly.repository.UsuarioDao;
+import com.bike_assembly.security.SessionUtils;
+import com.bike_assembly.services.ordenservicio.IOrdenServicioService;
+import com.bike_assembly.services.solicitud.ISolicitudRepuestoService;
+import com.bike_assembly.services.venta.IVentaService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Controller
+@RequestMapping(&quot;/caja&quot;)
+<span class="fc" id="L32">public class CajaController {</span>
+
+    @Autowired
+    private ProductoDao productoDao;
+
+    @Autowired
+    private IVentaService ventaService;
+
+    @Autowired
+    private IOrdenServicioService ordenServicioService;
+
+    @Autowired
+    private UsuarioDao usuarioDao;
+
+    @Autowired
+    private ISolicitudRepuestoService solicitudRepuestoService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private SessionUtils sessionUtils;
+
+    private Usuario obtenerUsuarioAutenticado() {
+<span class="nc" id="L56">        return sessionUtils.usuarioActual();</span>
+    }
+
+    @GetMapping({&quot;&quot;, &quot;/&quot;, &quot;/caja&quot;, &quot;/pos&quot;})
+    public String vistaPos(Model model) {
+<span class="nc" id="L61">        Usuario empleado = obtenerUsuarioAutenticado();</span>
+<span class="nc" id="L62">        model.addAttribute(&quot;empleado&quot;, empleado);</span>
+<span class="nc" id="L63">        return &quot;caja/pos&quot;;</span>
+    }
+
+    @GetMapping(&quot;/api/productos&quot;)
+    @ResponseBody
+    public ResponseEntity&lt;List&lt;Producto&gt;&gt; listarProductosCaja() {
+<span class="nc" id="L69">        Usuario empleado = obtenerUsuarioAutenticado();</span>
+<span class="nc bnc" id="L70" title="All 4 branches missed.">        if (empleado != null &amp;&amp; empleado.getOrganizacion() != null) {</span>
+<span class="nc" id="L71">            List&lt;Producto&gt; productos = productoDao.findByOrganizacionAndEliminadoFalse(empleado.getOrganizacion());</span>
+<span class="nc" id="L72">            return ResponseEntity.ok(productos);</span>
+        }
+<span class="nc" id="L74">        return ResponseEntity.ok(List.of());</span>
+    }
+
+    @GetMapping(&quot;/api/buscar-producto&quot;)
+    @ResponseBody
+    public ResponseEntity&lt;?&gt; buscarProductoPorCodigo(@RequestParam(&quot;codigo&quot;) String codigoBarras) {
+<span class="nc" id="L80">        Usuario empleado = obtenerUsuarioAutenticado();</span>
+<span class="nc bnc" id="L81" title="All 4 branches missed.">        if (empleado != null &amp;&amp; empleado.getOrganizacion() != null) {</span>
+<span class="nc" id="L82">            Optional&lt;Producto&gt; producto = productoDao.findByCodigoBarrasAndOrganizacionAndEliminadoFalse(codigoBarras, empleado.getOrganizacion());</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">            if (producto.isPresent()) {</span>
+<span class="nc" id="L84">                return ResponseEntity.ok(producto.get());</span>
+            }
+        }
+<span class="nc" id="L87">        return ResponseEntity.notFound().build();</span>
+    }
+
+    @GetMapping(&quot;/api/buscar-cliente&quot;)
+    @ResponseBody
+    public ResponseEntity&lt;List&lt;Map&lt;String, Object&gt;&gt;&gt; buscarCliente(@RequestParam(&quot;termino&quot;) String termino) {
+<span class="nc" id="L93">        List&lt;Usuario&gt; clientes = usuarioDao.findByNombreContainingIgnoreCaseOrCedulaContainingIgnoreCaseAndRol(termino, termino, Rol.CLIENTE);</span>
+<span class="nc" id="L94">        List&lt;Map&lt;String, Object&gt;&gt; resultado = clientes.stream().map(c -&gt; {</span>
+<span class="nc" id="L95">            Map&lt;String, Object&gt; datos = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L96">            datos.put(&quot;idUsuario&quot;, c.getIdUsuario());</span>
+<span class="nc" id="L97">            datos.put(&quot;nombre&quot;, c.getNombre());</span>
+<span class="nc" id="L98">            datos.put(&quot;cedula&quot;, c.getCedula());</span>
+<span class="nc" id="L99">            return datos;</span>
+<span class="nc" id="L100">        }).collect(Collectors.toList());</span>
+<span class="nc" id="L101">        return ResponseEntity.ok(resultado);</span>
+    }
+
+    @PostMapping(&quot;/api/cobrar&quot;)
+    @ResponseBody
+    public ResponseEntity&lt;?&gt; cobrarVenta(@RequestBody VentaRequestDTO request) {
+<span class="nc" id="L107">        Map&lt;String, Object&gt; response = new HashMap&lt;&gt;();</span>
+        try {
+<span class="nc" id="L109">            Venta ventaGuardada = ventaService.procesarCobro(request, obtenerUsuarioAutenticado());</span>
+<span class="nc" id="L110">            response.put(&quot;success&quot;, true);</span>
+<span class="nc" id="L111">            response.put(&quot;idVenta&quot;, ventaGuardada.getIdVenta());</span>
+<span class="nc" id="L112">            return ResponseEntity.ok(response);</span>
+<span class="nc" id="L113">        } catch (Exception e) {</span>
+<span class="nc" id="L114">            response.put(&quot;success&quot;, false);</span>
+<span class="nc" id="L115">            response.put(&quot;mensaje&quot;, e.getMessage());</span>
+<span class="nc" id="L116">            return ResponseEntity.badRequest().body(response);</span>
+        }
+    }
+
+    @GetMapping(&quot;/factura/{id}&quot;)
+    public String verFactura(@PathVariable(&quot;id&quot;) Long id, Model model) {
+<span class="nc" id="L122">        Venta venta = ventaService.encontrarPorId(id);</span>
+<span class="nc" id="L123">        Usuario empleado = obtenerUsuarioAutenticado();</span>
+        
+<span class="nc bnc" id="L125" title="All 6 branches missed.">        if (venta != null &amp;&amp; empleado != null &amp;&amp; empleado.getOrganizacion() != null) {</span>
+<span class="nc" id="L126">            Long orgId = empleado.getOrganizacion().getIdOrganizacion();</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">            if (!ventaService.ventaPerteneceAOrganizacion(venta, orgId)) {</span>
+<span class="nc" id="L128">                return &quot;redirect:/caja&quot;;</span>
+            }
+        }
+        
+<span class="nc" id="L132">        model.addAttribute(&quot;venta&quot;, venta);</span>
+<span class="nc" id="L133">        model.addAttribute(&quot;empleado&quot;, empleado);</span>
+<span class="nc" id="L134">        return &quot;caja/factura&quot;;</span>
+    }
+
+    @GetMapping(&quot;/pedidos&quot;)
+    public String listarPedidosPendientes(Model model) {
+<span class="nc" id="L139">        Usuario empleado = obtenerUsuarioAutenticado();</span>
+<span class="nc bnc" id="L140" title="All 4 branches missed.">        List&lt;Venta&gt; pendientesFiltrados = empleado != null &amp;&amp; empleado.getOrganizacion() != null</span>
+<span class="nc" id="L141">                ? ventaService.listarVentasPorOrganizacion(empleado.getOrganizacion().getIdOrganizacion(), &quot;PENDIENTE&quot;)</span>
+<span class="nc" id="L142">                : List.of();</span>
+<span class="nc" id="L143">        List&lt;com.bike_assembly.domain.SolicitudRepuesto&gt; solicitudes =</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">                empleado != null ? solicitudRepuestoService.listarPendientes(empleado.getOrganizacion()) : List.of();</span>
+                
+<span class="nc" id="L146">        model.addAttribute(&quot;pedidos&quot;, pendientesFiltrados);</span>
+<span class="nc" id="L147">        model.addAttribute(&quot;solicitudes&quot;, solicitudes);</span>
+<span class="nc" id="L148">        model.addAttribute(&quot;empleado&quot;, empleado);</span>
+<span class="nc" id="L149">        return &quot;caja/pedidos-pendientes&quot;;</span>
+    }
+
+    @PostMapping(&quot;/pedidos/aprobar-insumo/{id}&quot;)
+    public String aprobarInsumo(@PathVariable(&quot;id&quot;) Long id) {
+<span class="nc" id="L154">        solicitudRepuestoService.aceptar(id, obtenerUsuarioAutenticado());</span>
+<span class="nc" id="L155">        return &quot;redirect:/caja/pedidos&quot;;</span>
+    }
+
+    @PostMapping(&quot;/pedidos/rechazar-insumo/{id}&quot;)
+    public String rechazarInsumo(@PathVariable(&quot;id&quot;) Long id) {
+<span class="nc" id="L160">        solicitudRepuestoService.rechazar(id, obtenerUsuarioAutenticado());</span>
+<span class="nc" id="L161">        return &quot;redirect:/caja/pedidos&quot;;</span>
+    }
+
+    @PostMapping(&quot;/pedidos/completar/{id}&quot;)
+    public String completarPedido(@PathVariable(&quot;id&quot;) Long id) {
+<span class="nc" id="L166">        ventaService.marcarPedidoCompletado(id);</span>
+<span class="nc" id="L167">        return &quot;redirect:/caja/pedidos&quot;;</span>
+    }
+
+    @PostMapping(&quot;/api/cliente/nuevo&quot;)
+    @ResponseBody
+    public ResponseEntity&lt;?&gt; registrarClienteRapido(@RequestBody Usuario nuevoCliente) {
+<span class="nc" id="L173">        Map&lt;String, Object&gt; response = new HashMap&lt;&gt;();</span>
+        try {
+<span class="nc bnc" id="L175" title="All 4 branches missed.">            if (nuevoCliente.getCedula() == null || nuevoCliente.getCedula().isBlank()) {</span>
+<span class="nc" id="L176">                throw new RuntimeException(&quot;La cédula es obligatoria.&quot;);</span>
+            }
+<span class="nc bnc" id="L178" title="All 2 branches missed.">            if (usuarioDao.findByCedula(nuevoCliente.getCedula().trim()).isPresent()) {</span>
+<span class="nc" id="L179">                throw new RuntimeException(&quot;La cédula ya está registrada.&quot;);</span>
+            }
+
+<span class="nc bnc" id="L182" title="All 4 branches missed.">            if (nuevoCliente.getEmail() == null || nuevoCliente.getEmail().isBlank()) {</span>
+<span class="nc" id="L183">                nuevoCliente.setEmail(nuevoCliente.getCedula() + &quot;@consumidor.local&quot;);</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">            } else if (usuarioDao.findByEmail(nuevoCliente.getEmail().trim().toLowerCase()).isPresent()) {</span>
+<span class="nc" id="L185">                throw new RuntimeException(&quot;El correo ya está registrado.&quot;);</span>
+            }
+
+<span class="nc" id="L188">            nuevoCliente.setUsername(nuevoCliente.getCedula());</span>
+<span class="nc" id="L189">            nuevoCliente.setPassword(passwordEncoder.encode(&quot;12345&quot;));</span>
+<span class="nc" id="L190">            nuevoCliente.setRol(Rol.CLIENTE);</span>
+<span class="nc" id="L191">            nuevoCliente.setActivo(true);</span>
+            
+<span class="nc" id="L193">            Usuario guardado = usuarioDao.save(nuevoCliente);</span>
+            
+<span class="nc" id="L195">            response.put(&quot;success&quot;, true);</span>
+<span class="nc" id="L196">            response.put(&quot;idUsuario&quot;, guardado.getIdUsuario());</span>
+<span class="nc" id="L197">            response.put(&quot;nombre&quot;, guardado.getNombre());</span>
+<span class="nc" id="L198">            response.put(&quot;cedula&quot;, guardado.getCedula());</span>
+<span class="nc" id="L199">            return ResponseEntity.ok(response);</span>
+<span class="nc" id="L200">        } catch (Exception e) {</span>
+<span class="nc" id="L201">            response.put(&quot;success&quot;, false);</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">            response.put(&quot;mensaje&quot;, e.getMessage() != null ? e.getMessage()</span>
+<span class="nc" id="L203">                    : &quot;La cédula ya está registrada o hubo un error de base de datos.&quot;);</span>
+<span class="nc" id="L204">            return ResponseEntity.badRequest().body(response);</span>
+        }
+    }
+
+    @GetMapping(&quot;/servicio/nuevo&quot;)
+    public String registrarServicioForm(Model model) {
+<span class="nc" id="L210">        Usuario empleado = obtenerUsuarioAutenticado();</span>
+<span class="nc" id="L211">        model.addAttribute(&quot;empleado&quot;, empleado);</span>
+<span class="nc" id="L212">        model.addAttribute(&quot;orden&quot;, new OrdenServicio());</span>
+<span class="nc" id="L213">        return &quot;caja/registrar-servicio&quot;;</span>
+    }
+
+    @PostMapping(&quot;/servicio/guardar&quot;)
+    public String guardarServicio(OrdenServicio orden,
+                                  @RequestParam(value = &quot;clienteId&quot;, required = false) Long clienteId,
+                                  @RequestParam(value = &quot;precioServicioVal&quot;, required = false) Double precioServicioVal,
+                                  @RequestParam(value = &quot;repuestoProductoId&quot;, required = false) List&lt;Long&gt; repuestoProductoId,
+                                  @RequestParam(value = &quot;repuestoCantidad&quot;, required = false) List&lt;Integer&gt; repuestoCantidad,
+                                  @RequestParam(value = &quot;repuestoPrecio&quot;, required = false) List&lt;Double&gt; repuestoPrecio) {
+<span class="nc" id="L223">        Usuario empleado = obtenerUsuarioAutenticado();</span>
+<span class="nc bnc" id="L224" title="All 4 branches missed.">        if (empleado != null &amp;&amp; empleado.getOrganizacion() != null) {</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">            if (clienteId != null) {</span>
+<span class="nc" id="L226">                Optional&lt;Usuario&gt; clienteOpt = usuarioDao.findById(clienteId);</span>
+<span class="nc bnc" id="L227" title="All 4 branches missed.">                if (clienteOpt.isPresent() &amp;&amp; clienteOpt.get().getRol() == Rol.CLIENTE) {</span>
+<span class="nc" id="L228">                    Usuario cliente = clienteOpt.get();</span>
+<span class="nc" id="L229">                    orden.setClienteUsuario(cliente);</span>
+<span class="nc" id="L230">                    orden.setClienteNombre(cliente.getNombre());</span>
+<span class="nc" id="L231">                    orden.setClienteCedula(cliente.getCedula());</span>
+                }
+            }
+<span class="nc bnc" id="L234" title="All 2 branches missed.">            orden.setPrecioServicio(precioServicioVal != null ? precioServicioVal : 0.0);</span>
+
+<span class="nc" id="L236">            List&lt;RepuestoOrdenServicio&gt; repuestos = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L237" title="All 6 branches missed.">            if (repuestoProductoId != null &amp;&amp; repuestoCantidad != null &amp;&amp; repuestoPrecio != null) {</span>
+<span class="nc bnc" id="L238" title="All 2 branches missed.">                for (int i = 0; i &lt; repuestoProductoId.size(); i++) {</span>
+<span class="nc" id="L239">                    Long prodId = repuestoProductoId.get(i);</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">                    Integer cant = i &lt; repuestoCantidad.size() ? repuestoCantidad.get(i) : 1;</span>
+<span class="nc bnc" id="L241" title="All 2 branches missed.">                    Double precio = i &lt; repuestoPrecio.size() ? repuestoPrecio.get(i) : 0.0;</span>
+<span class="nc bnc" id="L242" title="All 2 branches missed.">                    if (prodId == null) {</span>
+<span class="nc" id="L243">                        continue;</span>
+                    }
+<span class="nc" id="L245">                    Optional&lt;Producto&gt; prodOpt = productoDao.findById(prodId);</span>
+<span class="nc bnc" id="L246" title="All 2 branches missed.">                    if (prodOpt.isEmpty()) {</span>
+<span class="nc" id="L247">                        continue;</span>
+                    }
+<span class="nc" id="L249">                    RepuestoOrdenServicio rep = new RepuestoOrdenServicio();</span>
+<span class="nc" id="L250">                    rep.setProducto(prodOpt.get());</span>
+<span class="nc bnc" id="L251" title="All 4 branches missed.">                    rep.setCantidad(cant != null &amp;&amp; cant &gt; 0 ? cant : 1);</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">                    rep.setPrecioUnitario(precio != null ? precio : 0.0);</span>
+<span class="nc" id="L253">                    rep.setSubtotal(rep.getPrecioUnitario() * rep.getCantidad());</span>
+<span class="nc" id="L254">                    repuestos.add(rep);</span>
+                }
+            }
+<span class="nc" id="L257">            orden.setRepuestos(repuestos);</span>
+
+<span class="nc" id="L259">            ordenServicioService.registrar(orden, empleado);</span>
+<span class="nc" id="L260">            return &quot;redirect:/caja/servicio/nuevo?exito=true&quot;;</span>
+        }
+<span class="nc" id="L262">        return &quot;redirect:/caja/servicio/nuevo&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

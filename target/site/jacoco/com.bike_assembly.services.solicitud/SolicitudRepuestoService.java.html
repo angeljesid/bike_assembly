@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SolicitudRepuestoService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.bike_assembly.services.solicitud</a> &gt; <span class="el_source">SolicitudRepuestoService.java</span></div><h1>SolicitudRepuestoService.java</h1><pre class="source lang-java linenums">package com.bike_assembly.services.solicitud;
+
+import com.bike_assembly.domain.EstadoOrdenServicio;
+import com.bike_assembly.domain.OrdenServicio;
+import com.bike_assembly.domain.Organizacion;
+import com.bike_assembly.domain.Producto;
+import com.bike_assembly.domain.RepuestoOrdenServicio;
+import com.bike_assembly.domain.SolicitudRepuesto;
+import com.bike_assembly.domain.Usuario;
+import com.bike_assembly.repository.OrdenServicioDao;
+import com.bike_assembly.repository.ProductoDao;
+import com.bike_assembly.repository.SolicitudRepuestoDao;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+<span class="fc" id="L21">public class SolicitudRepuestoService implements ISolicitudRepuestoService {</span>
+
+    @Autowired
+    private SolicitudRepuestoDao solicitudRepuestoDao;
+
+    @Autowired
+    private OrdenServicioDao ordenServicioDao;
+
+    @Autowired
+    private ProductoDao productoDao;
+
+    @Override
+    @Transactional
+    public SolicitudRepuesto solicitar(Long idOrden, Producto producto, Integer cantidad, Usuario operario) {
+<span class="nc bnc" id="L35" title="All 6 branches missed.">        if (operario == null || operario.getOrganizacion() == null || producto == null) {</span>
+<span class="nc" id="L36">            return null;</span>
+        }
+<span class="nc" id="L38">        Optional&lt;OrdenServicio&gt; ordenOpt = ordenServicioDao.findById(idOrden);</span>
+<span class="nc bnc" id="L39" title="All 2 branches missed.">        if (ordenOpt.isEmpty()) {</span>
+<span class="nc" id="L40">            return null;</span>
+        }
+<span class="nc" id="L42">        OrdenServicio orden = ordenOpt.get();</span>
+<span class="nc" id="L43">        Long orgId = operario.getOrganizacion().getIdOrganizacion();</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">        if (orden.getOrganizacion() == null</span>
+<span class="nc bnc" id="L45" title="All 2 branches missed.">                || !orden.getOrganizacion().getIdOrganizacion().equals(orgId)</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">                || orden.getOperarioAsignado() == null</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">                || !orden.getOperarioAsignado().getIdUsuario().equals(operario.getIdUsuario())) {</span>
+<span class="nc" id="L48">            return null;</span>
+        }
+
+<span class="nc" id="L51">        Optional&lt;Producto&gt; prodOpt = productoDao.findById(producto.getIdProducto());</span>
+<span class="nc bnc" id="L52" title="All 4 branches missed.">        if (prodOpt.isEmpty() || Boolean.TRUE.equals(prodOpt.get().getEliminado())) {</span>
+<span class="nc" id="L53">            return null;</span>
+        }
+<span class="nc" id="L55">        Producto prod = prodOpt.get();</span>
+
+<span class="nc" id="L57">        SolicitudRepuesto solicitud = new SolicitudRepuesto();</span>
+<span class="nc" id="L58">        solicitud.setOrden(orden);</span>
+<span class="nc" id="L59">        solicitud.setProducto(prod);</span>
+<span class="nc bnc" id="L60" title="All 4 branches missed.">        solicitud.setCantidad(cantidad != null &amp;&amp; cantidad &gt; 0 ? cantidad : 1);</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        double precio = prod.getPrecioTotal() != null</span>
+<span class="nc" id="L62">                ? prod.getPrecioTotal()</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">                : (prod.getPrecio() != null ? prod.getPrecio() : 0.0);</span>
+<span class="nc" id="L64">        solicitud.setPrecioUnitario(precio);</span>
+<span class="nc" id="L65">        solicitud.setSubtotal(precio * solicitud.getCantidad());</span>
+<span class="nc" id="L66">        solicitud.setEstado(SolicitudRepuesto.PENDIENTE);</span>
+<span class="nc" id="L67">        solicitud.setSolicitadoPor(operario);</span>
+<span class="nc" id="L68">        solicitud.setOrganizacion(orden.getOrganizacion());</span>
+<span class="nc" id="L69">        return solicitudRepuestoDao.save(solicitud);</span>
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List&lt;SolicitudRepuesto&gt; listarPendientes(Organizacion organizacion) {
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (organizacion == null) {</span>
+<span class="nc" id="L76">            return List.of();</span>
+        }
+<span class="nc" id="L78">        return solicitudRepuestoDao.findByOrganizacionAndEstado(organizacion, SolicitudRepuesto.PENDIENTE);</span>
+    }
+
+    @Override
+    @Transactional
+    public boolean aceptar(Long idSolicitud, Usuario empleado) {
+<span class="nc" id="L84">        Optional&lt;SolicitudRepuesto&gt; solOpt = solicitudRepuestoDao.findById(idSolicitud);</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">        if (solOpt.isEmpty()) {</span>
+<span class="nc" id="L86">            return false;</span>
+        }
+<span class="nc" id="L88">        SolicitudRepuesto sol = solOpt.get();</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (!SolicitudRepuesto.PENDIENTE.equals(sol.getEstado())) {</span>
+<span class="nc" id="L90">            return false;</span>
+        }
+
+<span class="nc" id="L93">        OrdenServicio orden = sol.getOrden();</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (orden.isFacturado()) {</span>
+<span class="nc" id="L95">            return false;</span>
+        }
+
+<span class="nc" id="L98">        RepuestoOrdenServicio rep = new RepuestoOrdenServicio();</span>
+<span class="nc" id="L99">        rep.setOrden(orden);</span>
+<span class="nc" id="L100">        rep.setProducto(sol.getProducto());</span>
+<span class="nc" id="L101">        rep.setCantidad(sol.getCantidad());</span>
+<span class="nc" id="L102">        rep.setPrecioUnitario(sol.getPrecioUnitario());</span>
+<span class="nc" id="L103">        rep.setSubtotal(sol.getSubtotal());</span>
+<span class="nc" id="L104">        orden.getRepuestos().add(rep);</span>
+
+<span class="nc" id="L106">        orden.setEstado(EstadoOrdenServicio.EN_REPARACION.name());</span>
+<span class="nc" id="L107">        ordenServicioDao.save(orden);</span>
+
+<span class="nc" id="L109">        sol.setEstado(SolicitudRepuesto.ACEPTADA);</span>
+<span class="nc" id="L110">        solicitudRepuestoDao.save(sol);</span>
+<span class="nc" id="L111">        return true;</span>
+    }
+
+    @Override
+    @Transactional
+    public boolean rechazar(Long idSolicitud, Usuario empleado) {
+<span class="nc" id="L117">        Optional&lt;SolicitudRepuesto&gt; solOpt = solicitudRepuestoDao.findById(idSolicitud);</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        if (solOpt.isEmpty()) {</span>
+<span class="nc" id="L119">            return false;</span>
+        }
+<span class="nc" id="L121">        SolicitudRepuesto sol = solOpt.get();</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (!SolicitudRepuesto.PENDIENTE.equals(sol.getEstado())) {</span>
+<span class="nc" id="L123">            return false;</span>
+        }
+
+<span class="nc" id="L126">        OrdenServicio orden = sol.getOrden();</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        if (!orden.isFacturado()) {</span>
+<span class="nc" id="L128">            orden.setEstado(EstadoOrdenServicio.EN_REPARACION.name());</span>
+<span class="nc" id="L129">            ordenServicioDao.save(orden);</span>
+        }
+
+<span class="nc" id="L132">        sol.setEstado(SolicitudRepuesto.RECHAZADA);</span>
+<span class="nc" id="L133">        solicitudRepuestoDao.save(sol);</span>
+<span class="nc" id="L134">        return true;</span>
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List&lt;SolicitudRepuesto&gt; listarPorOrden(OrdenServicio orden) {
+<span class="nc" id="L140">        return solicitudRepuestoDao.findByOrden(orden);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

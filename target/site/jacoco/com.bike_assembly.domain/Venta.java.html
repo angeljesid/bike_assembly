@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Venta.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.bike_assembly.domain</a> &gt; <span class="el_source">Venta.java</span></div><h1>Venta.java</h1><pre class="source lang-java linenums">package com.bike_assembly.domain;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Date;
+
+@Entity
+@Table(name = &quot;ventas&quot;)
+public class Venta {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idVenta;
+
+    @Column(nullable = false)
+    private LocalDateTime fechaHora;
+
+    @Column(nullable = false)
+    private Double total;
+
+    @Column(nullable = false, length = 50)
+    private String metodoPago;
+
+    @Column(nullable = false, length = 20)
+    private String estado;
+
+    @ManyToOne
+    @JoinColumn(name = &quot;id_usuario&quot;)
+    private Usuario cliente;
+
+    @ManyToOne
+    @JoinColumn(name = &quot;id_empleado&quot;)
+    private Usuario empleado;
+
+    @Column(name = &quot;id_orden_servicio&quot;)
+    private Long ordenServicioId;
+
+    @Column(name = &quot;autor_mantenimiento&quot;, length = 100)
+    private String autorMantenimiento;
+
+    @OneToMany(mappedBy = &quot;venta&quot;, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+<span class="fc" id="L46">    private List&lt;DetalleVenta&gt; detalles = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L48">    public Venta() {}</span>
+
+    public Long getIdVenta() {
+<span class="fc" id="L51">        return idVenta; </span>
+    }
+    public void setIdVenta(Long idVenta) {
+<span class="fc" id="L54">        this.idVenta = idVenta; </span>
+<span class="fc" id="L55">    }</span>
+
+    public LocalDateTime getFechaHora() {
+<span class="nc" id="L58">        return fechaHora; </span>
+    }
+    public void setFechaHora(LocalDateTime fechaHora) {
+<span class="fc" id="L61">        this.fechaHora = fechaHora; }</span>
+
+    public Double getTotal() {
+<span class="fc" id="L64">        return total; </span>
+    }
+    public void setTotal(Double total) {
+<span class="fc" id="L67">        this.total = total; </span>
+<span class="fc" id="L68">    }</span>
+
+    public String getMetodoPago() {
+<span class="fc" id="L71">        return metodoPago; </span>
+    }
+    public void setMetodoPago(String metodoPago) {
+<span class="fc" id="L74">        this.metodoPago = metodoPago; </span>
+<span class="fc" id="L75">    }</span>
+
+    public String getEstado() {
+<span class="fc" id="L78">        return estado; </span>
+    }
+    public void setEstado(String estado) {
+<span class="fc" id="L81">        this.estado = estado; </span>
+<span class="fc" id="L82">    }</span>
+
+    public Usuario getCliente() {
+<span class="fc" id="L85">        return cliente; </span>
+    }
+    public void setCliente(Usuario cliente) {
+<span class="fc" id="L88">        this.cliente = cliente; </span>
+<span class="fc" id="L89">    }</span>
+
+    public List&lt;DetalleVenta&gt; getDetalles() {
+<span class="fc" id="L92">    return detalles; }</span>
+    public void setDetalles(List&lt;DetalleVenta&gt; detalles) {
+<span class="nc" id="L94">    this.detalles = detalles; </span>
+<span class="nc" id="L95">    }</span>
+
+    public Usuario getEmpleado() {
+<span class="fc" id="L98">        return empleado; }</span>
+    public void setEmpleado(Usuario empleado) {
+<span class="fc" id="L100">        this.empleado = empleado;</span>
+<span class="fc" id="L101">    }</span>
+
+    public Long getOrdenServicioId() {
+<span class="fc" id="L104">        return ordenServicioId;</span>
+    }
+
+    public void setOrdenServicioId(Long ordenServicioId) {
+<span class="fc" id="L108">        this.ordenServicioId = ordenServicioId;</span>
+<span class="fc" id="L109">    }</span>
+
+    public String getAutorMantenimiento() {
+<span class="nc" id="L112">        return autorMantenimiento;</span>
+    }
+
+    public void setAutorMantenimiento(String autorMantenimiento) {
+<span class="nc" id="L116">        this.autorMantenimiento = autorMantenimiento;</span>
+<span class="nc" id="L117">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

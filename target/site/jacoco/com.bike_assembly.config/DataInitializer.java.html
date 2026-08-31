@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DataInitializer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.bike_assembly.config</a> &gt; <span class="el_source">DataInitializer.java</span></div><h1>DataInitializer.java</h1><pre class="source lang-java linenums">package com.bike_assembly.config;
+
+import com.bike_assembly.domain.Rol;
+import com.bike_assembly.domain.Usuario;
+import com.bike_assembly.repository.UsuarioDao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+
+/**
+ * Garantiza la existencia de una cuenta SUPER_ADMIN. Se ejecuta DESPUÉS del
+ * LimpiezaDatosRunner (@Order 1). Las credenciales se leen de variables de
+ * entorno/propiedades para no exponer la contraseña en el código fuente.
+ */
+@Component
+@Order(2)
+<span class="fc" id="L22">public class DataInitializer implements CommandLineRunner {</span>
+
+<span class="fc" id="L24">    private static final Logger log = LoggerFactory.getLogger(DataInitializer.class);</span>
+
+    @Autowired
+    private UsuarioDao usuarioDao;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Value(&quot;${SUPERADMIN_USERNAME:comezaquira2005@gmail.com}&quot;)
+    private String superAdminUsername;
+
+    @Value(&quot;${SUPERADMIN_EMAIL:comezaquira2005@gmail.com}&quot;)
+    private String superAdminEmail;
+
+    @Value(&quot;${SUPERADMIN_PASSWORD:}&quot;)
+    private String superAdminPassword;
+
+    @Override
+    public void run(String... args) throws Exception {
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        if (usuarioDao.existsByRol(Rol.SUPER_ADMIN)) {</span>
+<span class="fc" id="L44">            return;</span>
+        }
+
+<span class="pc bpc" id="L47" title="2 of 4 branches missed.">        if (superAdminPassword == null || superAdminPassword.isBlank()) {</span>
+<span class="nc" id="L48">            throw new IllegalStateException(</span>
+<span class="nc" id="L49">                    &quot;No existe ningún SUPER_ADMIN y no se proporcionó la variable de entorno/la propiedad &quot; +</span>
+                    &quot;SUPERADMIN_PASSWORD. Defínela para poder crear la cuenta de superadministrador.&quot;);
+        }
+
+<span class="fc" id="L53">        Usuario superAdmin = new Usuario();</span>
+<span class="fc" id="L54">        superAdmin.setUsername(superAdminUsername.trim());</span>
+<span class="fc" id="L55">        superAdmin.setPassword(passwordEncoder.encode(superAdminPassword));</span>
+<span class="fc" id="L56">        superAdmin.setNombre(&quot;Super Administrador Global&quot;);</span>
+<span class="fc" id="L57">        superAdmin.setEmail(superAdminEmail.trim());</span>
+<span class="fc" id="L58">        superAdmin.setRol(Rol.SUPER_ADMIN);</span>
+<span class="fc" id="L59">        superAdmin.setOrganizacion(null);</span>
+<span class="fc" id="L60">        usuarioDao.save(superAdmin);</span>
+<span class="fc" id="L61">        log.info(&quot;&gt;&gt;&gt; Super Admin generado: usuario '{}'&quot;, superAdminUsername);</span>
+<span class="fc" id="L62">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

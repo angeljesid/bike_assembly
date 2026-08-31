@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdminController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.bike_assembly.web</a> &gt; <span class="el_source">AdminController.java</span></div><h1>AdminController.java</h1><pre class="source lang-java linenums">package com.bike_assembly.web;
+
+import com.bike_assembly.domain.Organizacion;
+import com.bike_assembly.domain.Producto;
+import com.bike_assembly.domain.Rol;
+import com.bike_assembly.domain.Usuario;
+import com.bike_assembly.domain.Venta;
+import com.bike_assembly.repository.ProductoDao;
+import com.bike_assembly.security.SessionUtils;
+import com.bike_assembly.services.producto.IProductoService;
+import com.bike_assembly.services.proveedor.IProveedorService;
+import com.bike_assembly.services.venta.IVentaService;
+import com.bike_assembly.repository.UsuarioDao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Controller
+@RequestMapping(&quot;/admin&quot;)
+public class AdminController {
+
+    private final ProductoDao productoDao;
+
+<span class="fc" id="L39">    private static final Logger log = LoggerFactory.getLogger(AdminController.class);</span>
+
+    @Autowired
+    private IProveedorService proveedorService;
+
+    @Autowired
+    private UsuarioDao usuarioDao;
+    
+    @Autowired
+    private IProductoService productoService;
+
+    @Autowired
+    private IVentaService ventaService;
+
+    @Autowired
+    private com.bike_assembly.repository.OrganizacionDao organizacionDao;
+
+    @Autowired
+    private com.bike_assembly.services.empleado.IEmpleadoService empleadoService;
+
+    @Autowired
+    private SessionUtils sessionUtils;
+
+<span class="fc" id="L62">    AdminController(ProductoDao productoDao) {</span>
+<span class="fc" id="L63">        this.productoDao = productoDao;</span>
+<span class="fc" id="L64">    }</span>
+
+    private Usuario obtenerAdminAutenticado() {
+<span class="nc" id="L67">        return sessionUtils.usuarioActual();</span>
+    }
+
+    @GetMapping({&quot;&quot;, &quot;/&quot;, &quot;/inicio&quot;, &quot;/dashboard&quot;})
+    public String inicioAdmin(Model model) {
+<span class="nc" id="L72">        Usuario admin = obtenerAdminAutenticado();</span>
+<span class="nc" id="L73">        model.addAttribute(&quot;admin&quot;, admin);</span>
+        
+<span class="nc bnc" id="L75" title="All 4 branches missed.">        if (admin != null &amp;&amp; admin.getOrganizacion() != null) {</span>
+<span class="nc" id="L76">            model.addAttribute(&quot;nombreTienda&quot;, admin.getOrganizacion().getNombre());</span>
+
+<span class="nc" id="L78">            List&lt;Producto&gt; todos = productoDao.findByOrganizacionAndEliminadoFalse(admin.getOrganizacion());</span>
+<span class="nc" id="L79">            List&lt;Producto&gt; productosAgotados = productoDao.findByOrganizacionAndStockLessThanEqualAndEliminadoFalse(admin.getOrganizacion(), 0);</span>
+<span class="nc" id="L80">            List&lt;Producto&gt; productosStockBajo = productoDao.findByOrganizacionAndStockLessThanEqualAndEliminadoFalse(admin.getOrganizacion(), 5);</span>
+<span class="nc" id="L81">            long operariosActivos = usuarioDao.countByOrganizacionAndRolAndActivoTrue(admin.getOrganizacion(), Rol.OPERARIO);</span>
+
+<span class="nc" id="L83">            model.addAttribute(&quot;totalComponentes&quot;, todos.size());</span>
+<span class="nc" id="L84">            model.addAttribute(&quot;productosAgotados&quot;, productosAgotados);</span>
+<span class="nc" id="L85">            model.addAttribute(&quot;productosStockBajo&quot;, productosStockBajo);</span>
+<span class="nc" id="L86">            model.addAttribute(&quot;operariosActivos&quot;, operariosActivos);</span>
+<span class="nc" id="L87">        } else {</span>
+<span class="nc" id="L88">            model.addAttribute(&quot;nombreTienda&quot;, &quot;Mi Taller&quot;);</span>
+<span class="nc" id="L89">            model.addAttribute(&quot;totalComponentes&quot;, 0);</span>
+<span class="nc" id="L90">            model.addAttribute(&quot;productosAgotados&quot;, List.of());</span>
+<span class="nc" id="L91">            model.addAttribute(&quot;productosStockBajo&quot;, List.of());</span>
+<span class="nc" id="L92">            model.addAttribute(&quot;operariosActivos&quot;, 0L);</span>
+        }
+
+<span class="nc" id="L95">        return &quot;admin/inicio&quot;;</span>
+    }
+
+    @GetMapping(&quot;/ventas&quot;)
+    public String listarVentasAdmin(Model model) {
+<span class="nc" id="L100">        Usuario admin = obtenerAdminAutenticado();</span>
+
+<span class="nc bnc" id="L102" title="All 4 branches missed.">        List&lt;Venta&gt; ventasFiltradas = admin != null &amp;&amp; admin.getOrganizacion() != null</span>
+<span class="nc" id="L103">                ? ventaService.listarVentasPorOrganizacion(admin.getOrganizacion().getIdOrganizacion(), &quot;COMPLETADA&quot;)</span>
+<span class="nc" id="L104">                : List.of();</span>
+<span class="nc" id="L105">        model.addAttribute(&quot;ventas&quot;, ventasFiltradas);</span>
+<span class="nc" id="L106">        return &quot;admin/historial-admin&quot;;</span>
+    }
+
+    @GetMapping(&quot;/producto&quot;)
+    public String listarProductos(Model model) {
+<span class="nc" id="L111">        Usuario admin = obtenerAdminAutenticado();</span>
+
+<span class="nc bnc" id="L113" title="All 4 branches missed.">        if (admin != null &amp;&amp; admin.getOrganizacion() != null) {</span>
+<span class="nc" id="L114">            List&lt;Producto&gt; productos = productoDao.findByOrganizacionAndEliminadoFalse(admin.getOrganizacion());</span>
+<span class="nc" id="L115">            model.addAttribute(&quot;productos&quot;, productos);</span>
+<span class="nc" id="L116">            java.util.Map&lt;Long, Integer&gt; numeracion = new java.util.LinkedHashMap&lt;&gt;();</span>
+<span class="nc" id="L117">            int idx = 1;</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">            for (Producto p : productos) {</span>
+<span class="nc" id="L119">                numeracion.put(p.getIdProducto(), idx++);</span>
+            }
+<span class="nc" id="L121">            model.addAttribute(&quot;numeracionProductos&quot;, numeracion);</span>
+<span class="nc" id="L122">        } else {</span>
+<span class="nc" id="L123">            model.addAttribute(&quot;productos&quot;, List.of());</span>
+<span class="nc" id="L124">            model.addAttribute(&quot;numeracionProductos&quot;, java.util.Map.of());</span>
+        }
+<span class="nc" id="L126">        return &quot;admin/producto&quot;;</span>
+    }
+    
+    @GetMapping(&quot;/producto/nuevo&quot;)
+    public String nuevoProducto(Model model) {
+<span class="nc" id="L131">        model.addAttribute(&quot;producto&quot;, new Producto());</span>
+<span class="nc" id="L132">        Usuario admin = obtenerAdminAutenticado();</span>
+        
+<span class="nc bnc" id="L134" title="All 4 branches missed.">        if (admin != null &amp;&amp; admin.getOrganizacion() != null) {</span>
+<span class="nc" id="L135">            model.addAttribute(&quot;proveedores&quot;, proveedorService.listarProveedoresPorOrganizacion(admin.getOrganizacion()));</span>
+<span class="nc" id="L136">        } else {</span>
+<span class="nc" id="L137">            model.addAttribute(&quot;proveedores&quot;, List.of());</span>
+        }
+            
+<span class="nc" id="L140">        return &quot;admin/formulario-producto&quot;;</span>
+    }
+
+    @GetMapping(&quot;/producto/editar/{id}&quot;)
+    public String editarProducto(@PathVariable(&quot;id&quot;) Long id, Model model) {
+<span class="nc" id="L145">        Usuario admin = obtenerAdminAutenticado();</span>
+        
+<span class="nc" id="L147">        Producto producto = new Producto();</span>
+<span class="nc" id="L148">        producto.setIdProducto(id);</span>
+<span class="nc" id="L149">        producto = productoService.encontrarProducto(producto);</span>
+        
+<span class="nc bnc" id="L151" title="All 6 branches missed.">        if (admin == null || admin.getOrganizacion() == null || producto == null</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">                || !productoService.productoPerteneceAOrganizacion(producto, admin.getOrganizacion().getIdOrganizacion())) {</span>
+<span class="nc" id="L153">            return &quot;redirect:/admin/producto&quot;;</span>
+        }
+        
+<span class="nc" id="L156">        model.addAttribute(&quot;producto&quot;, producto);</span>
+<span class="nc bnc" id="L157" title="All 4 branches missed.">        if (producto.getUnidadesPublicadas() == null || producto.getUnidadesPublicadas() == 0) {</span>
+<span class="nc bnc" id="L158" title="All 6 branches missed.">            if (Boolean.TRUE.equals(producto.getPublicado()) &amp;&amp; producto.getStock() != null &amp;&amp; producto.getStock() &gt; 0) {</span>
+<span class="nc" id="L159">                producto.setUnidadesPublicadas(producto.getStock());</span>
+<span class="nc" id="L160">            } else {</span>
+<span class="nc" id="L161">                producto.setUnidadesPublicadas(0);</span>
+            }
+        }
+        
+<span class="nc" id="L165">        model.addAttribute(&quot;proveedores&quot;, proveedorService.listarProveedoresPorOrganizacion(admin.getOrganizacion()));</span>
+            
+<span class="nc" id="L167">        return &quot;admin/formulario-producto&quot;;</span>
+    }
+
+    @GetMapping(&quot;/producto/eliminar/{id}&quot;)
+    public String eliminarProducto(@PathVariable(&quot;id&quot;) Long id) {
+<span class="nc" id="L172">        Usuario admin = obtenerAdminAutenticado();</span>
+        
+<span class="nc" id="L174">        Producto producto = new Producto();</span>
+<span class="nc" id="L175">        producto.setIdProducto(id);</span>
+<span class="nc" id="L176">        Producto productoExistente = productoService.encontrarProducto(producto);</span>
+        
+<span class="nc bnc" id="L178" title="All 6 branches missed.">        if (admin != null &amp;&amp; admin.getOrganizacion() != null &amp;&amp; productoExistente != null</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">                &amp;&amp; productoService.productoPerteneceAOrganizacion(productoExistente, admin.getOrganizacion().getIdOrganizacion())) {</span>
+<span class="nc" id="L180">            productoExistente.setEliminado(true);</span>
+<span class="nc" id="L181">            productoExistente.setPublicado(false);</span>
+<span class="nc" id="L182">            productoExistente.setUnidadesPublicadas(0);</span>
+<span class="nc" id="L183">            productoService.guardar(productoExistente);</span>
+        }
+        
+<span class="nc" id="L186">        return &quot;redirect:/admin/producto&quot;;</span>
+    }
+
+    @PostMapping(&quot;/producto/guardar&quot;)
+    public String guardarProducto(Producto producto,
+                                  @RequestParam(value = &quot;file&quot;, required = false) MultipartFile imagen,
+                                  RedirectAttributes redirectAttributes) {
+<span class="nc" id="L193">        Usuario admin = obtenerAdminAutenticado();</span>
+
+<span class="nc bnc" id="L195" title="All 4 branches missed.">        if (admin != null &amp;&amp; admin.getOrganizacion() != null) {</span>
+<span class="nc" id="L196">            producto.setOrganizacion(admin.getOrganizacion());</span>
+        }
+
+<span class="nc" id="L199">        boolean huboErrorImagen = false;</span>
+<span class="nc bnc" id="L200" title="All 4 branches missed.">        if (imagen != null &amp;&amp; !imagen.isEmpty()) {</span>
+            try {
+                // Validar que sea una imagen y no un archivo arbitrario/ejecutable
+<span class="nc" id="L203">                String contentType = imagen.getContentType();</span>
+<span class="nc bnc" id="L204" title="All 4 branches missed.">                if (contentType == null || !contentType.toLowerCase().startsWith(&quot;image/&quot;)) {</span>
+<span class="nc" id="L205">                    throw new IllegalArgumentException(&quot;Tipo de archivo no permitido.&quot;);</span>
+                }
+<span class="nc" id="L207">                long maxBytes = 15L * 1024 * 1024; // 15 MB</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">                if (imagen.getSize() &gt; maxBytes) {</span>
+<span class="nc" id="L209">                    throw new IllegalArgumentException(&quot;La imagen supera el tamaño máximo de 15 MB.&quot;);</span>
+                }
+
+<span class="nc" id="L212">                Path directorioImagenes = Paths.get(&quot;uploads&quot;).toAbsolutePath().normalize();</span>
+<span class="nc bnc" id="L213" title="All 2 branches missed.">                if (!Files.exists(directorioImagenes)) {</span>
+<span class="nc" id="L214">                    Files.createDirectories(directorioImagenes);</span>
+                }
+
+                // Nombre seguro: solo se conserva la extensión de un archivo de imagen
+<span class="nc bnc" id="L218" title="All 2 branches missed.">                String nombreOriginal = imagen.getOriginalFilename() != null ? imagen.getOriginalFilename() : &quot;&quot;;</span>
+<span class="nc" id="L219">                String extension = &quot;&quot;;</span>
+<span class="nc" id="L220">                int idx = nombreOriginal.lastIndexOf('.');</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">                if (idx &gt;= 0) {</span>
+<span class="nc" id="L222">                    extension = nombreOriginal.substring(idx).toLowerCase();</span>
+                }
+<span class="nc bnc" id="L224" title="All 2 branches missed.">                if (!java.util.Set.of(&quot;.jpg&quot;, &quot;.jpeg&quot;, &quot;.png&quot;, &quot;.webp&quot;, &quot;.gif&quot;).contains(extension)) {</span>
+<span class="nc" id="L225">                    throw new IllegalArgumentException(&quot;Extensión de imagen no permitida.&quot;);</span>
+                }
+
+<span class="nc" id="L228">                String nombreSeguro = java.util.UUID.randomUUID().toString().replace(&quot;-&quot;, &quot;&quot;) + extension;</span>
+<span class="nc" id="L229">                Path rutaCompleta = directorioImagenes.resolve(nombreSeguro).normalize();</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">                if (!rutaCompleta.getParent().equals(directorioImagenes)) {</span>
+<span class="nc" id="L231">                    throw new IllegalArgumentException(&quot;Nombre de archivo no válido.&quot;);</span>
+                }
+
+<span class="nc" id="L234">                byte[] bytesImg = imagen.getBytes();</span>
+<span class="nc" id="L235">                Files.write(rutaCompleta, bytesImg);</span>
+<span class="nc" id="L236">                producto.setImagen(nombreSeguro);</span>
+<span class="nc" id="L237">            } catch (Exception e) {</span>
+<span class="nc" id="L238">                log.warn(&quot;No se pudo subir la imagen del producto: {}&quot;, e.getMessage());</span>
+                // La imagen no es bloqueante: el producto debe guardarse igualmente.
+<span class="nc" id="L240">                huboErrorImagen = true;</span>
+            }
+        }
+
+<span class="nc bnc" id="L244" title="All 2 branches missed.">        Integer stock = producto.getStock() != null ? producto.getStock() : 0;</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">        Integer unidades = producto.getUnidadesPublicadas() != null ? producto.getUnidadesPublicadas() : 0;</span>
+<span class="nc bnc" id="L246" title="All 2 branches missed.">        if (unidades &lt; 0) {</span>
+<span class="nc" id="L247">            unidades = 0;</span>
+        }
+<span class="nc bnc" id="L249" title="All 2 branches missed.">        if (unidades &gt; stock) {</span>
+<span class="nc" id="L250">            unidades = stock;</span>
+        }
+<span class="nc" id="L252">        producto.setUnidadesPublicadas(unidades);</span>
+<span class="nc bnc" id="L253" title="All 2 branches missed.">        producto.setPublicado(unidades &gt; 0);</span>
+
+<span class="nc bnc" id="L255" title="All 2 branches missed.">        if (producto.getIdProducto() != null) {</span>
+<span class="nc" id="L256">            Producto existente = productoService.encontrarProducto(</span>
+<span class="nc" id="L257">                    new Producto() {{ setIdProducto(producto.getIdProducto()); }});</span>
+<span class="nc bnc" id="L258" title="All 2 branches missed.">            if (existente != null) {</span>
+<span class="nc" id="L259">                producto.setEliminado(Boolean.TRUE.equals(existente.getEliminado()));</span>
+            }
+        }
+<span class="nc bnc" id="L262" title="All 2 branches missed.">        if (producto.getEliminado() == null) {</span>
+<span class="nc" id="L263">            producto.setEliminado(false);</span>
+        }
+
+<span class="nc" id="L266">        productoService.guardar(producto);</span>
+
+<span class="nc bnc" id="L268" title="All 2 branches missed.">        if (huboErrorImagen) {</span>
+<span class="nc" id="L269">            redirectAttributes.addFlashAttribute(&quot;alertaImagen&quot;,</span>
+<span class="nc" id="L270">                    &quot;El producto se guardó, pero la imagen no se pudo subir. &quot;</span>
+                    + &quot;Usa JPG, PNG, WEBP o GIF de máximo 15 MB.&quot;);
+<span class="nc" id="L272">            return &quot;redirect:/admin/producto?imagen=error&quot;;</span>
+        }
+<span class="nc" id="L274">        return &quot;redirect:/admin/producto&quot;;</span>
+    }
+
+    @GetMapping(&quot;/configuracion&quot;)
+    public String configuracionNegocio(Model model) {
+<span class="nc" id="L279">        Usuario admin = obtenerAdminAutenticado();</span>
+
+<span class="nc bnc" id="L281" title="All 4 branches missed.">        if (admin != null &amp;&amp; admin.getOrganizacion() != null) {</span>
+<span class="nc" id="L282">            model.addAttribute(&quot;admin&quot;, admin);</span>
+<span class="nc" id="L283">            model.addAttribute(&quot;organizacion&quot;, admin.getOrganizacion());</span>
+
+<span class="nc" id="L285">            long operarios = usuarioDao.countByOrganizacionAndRolAndActivoTrue(admin.getOrganizacion(), Rol.OPERARIO);</span>
+<span class="nc" id="L286">            long cajeros = usuarioDao.countByOrganizacionAndRolAndActivoTrue(admin.getOrganizacion(), Rol.CAJA);</span>
+<span class="nc" id="L287">            model.addAttribute(&quot;empleadosActivos&quot;, operarios + cajeros);</span>
+<span class="nc" id="L288">            model.addAttribute(&quot;cupoPlan&quot;, cupoSegunPlan(admin.getOrganizacion().getTipo()));</span>
+<span class="nc" id="L289">            return &quot;admin/configuracion&quot;;</span>
+        }
+        
+<span class="nc" id="L292">        return &quot;redirect:/admin&quot;;</span>
+    }
+
+    private int cupoSegunPlan(String tipo) {
+<span class="nc bnc" id="L296" title="All 2 branches missed.">        if (tipo == null) {</span>
+<span class="nc" id="L297">            return 0;</span>
+        }
+<span class="nc bnc" id="L299" title="All 3 branches missed.">        switch (tipo) {</span>
+<span class="nc" id="L300">            case &quot;Taller Mediano&quot;: return 6;</span>
+<span class="nc" id="L301">            case &quot;Taller Grande&quot;: return 12;</span>
+            case &quot;Taller Pequeño&quot;:
+<span class="nc" id="L303">            default: return 4;</span>
+        }
+    }
+
+    @PostMapping(&quot;/solicitar-plan&quot;)
+    public String solicitarCambioPlan(@RequestParam(&quot;tipo&quot;) String tipo, RedirectAttributes redirectAttributes) {
+<span class="nc" id="L309">        Usuario admin = obtenerAdminAutenticado();</span>
+
+<span class="nc bnc" id="L311" title="All 4 branches missed.">        if (admin != null &amp;&amp; admin.getOrganizacion() != null</span>
+<span class="nc bnc" id="L312" title="All 2 branches missed.">                &amp;&amp; java.util.Set.of(&quot;Taller Pequeño&quot;, &quot;Taller Mediano&quot;, &quot;Taller Grande&quot;).contains(tipo)) {</span>
+<span class="nc bnc" id="L313" title="All 4 branches missed.">            if (admin.getPlanSolicitado() != null &amp;&amp; &quot;PENDIENTE&quot;.equals(admin.getPlanEstado())) {</span>
+<span class="nc" id="L314">                redirectAttributes.addFlashAttribute(&quot;alertaPlanSolicitado&quot;,</span>
+<span class="nc" id="L315">                        &quot;Ya tienes una solicitud de cambio de plan pendiente de aprobación.&quot;);</span>
+<span class="nc" id="L316">                return &quot;redirect:/admin/configuracion?solicitado=pendiente&quot;;</span>
+            }
+<span class="nc" id="L318">            admin.setPlanSolicitado(tipo);</span>
+<span class="nc" id="L319">            admin.setPlanEstado(&quot;PENDIENTE&quot;);</span>
+<span class="nc" id="L320">            admin.setPrecioPlanSolicitado(com.bike_assembly.services.usuario.ISuperAdminService.precioFijo(tipo));</span>
+<span class="nc" id="L321">            admin.setFechaSolicitudPlan(LocalDateTime.now());</span>
+<span class="nc" id="L322">            usuarioDao.save(admin);</span>
+<span class="nc" id="L323">            redirectAttributes.addFlashAttribute(&quot;alertaPlanSolicitado&quot;,</span>
+<span class="nc" id="L324">                    &quot;Solicitud de plan enviada al administrador global. Espera su aprobación.&quot;);</span>
+<span class="nc" id="L325">            return &quot;redirect:/admin/configuracion?solicitado=true&quot;;</span>
+        }
+<span class="nc" id="L327">        return &quot;redirect:/admin/configuracion?solicitado=false&quot;;</span>
+    }
+
+    @PostMapping(&quot;/configuracion/guardar&quot;)
+    public String guardarConfiguracion(
+            @RequestParam(&quot;direccion&quot;) String direccion,
+            @RequestParam(&quot;telefono&quot;) String telefono) {
+
+<span class="nc" id="L335">        Usuario admin = obtenerAdminAutenticado();</span>
+
+<span class="nc bnc" id="L337" title="All 4 branches missed.">        if (admin != null &amp;&amp; admin.getOrganizacion() != null) {</span>
+<span class="nc" id="L338">            com.bike_assembly.domain.Organizacion org = admin.getOrganizacion();</span>
+<span class="nc" id="L339">            org.setDireccion(direccion);</span>
+<span class="nc" id="L340">            org.setTelefono(telefono);</span>
+            
+<span class="nc" id="L342">            organizacionDao.save(org);</span>
+        }
+
+<span class="nc" id="L345">        return &quot;redirect:/admin/configuracion?exito=true&quot;;</span>
+    }
+
+    @GetMapping(&quot;/empleados&quot;)
+    public String listarEmpleados(Model model) {
+<span class="nc" id="L350">        Usuario admin = obtenerAdminAutenticado();</span>
+
+<span class="nc bnc" id="L352" title="All 4 branches missed.">        if (admin != null &amp;&amp; admin.getOrganizacion() != null) {</span>
+<span class="nc" id="L353">            model.addAttribute(&quot;admin&quot;, admin);</span>
+<span class="nc" id="L354">            model.addAttribute(&quot;empleados&quot;, empleadoService.listarEmpleadosPorOrganizacion(admin.getOrganizacion()));</span>
+<span class="nc" id="L355">            model.addAttribute(&quot;empleadosSuspendidos&quot;, empleadoService.listarEmpleadosSuspendidosPorOrganizacion(admin.getOrganizacion()));</span>
+<span class="nc" id="L356">        } else {</span>
+<span class="nc" id="L357">            model.addAttribute(&quot;empleados&quot;, List.of());</span>
+<span class="nc" id="L358">            model.addAttribute(&quot;empleadosSuspendidos&quot;, List.of());</span>
+        }
+<span class="nc" id="L360">        return &quot;admin/empleados&quot;;</span>
+    }
+
+    @PostMapping(&quot;/empleados/guardar&quot;)
+    public String guardarEmpleado(Usuario empleado, @RequestParam(&quot;rolStr&quot;) String rolStr, RedirectAttributes redirectAttributes) {
+<span class="nc" id="L365">        Usuario admin = obtenerAdminAutenticado();</span>
+
+<span class="nc bnc" id="L367" title="All 4 branches missed.">        if (admin != null &amp;&amp; admin.getOrganizacion() != null) {</span>
+<span class="nc" id="L368">            Rol rol = Rol.valueOf(rolStr);</span>
+            try {
+<span class="nc bnc" id="L370" title="All 2 branches missed.">                if (empleado.getIdUsuario() == null) {</span>
+<span class="nc" id="L371">                    Organizacion org = admin.getOrganizacion();</span>
+<span class="nc" id="L372">                    long cantidadOperarios = usuarioDao.countByOrganizacionAndRolAndActivoTrue(org, Rol.OPERARIO);</span>
+<span class="nc" id="L373">                    long cantidadCajeros = usuarioDao.countByOrganizacionAndRolAndActivoTrue(org, Rol.CAJA);</span>
+<span class="nc" id="L374">                    long totalEmpleados = cantidadOperarios + cantidadCajeros;</span>
+
+<span class="nc" id="L376">                    int limite = 2;</span>
+<span class="nc bnc" id="L377" title="All 2 branches missed.">                    if (org.getTipo() != null) {</span>
+<span class="nc bnc" id="L378" title="All 4 branches missed.">                        switch (org.getTipo()) {</span>
+<span class="nc" id="L379">                            case &quot;Taller Pequeño&quot;: limite = 4; break;</span>
+<span class="nc" id="L380">                            case &quot;Taller Mediano&quot;: limite = 6; break;</span>
+<span class="nc" id="L381">                            case &quot;Taller Grande&quot;: limite = 12; break;</span>
+                        }
+                    }
+
+<span class="nc bnc" id="L385" title="All 2 branches missed.">                    if (totalEmpleados &gt;= limite) {</span>
+<span class="nc" id="L386">                        redirectAttributes.addFlashAttribute(&quot;alertaPlan&quot;, &quot;Aumenta el plan del taller para crear más empleados.&quot;);</span>
+<span class="nc" id="L387">                        redirectAttributes.addAttribute(&quot;error&quot;, &quot;limite&quot;);</span>
+<span class="nc" id="L388">                        return &quot;redirect:/admin/empleados&quot;;</span>
+                    }
+                }
+<span class="nc" id="L391">                empleadoService.guardarEmpleado(admin, empleado, rol);</span>
+<span class="nc" id="L392">            } catch (RuntimeException e) {</span>
+<span class="nc" id="L393">                redirectAttributes.addFlashAttribute(&quot;alertaPlan&quot;, &quot;Aumenta el plan del taller. &quot; + e.getMessage());</span>
+<span class="nc" id="L394">                redirectAttributes.addAttribute(&quot;error&quot;, &quot;limite&quot;);</span>
+<span class="nc" id="L395">                return &quot;redirect:/admin/empleados&quot;;</span>
+            }
+        }
+<span class="nc" id="L398">        return &quot;redirect:/admin/empleados?exito=true&quot;;</span>
+    }
+
+    @GetMapping(&quot;/empleados/suspender/{id}&quot;)
+    public String suspenderEmpleado(@PathVariable(&quot;id&quot;) Long id, RedirectAttributes redirectAttributes) {
+<span class="nc" id="L403">        Usuario admin = obtenerAdminAutenticado();</span>
+
+<span class="nc bnc" id="L405" title="All 4 branches missed.">        if (admin != null &amp;&amp; admin.getOrganizacion() != null) {</span>
+            try {
+<span class="nc" id="L407">                empleadoService.suspenderEmpleado(id, admin.getOrganizacion());</span>
+<span class="nc" id="L408">            } catch (RuntimeException e) {</span>
+<span class="nc" id="L409">                redirectAttributes.addFlashAttribute(&quot;alertaPlan&quot;, e.getMessage());</span>
+<span class="nc" id="L410">                return &quot;redirect:/admin/empleados&quot;;</span>
+            }
+        }
+<span class="nc" id="L413">        return &quot;redirect:/admin/empleados?exito=true&quot;;</span>
+    }
+
+    @GetMapping(&quot;/empleados/activar/{id}&quot;)
+    public String activarEmpleado(@PathVariable(&quot;id&quot;) Long id, RedirectAttributes redirectAttributes) {
+<span class="nc" id="L418">        Usuario admin = obtenerAdminAutenticado();</span>
+
+<span class="nc bnc" id="L420" title="All 4 branches missed.">        if (admin != null &amp;&amp; admin.getOrganizacion() != null) {</span>
+            try {
+<span class="nc" id="L422">                boolean activado = empleadoService.activarEmpleado(id, admin.getOrganizacion());</span>
+<span class="nc bnc" id="L423" title="All 2 branches missed.">                if (!activado) {</span>
+<span class="nc" id="L424">                    redirectAttributes.addFlashAttribute(&quot;alertaPlan&quot;,</span>
+<span class="nc" id="L425">                            &quot;No puedes activar más cuentas de lo permitido por tu plan actual. Aumenta el plan del taller para agregar más empleados.&quot;);</span>
+<span class="nc" id="L426">                    return &quot;redirect:/admin/empleados&quot;;</span>
+                }
+<span class="nc" id="L428">            } catch (RuntimeException e) {</span>
+<span class="nc" id="L429">                redirectAttributes.addFlashAttribute(&quot;alertaPlan&quot;, e.getMessage());</span>
+<span class="nc" id="L430">                return &quot;redirect:/admin/empleados&quot;;</span>
+            }
+        }
+<span class="nc" id="L433">        return &quot;redirect:/admin/empleados?exito=true&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

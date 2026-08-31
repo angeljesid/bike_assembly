@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OtpController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.bike_assembly.web</a> &gt; <span class="el_source">OtpController.java</span></div><h1>OtpController.java</h1><pre class="source lang-java linenums">package com.bike_assembly.web;
+
+import com.bike_assembly.domain.Rol;
+import com.bike_assembly.domain.Usuario;
+import com.bike_assembly.repository.UsuarioDao;
+import com.bike_assembly.security.AtributosSesion;
+import com.bike_assembly.security.RedirectPorRol;
+import com.bike_assembly.services.usuario.OtpService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+@Controller
+<span class="fc" id="L17">public class OtpController {</span>
+
+    private static final int MAX_INTENTOS = 5;
+
+    @Autowired
+    private OtpService otpService;
+
+    @Autowired
+    private UsuarioDao usuarioDao;
+
+    private Usuario obtenerUsuario(String username) {
+<span class="nc bnc" id="L28" title="All 2 branches missed.">        return username == null ? null</span>
+<span class="nc" id="L29">                : usuarioDao.findByUsernameOrEmail(username, username).orElse(null);</span>
+    }
+
+    @GetMapping(&quot;/verificar-otp&quot;)
+    public String mostrarVerificacion(jakarta.servlet.http.HttpServletRequest request,
+                                      org.springframework.security.core.Authentication authentication,
+                                      Model model) {
+<span class="nc bnc" id="L36" title="All 2 branches missed.">        Usuario usuario = obtenerUsuario(authentication == null ? null : authentication.getName());</span>
+<span class="nc bnc" id="L37" title="All 2 branches missed.">        if (usuario == null) {</span>
+<span class="nc" id="L38">            return &quot;redirect:/login&quot;;</span>
+        }
+
+        // Ya verificado previamente en esta sesión
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        if (Boolean.TRUE.equals(request.getSession().getAttribute(AtributosSesion.OTP_VERIFICADO))) {</span>
+<span class="nc" id="L43">            return redirigirSegunRol(usuario.getRol());</span>
+        }
+
+<span class="nc" id="L46">        boolean existeVigente = otpService.existeOtpVigente(usuario.getIdUsuario());</span>
+<span class="nc bnc" id="L47" title="All 4 branches missed.">        boolean correoEnviado = existeVigente || otpService.generarOEnviarOtp(usuario);</span>
+<span class="nc" id="L48">        model.addAttribute(&quot;correoEnviado&quot;, correoEnviado);</span>
+<span class="nc" id="L49">        model.addAttribute(&quot;nombre&quot;, usuario.getNombre());</span>
+<span class="nc" id="L50">        return &quot;verificar-otp&quot;;</span>
+    }
+
+    @PostMapping(&quot;/verificar-otp&quot;)
+    public String verificar(jakarta.servlet.http.HttpServletRequest request,
+                            org.springframework.security.core.Authentication authentication,
+                            @RequestParam(&quot;codigo&quot;) String codigo,
+                            Model model) {
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        Usuario usuario = obtenerUsuario(authentication == null ? null : authentication.getName());</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        if (usuario == null) {</span>
+<span class="nc" id="L60">            return &quot;redirect:/login&quot;;</span>
+        }
+
+<span class="nc" id="L63">        Integer intentos = (Integer) request.getSession().getAttribute(&quot;otpIntentosFallidos&quot;);</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (intentos == null) {</span>
+<span class="nc" id="L65">            intentos = 0;</span>
+        }
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        if (intentos &gt;= MAX_INTENTOS) {</span>
+<span class="nc" id="L68">            request.getSession().setAttribute(&quot;otpIntentosFallidos&quot;, intentos);</span>
+<span class="nc" id="L69">            model.addAttribute(&quot;error&quot;, &quot;Demasiados intentos fallidos. Contacta al administrador del sistema.&quot;);</span>
+<span class="nc" id="L70">            model.addAttribute(&quot;nombre&quot;, usuario.getNombre());</span>
+<span class="nc" id="L71">            return &quot;verificar-otp&quot;;</span>
+        }
+
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (otpService.validarOtp(usuario, codigo)) {</span>
+<span class="nc" id="L75">            request.getSession().setAttribute(AtributosSesion.OTP_VERIFICADO, Boolean.TRUE);</span>
+<span class="nc" id="L76">            request.getSession().removeAttribute(&quot;otpIntentosFallidos&quot;);</span>
+<span class="nc" id="L77">            return redirigirSegunRol(usuario.getRol());</span>
+        }
+
+<span class="nc" id="L80">        intentos++;</span>
+<span class="nc" id="L81">        request.getSession().setAttribute(&quot;otpIntentosFallidos&quot;, intentos);</span>
+<span class="nc" id="L82">        model.addAttribute(&quot;error&quot;, &quot;Código incorrecto. Te quedan &quot;</span>
+<span class="nc" id="L83">                + (MAX_INTENTOS - intentos) + &quot; intentos.&quot;);</span>
+<span class="nc" id="L84">        model.addAttribute(&quot;nombre&quot;, usuario.getNombre());</span>
+<span class="nc" id="L85">        return &quot;verificar-otp&quot;;</span>
+    }
+
+    private String redirigirSegunRol(Rol rol) {
+<span class="nc" id="L89">        return &quot;redirect:&quot; + RedirectPorRol.urlDestino(rol);</span>
+    }
+
+    @PostMapping(&quot;/verificar-otp/reenviar&quot;)
+    public String reenviar(jakarta.servlet.http.HttpServletRequest request,
+                           org.springframework.security.core.Authentication authentication,
+                           Model model) {
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        Usuario usuario = obtenerUsuario(authentication == null ? null : authentication.getName());</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (usuario == null) {</span>
+<span class="nc" id="L98">            return &quot;redirect:/login&quot;;</span>
+        }
+
+<span class="nc" id="L101">        boolean correoEnviado = otpService.reenviarCodigo(usuario);</span>
+<span class="nc" id="L102">        request.getSession().removeAttribute(&quot;otpIntentosFallidos&quot;);</span>
+<span class="nc" id="L103">        model.addAttribute(&quot;correoEnviado&quot;, correoEnviado);</span>
+<span class="nc" id="L104">        model.addAttribute(&quot;nombre&quot;, usuario.getNombre());</span>
+<span class="nc" id="L105">        return &quot;verificar-otp&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

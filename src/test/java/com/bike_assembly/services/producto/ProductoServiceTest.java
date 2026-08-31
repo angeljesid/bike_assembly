@@ -2,6 +2,7 @@ package com.bike_assembly.services.producto;
 
 import com.bike_assembly.domain.Organizacion;
 import com.bike_assembly.domain.Producto;
+import com.bike_assembly.repository.DetalleVentaDao;
 import com.bike_assembly.repository.ProductoDao;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +17,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,6 +27,9 @@ class ProductoServiceTest {
 
     @Mock
     private ProductoDao productoDao;
+
+    @Mock
+    private DetalleVentaDao detalleVentaDao;
 
     @InjectMocks
     private ProductoService productoService;
@@ -110,5 +115,37 @@ class ProductoServiceTest {
     void productoSinOrganizacionNoPertenece() {
         Producto producto = new Producto();
         assertFalse(productoService.productoPerteneceAOrganizacion(producto, 3L));
+    }
+
+    @Test
+    void productoTieneVentas_devuelveTrueSiExisteDetalle() {
+        Producto producto = new Producto();
+        producto.setIdProducto(7L);
+
+        when(detalleVentaDao.existsByProducto(producto)).thenReturn(true);
+
+        assertTrue(productoService.productoTieneVentas(producto));
+        verify(detalleVentaDao).existsByProducto(producto);
+    }
+
+    @Test
+    void productoTieneVentas_sinIdDevuelveFalse() {
+        Producto producto = new Producto();
+        assertFalse(productoService.productoTieneVentas(producto));
+    }
+
+    @Test
+    void productoTieneVentas_productoNullDevuelveFalse() {
+        assertFalse(productoService.productoTieneVentas(null));
+    }
+
+    @Test
+    void encontrarProducto_devuelveNullSiNoExiste() {
+        Producto producto = new Producto();
+        producto.setIdProducto(99L);
+
+        when(productoDao.findById(99L)).thenReturn(Optional.empty());
+
+        assertNull(productoService.encontrarProducto(producto));
     }
 }

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ISuperAdminService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.bike_assembly.services.usuario</a> &gt; <span class="el_source">ISuperAdminService.java</span></div><h1>ISuperAdminService.java</h1><pre class="source lang-java linenums">package com.bike_assembly.services.usuario;
+
+import com.bike_assembly.domain.Organizacion;
+import com.bike_assembly.domain.Usuario;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+
+public interface ISuperAdminService {
+    Page&lt;Usuario&gt; listarAdministradores(Pageable pageable);
+    Page&lt;Usuario&gt; listarClientes(Pageable pageable);
+    Page&lt;Usuario&gt; listarEmpleados(Pageable pageable);
+    
+    void promoverAAdmin(Long idUsuario, String nombreTaller, String direccionTaller, String telefonoTaller, String tipo, BigDecimal precioPlan, LocalDate fechaVencimiento);
+    void actualizarAdminYOrganizacion(Long idUsuario, String nombreTaller, String direccion, String telefono, String tipo, BigDecimal precioPlan, LocalDate fechaVencimiento);
+    void actualizarEmpleado(Long idUsuario, String nombre, String cedula, String email);
+    List&lt;Organizacion&gt; listarOrganizaciones();
+    List&lt;Organizacion&gt; listarOrganizacionesPorVencer(int dias);
+    List&lt;Organizacion&gt; listarOrganizacionesSuspendidas();
+    void sincronizarTalleresVencidos();
+    Map&lt;String, Long&gt; contarTalleresPorTipo();
+    List&lt;Organizacion&gt; listarTalleresVencidos();
+    
+    void cambiarEstadoTaller(Long idOrganizacion, boolean activo, String motivoManual);
+    void cambiarEstadoUsuario(Long idUsuario, boolean activo);
+    void actualizarDatosBasicosUsuario(Long idUsuario, String nombre, String cedula, String email);
+    
+    // Requerimientos adicionales
+    BigDecimal obtenerIngresosActivos();
+    void asignarTallerYPlan(Long idUsuario, String nombreTaller, String direccion, String telefono, String tipo, BigDecimal precioPlan, LocalDate fechaVencimiento);
+    List&lt;Usuario&gt; listarAdministradoresHuerfanos();
+    int purgarCuentasHuerfanas(int dias);
+
+    // Solicitudes de plan (registro por plan y cambios de plan de administradores)
+    Page&lt;Usuario&gt; listarSolicitudesPlanNuevas(Pageable pageable);
+    Page&lt;Usuario&gt; listarSolicitudesCambioPlan(Pageable pageable);
+    void rechazarSolicitudPlan(Long idUsuario);
+    static BigDecimal precioFijo(String tipo) {
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        if (&quot;Taller Pequeño&quot;.equals(tipo)) return new BigDecimal(&quot;50&quot;);</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        if (&quot;Taller Mediano&quot;.equals(tipo)) return new BigDecimal(&quot;80&quot;);</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">        if (&quot;Taller Grande&quot;.equals(tipo)) return new BigDecimal(&quot;120&quot;);</span>
+<span class="fc" id="L46">        return BigDecimal.ZERO;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

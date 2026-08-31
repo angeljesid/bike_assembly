@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Producto.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.bike_assembly.domain</a> &gt; <span class="el_source">Producto.java</span></div><h1>Producto.java</h1><pre class="source lang-java linenums">package com.bike_assembly.domain;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
+import java.io.Serializable;
+import java.time.LocalDate;
+
+@Entity
+@Table(name = &quot;producto&quot;)
+public class Producto implements Serializable {
+    
+    private static final long serialVersionUID = 1L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = &quot;id_producto&quot;)
+    private Long idProducto;
+
+    private String nombre;
+    private Double precio;
+    
+    @Column(name = &quot;precio_inicial&quot;)
+    private Double precioInicial;
+    
+    private Double iva;
+    
+    @Column(name = &quot;precio_total&quot;)
+    private Double precioTotal;
+    
+    private String tipo;
+    private Integer stock;
+    private String marca;
+    private String categoria;
+    private String condicion;
+    private String imagen;
+
+    @Column(name = &quot;codigo_barras&quot;)
+    private String codigoBarras;
+
+    @Column(name = &quot;fecha_ingreso&quot;)
+<span class="fc" id="L41">    private LocalDate fechaIngreso = LocalDate.now();</span>
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;id_proveedor&quot;)
+    @JsonIgnoreProperties({&quot;hibernateLazyInitializer&quot;, &quot;handler&quot;, &quot;productos&quot;})
+    private Proveedor proveedor;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;id_organizacion&quot;)
+    @JsonIgnoreProperties({&quot;hibernateLazyInitializer&quot;, &quot;handler&quot;})
+    private Organizacion organizacion;
+
+    @Column(nullable = false)
+<span class="fc" id="L54">    private Boolean publicado = false;</span>
+
+    @Column(name = &quot;unidades_publicadas&quot;)
+<span class="fc" id="L57">    private Integer unidadesPublicadas = 0;</span>
+
+    @Column(nullable = false, columnDefinition = &quot;boolean default false&quot;)
+<span class="fc" id="L60">    private Boolean eliminado = false;</span>
+
+<span class="fc" id="L62">    public Producto() {</span>
+<span class="fc" id="L63">    }</span>
+
+<span class="nc" id="L65">    public LocalDate getFechaIngreso() { return fechaIngreso; }</span>
+<span class="nc" id="L66">    public void setFechaIngreso(LocalDate fechaIngreso) { this.fechaIngreso = fechaIngreso; }</span>
+
+<span class="nc" id="L68">    public Double getPrecioInicial() { return precioInicial; }</span>
+<span class="nc" id="L69">    public void setPrecioInicial(Double precioInicial) { this.precioInicial = precioInicial; }</span>
+
+<span class="nc" id="L71">    public Double getIva() { return iva; }</span>
+<span class="nc" id="L72">    public void setIva(Double iva) { this.iva = iva; }</span>
+
+<span class="fc" id="L74">    public Double getPrecioTotal() { return precioTotal; }</span>
+<span class="fc" id="L75">    public void setPrecioTotal(Double precioTotal) { this.precioTotal = precioTotal; }</span>
+
+<span class="fc" id="L77">    public String getCodigoBarras() { return codigoBarras; }</span>
+<span class="fc" id="L78">    public void setCodigoBarras(String codigoBarras) { this.codigoBarras = codigoBarras; }</span>
+
+<span class="nc" id="L80">    public String getCategoria() { return categoria; }</span>
+<span class="nc" id="L81">    public void setCategoria(String categoria) { this.categoria = categoria; }</span>
+
+<span class="fc" id="L83">    public Long getIdProducto() { return idProducto; }</span>
+<span class="fc" id="L84">    public void setIdProducto(Long idProducto) { this.idProducto = idProducto; }</span>
+
+<span class="fc" id="L86">    public String getNombre() { return nombre; }</span>
+<span class="fc" id="L87">    public void setNombre(String nombre) { this.nombre = nombre; }</span>
+
+<span class="fc" id="L89">    public Double getPrecio() { return precio; }</span>
+<span class="nc" id="L90">    public void setPrecio(Double precio) { this.precio = precio; }</span>
+
+<span class="fc" id="L92">    public String getTipo() { return tipo; }</span>
+<span class="fc" id="L93">    public void setTipo(String tipo) { this.tipo = tipo; }</span>
+
+<span class="fc" id="L95">    public Integer getStock() { return stock; }</span>
+<span class="fc" id="L96">    public void setStock(Integer stock) { this.stock = stock; }</span>
+
+<span class="nc" id="L98">    public String getMarca() { return marca; }</span>
+<span class="nc" id="L99">    public void setMarca(String marca) { this.marca = marca; }</span>
+
+<span class="nc" id="L101">    public String getCondicion() { return condicion; }</span>
+<span class="nc" id="L102">    public void setCondicion(String condicion) { this.condicion = condicion; }</span>
+
+<span class="nc" id="L104">    public Proveedor getProveedor() { return proveedor; }</span>
+<span class="nc" id="L105">    public void setProveedor(Proveedor proveedor) { this.proveedor = proveedor; }</span>
+
+<span class="nc" id="L107">    public String getImagen() { return imagen; }</span>
+<span class="nc" id="L108">    public void setImagen(String imagen) { this.imagen = imagen; }</span>
+
+<span class="fc" id="L110">    public Organizacion getOrganizacion() { return organizacion; }</span>
+<span class="fc" id="L111">    public void setOrganizacion(Organizacion organizacion) { this.organizacion = organizacion; }</span>
+
+<span class="nc" id="L113">    public Boolean getPublicado() { return publicado; }</span>
+<span class="nc" id="L114">    public void setPublicado(Boolean publicado) { this.publicado = publicado; }</span>
+
+<span class="nc" id="L116">    public Integer getUnidadesPublicadas() { return unidadesPublicadas; }</span>
+<span class="nc" id="L117">    public void setUnidadesPublicadas(Integer unidadesPublicadas) { this.unidadesPublicadas = unidadesPublicadas; }</span>
+
+<span class="nc" id="L119">    public Boolean getEliminado() { return eliminado; }</span>
+<span class="nc" id="L120">    public void setEliminado(Boolean eliminado) { this.eliminado = eliminado; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
