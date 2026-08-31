@@ -32,6 +32,11 @@
                 <span class="small" th:text="${alertaNoEliminable}">Producto no eliminable.</span>
             </div>
 
+            <div th:if="${alertaImagen}" class="alert alert-warning border-0 d-flex align-items-start gap-2 mb-4">
+                <i class="bi bi-image-fill"></i>
+                <span class="small" th:text="${alertaImagen}">El producto se guardó, pero la imagen no se pudo subir.</span>
+            </div>
+
             <div class="mb-4">
                 <div class="input-group input-group-lg shadow-sm border rounded-pill overflow-hidden bg-white" style="max-width: 700px;">
                     <span class="input-group-text bg-transparent border-0 text-muted ps-4">

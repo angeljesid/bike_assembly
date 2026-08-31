@@ -11,6 +11,8 @@ import com.bike_assembly.services.producto.IProductoService;
 import com.bike_assembly.services.proveedor.IProveedorService;
 import com.bike_assembly.services.venta.IVentaService;
 import com.bike_assembly.repository.UsuarioDao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,6 +34,8 @@ import java.util.List;
 public class AdminController {
 
     private final ProductoDao productoDao;
+
+    private static final Logger log = LoggerFactory.getLogger(AdminController.class);
 
     @Autowired
     private IProveedorService proveedorService;
@@ -182,26 +186,29 @@ public class AdminController {
     }
 
     @PostMapping("/producto/guardar")
-    public String guardarProducto(Producto producto, @RequestParam(value = "file", required = false) MultipartFile imagen) {
+    public String guardarProducto(Producto producto,
+                                  @RequestParam(value = "file", required = false) MultipartFile imagen,
+                                  RedirectAttributes redirectAttributes) {
         Usuario admin = obtenerAdminAutenticado();
 
         if (admin != null && admin.getOrganizacion() != null) {
             producto.setOrganizacion(admin.getOrganizacion());
         }
 
+        boolean huboErrorImagen = false;
         if (imagen != null && !imagen.isEmpty()) {
             try {
                 // Validar que sea una imagen y no un archivo arbitrario/ejecutable
                 String contentType = imagen.getContentType();
                 if (contentType == null || !contentType.toLowerCase().startsWith("image/")) {
-                    return "redirect:/admin/producto?error=imagen";
+                    throw new IllegalArgumentException("Tipo de archivo no permitido.");
                 }
-                long maxBytes = 5L * 1024 * 1024; // 5 MB
+                long maxBytes = 15L * 1024 * 1024; // 15 MB
                 if (imagen.getSize() > maxBytes) {
-                    return "redirect:/admin/producto?error=imagen";
+                    throw new IllegalArgumentException("La imagen supera el tamaño máximo de 15 MB.");
                 }
 
-                Path directorioImagenes = Paths.get("uploads");
+                Path directorioImagenes = Paths.get("uploads").toAbsolutePath().normalize();
                 if (!Files.exists(directorioImagenes)) {
                     Files.createDirectories(directorioImagenes);
                 }
@@ -214,20 +221,22 @@ public class AdminController {
                     extension = nombreOriginal.substring(idx).toLowerCase();
                 }
                 if (!java.util.Set.of(".jpg", ".jpeg", ".png", ".webp", ".gif").contains(extension)) {
-                    return "redirect:/admin/producto?error=imagen";
+                    throw new IllegalArgumentException("Extensión de imagen no permitida.");
                 }
 
                 String nombreSeguro = java.util.UUID.randomUUID().toString().replace("-", "") + extension;
                 Path rutaCompleta = directorioImagenes.resolve(nombreSeguro).normalize();
-                if (!rutaCompleta.getParent().equals(directorioImagenes.toAbsolutePath().normalize())) {
-                    return "redirect:/admin/producto?error=imagen";
+                if (!rutaCompleta.getParent().equals(directorioImagenes)) {
+                    throw new IllegalArgumentException("Nombre de archivo no válido.");
                 }
 
                 byte[] bytesImg = imagen.getBytes();
                 Files.write(rutaCompleta, bytesImg);
                 producto.setImagen(nombreSeguro);
             } catch (Exception e) {
-                return "redirect:/admin/producto?error=imagen";
+                log.warn("No se pudo subir la imagen del producto: {}", e.getMessage());
+                // La imagen no es bloqueante: el producto debe guardarse igualmente.
+                huboErrorImagen = true;
             }
         }
 
@@ -254,6 +263,13 @@ public class AdminController {
         }
 
         productoService.guardar(producto);
+
+        if (huboErrorImagen) {
+            redirectAttributes.addFlashAttribute("alertaImagen",
+                    "El producto se guardó, pero la imagen no se pudo subir. "
+                    + "Usa JPG, PNG, WEBP o GIF de máximo 15 MB.");
+            return "redirect:/admin/producto?imagen=error";
+        }
         return "redirect:/admin/producto";
     }
 

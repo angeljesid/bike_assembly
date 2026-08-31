@@ -56,17 +56,23 @@ public class VentaService implements IVentaService {
                 throw new RuntimeException("No tienes permiso para vender ese producto.");
             }
 
-            int stockDisponible = producto.getStock() == null ? 0 : producto.getStock();
-            if (stockDisponible < detDTO.getCantidad()) {
+            Integer stock = producto.getStock();
+            if (stock != null && stock < detDTO.getCantidad()) {
                 throw new RuntimeException("Stock insuficiente para: " + producto.getNombre());
             }
 
             double precioUnitario = precioVenta(producto);
+            if ("SERVICIO".equalsIgnoreCase(producto.getTipo())
+                    && detDTO.getPrecioUnitario() != null && detDTO.getPrecioUnitario() > 0) {
+                precioUnitario = detDTO.getPrecioUnitario();
+            }
             double subtotal = precioUnitario * detDTO.getCantidad();
             totalCalculado += subtotal;
 
-            producto.setStock(stockDisponible - detDTO.getCantidad());
-            productoDao.save(producto);
+            if (stock != null) {
+                producto.setStock(stock - detDTO.getCantidad());
+                productoDao.save(producto);
+            }
             
             DetalleVenta detalle = new DetalleVenta();
             detalle.setVenta(venta);
@@ -100,17 +106,23 @@ public class VentaService implements IVentaService {
             Producto producto = productoDao.findById(detDTO.getIdProducto())
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
             
-            int stockDisponible = producto.getStock() == null ? 0 : producto.getStock();
-            if (stockDisponible < detDTO.getCantidad()) {
+            Integer stock = producto.getStock();
+            if (stock != null && stock < detDTO.getCantidad()) {
                 throw new RuntimeException("Stock insuficiente para: " + producto.getNombre());
             }
 
             double precioUnitario = precioVenta(producto);
+            if ("SERVICIO".equalsIgnoreCase(producto.getTipo())
+                    && detDTO.getPrecioUnitario() != null && detDTO.getPrecioUnitario() > 0) {
+                precioUnitario = detDTO.getPrecioUnitario();
+            }
             double subtotal = precioUnitario * detDTO.getCantidad();
             totalCalculado += subtotal;
 
-            producto.setStock(stockDisponible - detDTO.getCantidad());
-            productoDao.save(producto);
+            if (stock != null) {
+                producto.setStock(stock - detDTO.getCantidad());
+                productoDao.save(producto);
+            }
             
             DetalleVenta detalle = new DetalleVenta();
             detalle.setVenta(venta);

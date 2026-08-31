@@ -7,6 +7,8 @@ import com.bike_assembly.domain.Venta;
 import com.bike_assembly.repository.ProductoDao;
 import com.bike_assembly.repository.UsuarioDao;
 import com.bike_assembly.security.SessionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.bike_assembly.services.ordenservicio.IOrdenServicioService;
 import com.bike_assembly.services.solicitud.ISolicitudRepuestoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,8 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/operario")
 public class OperarioController {
+
+    private static final Logger log = LoggerFactory.getLogger(OperarioController.class);
 
     @Autowired
     private UsuarioDao usuarioDao;
@@ -119,6 +123,7 @@ public class OperarioController {
                 }
                 return "redirect:/operario/kanban-servicios?error=true";
             } catch (Exception e) {
+                log.warn("No se pudo enviar el pedido {} a caja: {}", ordenId, e.getMessage());
                 return "redirect:/operario/kanban-servicios?error=true";
             }
         }
