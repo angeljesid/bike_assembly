@@ -16,27 +16,29 @@ public interface UsuarioDao extends JpaRepository<Usuario, Long> {
 
     List<Usuario> findByOrganizacion(Organizacion organizacion);
     List<Usuario> findByOrganizacionAndActivoTrue(Organizacion organizacion);
+    @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.organizacion WHERE u.username = :username")
     Optional<Usuario> findByUsername(String username);
+    @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.organizacion WHERE u.email = :email")
     Optional<Usuario> findByEmail(String email);
     Optional<Usuario> findByResetPasswordToken(String token);
-    @Query("SELECT u FROM Usuario u WHERE u.username = :username OR u.email = :email")
+    @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.organizacion WHERE u.username = :username OR u.email = :email")
     Optional<Usuario> findByUsernameOrEmail(String username, String email);
     Optional<Usuario> findByCedula(String cedula);
     
     List<Usuario> findByNombreContainingIgnoreCaseOrCedulaContainingIgnoreCaseAndRol(String nombre, String cedula, Rol rol);
     
     boolean existsByRol(Rol rol);
-    @Query("SELECT u FROM Usuario u WHERE u.rol = :rol")
+    @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.organizacion WHERE u.rol = :rol")
     List<Usuario> findByRol(Rol rol);
 
-        @Query("SELECT u FROM Usuario u WHERE u.rol = :rol")
+        @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.organizacion WHERE u.rol = :rol")
     Page<Usuario> paginarPorRol(Rol rol, Pageable pageable);
-    @Query("SELECT u FROM Usuario u WHERE u.rol IN :roles")
+    @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.organizacion WHERE u.rol IN :roles")
     Page<Usuario> paginarPorRolesIn(List<Rol> roles, Pageable pageable);
-    @Query("SELECT u FROM Usuario u WHERE u.rol = :rol AND u.organizacion IS NULL")
+    @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.organizacion WHERE u.rol = :rol AND u.organizacion IS NULL")
     List<Usuario> findByRolAndOrganizacionIsNull(Rol rol);
-    @Query("SELECT u FROM Usuario u WHERE u.rol = :rol AND u.planSolicitado IS NOT NULL")
+    @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.organizacion WHERE u.rol = :rol AND u.planSolicitado IS NOT NULL")
     Page<Usuario> findByRolAndPlanSolicitadoIsNotNull(Rol rol, Pageable pageable);
-    @Query("SELECT u FROM Usuario u WHERE u.rol = :rol AND u.planSolicitado IS NULL")
+    @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.organizacion WHERE u.rol = :rol AND u.planSolicitado IS NULL")
     Page<Usuario> paginarPorRolSinPlan(Rol rol, Pageable pageable);
 }

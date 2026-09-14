@@ -1,0 +1,27 @@
+﻿M3 - PRUEBA DE CARGA (Apache JMeter 5.6.3)
+============================================
+Proyecto : bike_assembly (Spring Boot 4.0.6, Java 21)
+BD       : PostgreSQL localhost:5432/bike_assembly
+Config   : 100 usuarios, rampa 30s, meseta 60s, 1 ThreadGroup por ruta
+
+RESULTADOS (jul, response 200/302 solo):
+Ruta             OK     Err%   Media   P90    P95    P99    T/s
+GET /           3145   81.8%  540.6   1072   1340   4918   287.9
+/admin/proveedor 2520   84.2%  582.4   1439   1926   3030   265.5
+GET /login       744   88.6%  770.9   1542   1903   4642   108.5
+POST /login      429   93.4%  1612.9  2872   3496   8576   107.6
+/api/productos  2471   84.0%  623.1   1452   2008   3484   257.2
+
+CPU servidor (100 usuarios, en vivo): max 62.8%, prom 41.4%
+
+HALLAZGO: Bajo 100 usuarios concurrentes el servidor agota el pool de
+conexiones HikariCP (default maximum-pool-size=10) y rechaza conexiones
+(HttpHostConnectException, ~80-93% de error). El throughput real de
+respuestas exitosas es alto (257-288 req/s), pero la tasa de error supera
+el 1% objetivo. RECOMENDACION: subir spring.datasource.hikari.maximum-pool-size
+(ej. 50) y server.tomcat.max-threads (ej. 200) para cumplir el criterio.
+
+Archivos:
+- resultados_m3_v2.jtl  (datos crudos)
+- plan_carga_por_escenario.jmx (plan de carga)
+- reporte_html/        (dashboard HTML de JMeter)

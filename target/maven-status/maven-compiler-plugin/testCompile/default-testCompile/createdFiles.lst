@@ -1,5 +1,13 @@
 com\bike_assembly\security\SessionUtilsTest.class
+com\bike_assembly\services\empleado\EmpleadoServiceImplTest.class
 com\bike_assembly\services\producto\ProductoServiceTest.class
 com\bike_assembly\BikeAssemblyApplicationTests.class
+com\bike_assembly\integracion\SeguridadIT.class
+com\bike_assembly\services\PasswordValidatorTest.class
+com\bike_assembly\integracion\FlujoVentaIT.class
+com\bike_assembly\security\RedirectPorRolTest.class
+com\bike_assembly\security\LoginIntentoServiceTest.class
 com\bike_assembly\services\venta\VentaServiceTest.class
+com\bike_assembly\integracion\RepositorioIT.class
 com\bike_assembly\services\proveedor\ProveedorServiceTest.class
+com\bike_assembly\services\usuario\SuperAdminServiceTest.class

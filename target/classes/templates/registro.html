@@ -26,6 +26,11 @@
                 <span class="small text-muted d-block">Tu cuenta se activará cuando el administrador global apruebe el plan. Precio: <span class="fw-bold text-dark" th:text="'$ ' + ${precioPlan}">$50</span> /mes</span>
             </div>
 
+            <div th:if="${error}" class="alert alert-danger border-0 rounded-3 py-2 px-3 mb-3 d-flex align-items-center justify-content-center gap-2 small fw-semibold text-start" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span th:text="${error}">Error</span>
+            </div>
+
             <form th:action="@{/registro}" method="post" class="text-start">
 
                 <input type="hidden" name="plan" th:value="${plan}">
@@ -34,7 +39,7 @@
                     <label for="cedula" class="form-label fw-bold text-dark small">Cédula</label>
                     <div class="input-group-custom d-flex align-items-center">
                         <span class="input-group-text"><i class="bi bi-card-heading"></i></span>
-                        <input type="text" class="form-control" id="cedula" name="cedula" placeholder="Número de documento" required maxlength="20" pattern="[0-9]+" title="Solo números">
+                        <input type="text" class="form-control" id="cedula" name="cedula" placeholder="Número de documento" required maxlength="20" pattern="[A-Za-z0-9-]+" title="Número de documento (letras y guiones permitidos)" th:value="${usuario.cedula}">
                     </div>
                 </div>
 
@@ -42,7 +47,7 @@
                     <label for="nombre" class="form-label fw-bold text-dark small">Nombre completo</label>
                     <div class="input-group-custom d-flex align-items-center">
                         <span class="input-group-text"><i class="bi bi-person"></i></span>
-                        <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Tu nombre" required maxlength="100" minlength="2" pattern="[A-Za-z0-9 áéíóúüñÁÉÍÓÚÜÑ. ]+" title="Solo letras, números y espacios">
+                        <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Tu nombre" required maxlength="100" minlength="2" pattern="[A-Za-z0-9 áéíóúüñÁÉÍÓÚÜÑ.'-]+" title="Solo letras, números, espacios, apóstrofes y guiones" th:value="${usuario.nombre}">
                     </div>
                 </div>
 
@@ -50,7 +55,7 @@
                     <label for="username" class="form-label fw-bold text-dark small">Usuario</label>
                     <div class="input-group-custom d-flex align-items-center">
                         <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
-                        <input type="text" class="form-control" id="username" name="username" placeholder="Nombre de usuario" required maxlength="50" minlength="3" pattern="[A-Za-z0-9_.]+" title="Solo letras, números, guiones bajos y puntos">
+                        <input type="text" class="form-control" id="username" name="username" placeholder="Nombre de usuario" required maxlength="50" minlength="3" pattern="[A-Za-z0-9_.-]+" title="Solo letras, números, guiones bajos, guiones y puntos" th:value="${usuario.username}">
                     </div>
                 </div>
 
@@ -58,7 +63,7 @@
                     <label for="email" class="form-label fw-bold text-dark small">Correo electrónico</label>
                     <div class="input-group-custom d-flex align-items-center">
                         <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="ejemplo@correo.com" required maxlength="100">
+                        <input type="email" class="form-control" id="email" name="email" placeholder="ejemplo@correo.com" required maxlength="100" th:value="${usuario.email}">
                     </div>
                 </div>
 
@@ -66,7 +71,7 @@
                     <label for="telefono" class="form-label fw-bold text-dark small">Teléfono / WhatsApp</label>
                     <div class="input-group-custom d-flex align-items-center">
                         <span class="input-group-text"><i class="bi bi-phone"></i></span>
-                        <input type="tel" class="form-control" id="telefono" name="telefono" placeholder="Número de contacto" maxlength="20" pattern="[0-9+ ]+" title="Solo números, espacios y +">
+                        <input type="tel" class="form-control" id="telefono" name="telefono" placeholder="Número de contacto" maxlength="20" pattern="[0-9+ ]+" title="Solo números, espacios y +" th:value="${usuario.telefono}">
                     </div>
                 </div>
 
@@ -74,8 +79,9 @@
                     <label for="password" class="form-label fw-bold text-dark small">Contraseña</label>
                     <div class="input-group-custom d-flex align-items-center">
                         <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                        <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" required>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" required minlength="8" pattern="(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}" title="Mínimo 8 caracteres: mayúscula, minúscula, número y símbolo">
                     </div>
+                    <div class="form-text small text-muted">Mínimo 8 caracteres. Debe incluir al menos una mayúscula, una minúscula, un número y un símbolo.</div>
                 </div>
 
                 <button type="submit" class="btn btn-accent w-100 fw-bold fs-6 mb-3">Registrarse</button>

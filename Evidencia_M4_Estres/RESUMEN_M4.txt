@@ -1,0 +1,36 @@
+﻿M4 - PRUEBA DE ESTRES (Apache JMeter 5.6.3)
+============================================
+Proyecto : bike_assembly (Spring Boot 4.0.6, Java 21)
+BD       : PostgreSQL localhost:5432/bike_assembly
+Config   : SOBRECARGA PROGRESIVA 600 usuarios, rampa 180s, duracion 180s
+          2 rutas publicas en paralelo (GET / y GET /api/productos)
+
+RESULTADOS:
+Ruta             Muestras  Err%    Media   P90    P95    P99    T/s pico
+GET /            80995    88.1%   596.0   1584   2091   2831   448.7
+GET /api/productos 82672  85.9%   575.5   1769   1987   3164   458.1
+TOTAL            191613    75.5%   (throughput global 1061 req/s)
+
+PUNTO DE QUIEBRE: ~60-66 usuarios concurrentes
+- 0-66 usuarios  (0-20s) : ~95-100% de exito
+- >66 usuarios   (20s+)  : exito cae a <15% (colapso)
+- Causa: agotamiento del pool de conexiones HikariCP (default 10)
+- El servidor rechaza conexiones (HttpHostConnectException)
+
+CPU del servidor (en vivo durante el estres):
+- Max 62.5%, prom 10.6%  -> NO es el cuello de botella
+- El limite real es la conexion a la BD (HikariCP pool=10)
+
+RECUPERACION:
+- App responde 200 tras la prueba (no requiere reinicio)
+- 6 usuarios intactos y activos; la carga solo hizo GET, no modifico datos
+
+RECOMENDACION:
+- spring.datasource.hikari.maximum-pool-size >= 50
+- server.tomcat.max-threads >= 200
+Con eso el punto de quiebre se moveria mucho mas arriba.
+
+Archivos:
+- resultados_m4_estres.jtl (datos crudos, 190k muestras)
+- plan_estres.jmx          (plan de sobrecarga)
+- reporte_html/            (dashboard HTML de JMeter)
